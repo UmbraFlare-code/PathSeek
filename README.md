@@ -151,14 +151,9 @@ Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gic
 
 ## Fuentes de verdad
 
-La documentación se genera a partir de:
-
-- [requirements.md](requirements.md) — Consigna del proyecto (requerimientos, restricciones, estándares).
-- [rules2.md](rules2.md) — Normas de entrega de los 9 documentos de arquitectura, ingeniería de requisitos e impacto multidimensional.
-- Docs existentes en `docs/01 Inicio/` (01-05).
+La documentación se genera a partir de la consigna del proyecto "PathSeek" – Optimizador de Rutas Sostenibles para UGEL Huancayo, y de los documentos existentes en `docs/01 Inicio/` (01-05). Los archivos referenciales originales (`requirements.md`, `rules2.md`) fueron solo de referencia y ya no forman parte del repositorio.
 
 ## Cómo leer
 
-1. Inicia con `requirements.md` y `rules2.md` para el contexto y las reglas.
-2. Revisa `docs/01 Inicio/` en orden numérico (01 → 13) para una lectura secuencial.
-3. Cada documento incluye su propio "Control de versiones" y "Referencia" al final.
+1. Revisa `docs/01 Inicio/` en orden numérico (01 → 13) para una lectura secuencial.
+2. Cada documento incluye su propio "Control de versiones" y "Referencia" al final.
