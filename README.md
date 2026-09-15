@@ -127,6 +127,8 @@ Los siguientes elementos se repiten de forma consistente en todos los documentos
 
 **Backend:** Node.js + Express · **Frontend:** Flutter (Dart) · **Base de datos:** PostgreSQL · **Mapas:** flutter_map / OpenStreetMap · **Caché:** Redis
 
+**Arquitectura:** **Cliente-Servidor** — el frontend SPA Flutter (web para operador/dashboard y modo móvil para conductor, con caché offline) es el cliente, y consume la API REST de Node.js/Express (servidor único) mediante HTTPS/JSON. El servidor centraliza la lógica de negocio, la persistencia (PostgreSQL/Redis) y el módulo de optimización.
+
 Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gico%20V_1_0_0.md) completa en el documento 10.
 
 #### Justificaciones de la elección (Flutter + Express)
@@ -141,6 +143,7 @@ Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gic
 8. **Código abierto:** Express, Flutter y PostgreSQL cumplen RES-07.
 9. **PostgreSQL:** Soporte geográfico (PostGIS) para rutas y coordenadas.
 10. **Componentes reutilizables:** Widgets reutilizables de Flutter aceleran RF-004, RF-005 y RF-010.
+11. **Arquitectura cliente-servidor:** Frontend Flutter (cliente, web + móvil con offline) ↔ API REST Node.js/Express (servidor único) por HTTPS, con separación de responsabilidades y escalamiento independiente del servidor.
 
 ### Estándares y normativa (aplicados en todos)
 
