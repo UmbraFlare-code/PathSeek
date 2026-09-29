@@ -61,6 +61,12 @@ public class GlobalExceptionHandler {
                 .body(ApiErrorResponse.of(exception.getCode(), exception.getMessage()));
     }
 
+    @ExceptionHandler(ApiAuthenticationException.class)
+    ResponseEntity<ApiErrorResponse> handleAuthentication(ApiAuthenticationException exception) {
+        return ResponseEntity.status(exception.getStatus())
+                .body(ApiErrorResponse.of(exception.getCode(), exception.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiErrorResponse> handleUnexpected(Exception exception) {
         LOGGER.error("Error inesperado al procesar la petición", exception);

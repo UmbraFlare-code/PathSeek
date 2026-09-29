@@ -11,3 +11,11 @@ spring:
   flyway:
     enabled: true
 
+app:
+  security:
+    jwt-secret: test-only-secret-key-at-least-32-characters-long
+    access-expiration-minutes: 15
+    refresh-expiration-days: 7
+    session-inactivity-minutes: 30
+    cors-allowed-origins: http://localhost:3000
+

@@ -1,5 +1,10 @@
 package com.pathseek.backend;
 
+import com.jayway.jsonpath.JsonPath;
+import com.pathseek.backend.auth.repository.RefreshTokenRepository;
+import com.pathseek.backend.user.entity.User;
+import com.pathseek.backend.user.entity.UserRole;
+import com.pathseek.backend.user.repository.UserRepository;
 import com.pathseek.backend.vehicle.repository.VehicleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -41,9 +48,38 @@ class ApiIntegrationTests {
     @Autowired
     private VehicleRepository vehicleRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private String adminToken;
+
     @BeforeEach
-    void cleanDatabase() {
+    void cleanDatabase() throws Exception {
+        refreshTokenRepository.deleteAll();
         vehicleRepository.deleteAll();
+        userRepository.deleteAll();
+
+        User admin = new User();
+        admin.setNombre("Admin de pruebas");
+        admin.setEmail("admin-api@pathseek.test");
+        admin.setPasswordHash(passwordEncoder.encode("Admin123!"));
+        admin.setRol(UserRole.ADMIN);
+        admin.setActivo(true);
+        userRepository.saveAndFlush(admin);
+
+        String response = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"admin-api@pathseek.test","password":"Admin123!"}
+                                """))
+                .andReturn().getResponse().getContentAsString();
+        adminToken = JsonPath.read(response, "$.token");
     }
 
     @Test
@@ -66,6 +102,7 @@ class ApiIntegrationTests {
     @Test
     void createsValidVehicle() throws Exception {
         mockMvc.perform(post("/api/v1/vehiculos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_VEHICLE))
                 .andExpect(status().isCreated())
@@ -89,6 +126,7 @@ class ApiIntegrationTests {
                 """;
 
         mockMvc.perform(post("/api/v1/vehiculos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidVehicle))
                 .andExpect(status().isBadRequest())
@@ -100,11 +138,13 @@ class ApiIntegrationTests {
     @Test
     void rejectsDuplicatedPlate() throws Exception {
         mockMvc.perform(post("/api/v1/vehiculos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_VEHICLE))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/v1/vehiculos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_VEHICLE.replace("ABC-123", "abc-123")))
                 .andExpect(status().isConflict())
@@ -116,6 +156,7 @@ class ApiIntegrationTests {
     @Test
     void rejectsVehicleWithUnreasonableYear() throws Exception {
         mockMvc.perform(post("/api/v1/vehiculos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_VEHICLE.replace("2024", "2100")))
                 .andExpect(status().isUnprocessableContent())
@@ -125,7 +166,8 @@ class ApiIntegrationTests {
 
     @Test
     void returnsNotFoundForUnknownVehicle() throws Exception {
-        mockMvc.perform(get("/api/v1/vehiculos/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/vehiculos/{id}", UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("No se encontró el vehículo solicitado"));
