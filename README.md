@@ -53,6 +53,15 @@ La documentación de la Fase 02 reside en `docs/02 Planificación/`. Cada docume
 | 16  | [03 Registro de riesgos V_1_0_0.md](docs/02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md)           | Matriz de riesgos con severidad P × I y planes de mitigación/contingencia              |
 | 17  | [04 Presupuesto del proyecto V_1_0_0.md](docs/02%20Planificaci%C3%B3n/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md) | CAPEX RRHH, licenciamiento, OPEX Cloud y reserva de contingencia                       |
 
+## Documentación operativa (`docs/03 Documentación/`)
+
+Guías prácticas del proyecto, fuera de las fases 01 y 02.
+
+| Doc | Archivo                                                                                                               | Descripción                                                                            |
+| --- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 18  | [01 Guía de ejecución local V_1_0_0.md](docs/03%20Documentaci%C3%B3n/01%20Gu%C3%ADa%20de%20ejecuci%C3%B3n%20local%20V_1_0_0.md) | PostgreSQL, backend, frontend web/móvil, datos de ejemplo y troubleshooting |
+| 19  | [02 Guía para IA V_1_0_0.md](docs/03%20Documentaci%C3%B3n/02%20Gu%C3%ADa%20para%20IA%20V_1_0_0.md) | Contrato, patrones, RBAC, validaciones y reglas de trabajo con IA |
+
 ## Resumen de objetivos y KPIs
 
 Diagrama Mermaid con el resumen de los objetivos y KPIs recurrentes en la documentación:
@@ -125,25 +134,25 @@ Los siguientes elementos se repiten de forma consistente en todos los documentos
 
 ### Stack tecnológico
 
-**Backend:** Node.js + Express · **Frontend:** Flutter (Dart) · **Base de datos:** PostgreSQL · **Mapas:** flutter_map / OpenStreetMap · **Caché:** Redis
+**Backend:** Java 17 + Spring Boot 4.1 · **Frontend:** Flutter (Dart) · **Base de datos:** PostgreSQL · **Mapas:** flutter_map / OpenStreetMap
 
-**Arquitectura:** **Cliente-Servidor** — el frontend SPA Flutter (web para operador/dashboard y modo móvil para conductor, con caché offline) es el cliente, y consume la API REST de Node.js/Express (servidor único) mediante HTTPS/JSON. El servidor centraliza la lógica de negocio, la persistencia (PostgreSQL/Redis) y el módulo de optimización.
+**Arquitectura:** **Cliente-Servidor** — el frontend SPA Flutter (web para operador/dashboard y modo móvil para conductor, con caché offline) es el cliente, y consume la API REST de Spring Boot (servidor único) mediante HTTPS/JSON. El servidor centraliza la lógica de negocio, la persistencia (PostgreSQL, migraciones Flyway) y albergará el módulo de optimización. El caché distribuido (Redis) es arquitectura objetivo, no parte del MVP.
 
-Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gico%20V_1_0_0.md) completa en el documento 10.
+Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gico%20V_1_0_0.md) completa en el documento 10 y las decisiones en [ADR-07](docs/01%20Inicio/12.%20Modelo%20C4%20V_1_1_0.md).
 
-#### Justificaciones de la elección (Flutter + Express)
+#### Justificaciones de la elección (Flutter + Spring Boot)
 
 1. **Frontend multi-plataforma (Flutter/Dart):** Flutter usa Dart (tipado estático, hot reload, compilación nativa). Una sola base de código cubre web (operador/dashboard) y móvil (conductor), acelerando el MVP.
-2. **Express como backend maduro:** Framework Node.js consolidado con ecosistema enorme de middleware y soporte masivo.
-3. **Tipado estático en todo el stack:** Frontend en Dart (null safety) y backend en TypeScript; mantenibilidad y calidad en toda la solución.
+2. **Spring Boot como backend maduro:** Framework Java consolidado con seguridad (Spring Security), validación (Bean Validation), persistencia (Spring Data JPA), migraciones (Flyway) y OpenAPI integrados.
+3. **Tipado estático en todo el stack:** Frontend en Dart (null safety) y backend en Java (records, validación declarativa); mantenibilidad y calidad en toda la solución.
 4. **Flutter como framework empresarial:** UI declarativa por widgets, gestión de estado con Provider/BLoC, navegación con Navigator/go_router, formularios con validación y clientes HTTP (http/dio) para dashboard, mapas y reportes.
-5. **Escalabilidad (Node async I/O):** Maneja concurrencia (dashboard en tiempo real, tráfico) cumpliendo 1,000 pedidos / 50 vehículos.
-6. **Optimización con librerías JS/TS:** Metaheurísticas disponibles para VRPTW/Green VRP en ≤ 45 s.
-7. **Costo de infraestructura moderado:** Consumo eficiente, alineado al presupuesto y criterios eco-diseño.
-8. **Código abierto:** Express, Flutter y PostgreSQL cumplen RES-07.
+5. **Concurrencia y rendimiento (HikariCP + JPA):** Atiende el dashboard en tiempo real y el volumen de 1,000 pedidos / 50 vehículos; el cómputo de la metaheurística (≤ 45 s) se aislará en hilos dedicados.
+6. **Optimización en JVM:** Metaheurísticas para VRPTW/Green VRP implementadas en Java dentro del mismo backend (objetivo RF-003).
+7. **Costo de infraestructura moderado:** MVP monoinstancia (API + PostgreSQL), alineado al presupuesto y criterios eco-diseño; escalado horizontal como objetivo.
+8. **Código abierto:** Spring Boot, Flutter y PostgreSQL cumplen RES-07.
 9. **PostgreSQL:** Soporte geográfico (PostGIS) para rutas y coordenadas.
 10. **Componentes reutilizables:** Widgets reutilizables de Flutter aceleran RF-004, RF-005 y RF-010.
-11. **Arquitectura cliente-servidor:** Frontend Flutter (cliente, web + móvil con offline) ↔ API REST Node.js/Express (servidor único) por HTTPS, con separación de responsabilidades y escalamiento independiente del servidor.
+11. **Arquitectura cliente-servidor:** Frontend Flutter (cliente, web + móvil con offline) ↔ API REST Spring Boot (servidor único) por HTTPS, con separación de responsabilidades y escalamiento independiente del servidor.
 
 ### Estándares y normativa (aplicados en todos)
 

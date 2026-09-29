@@ -91,6 +91,38 @@ class Validators {
     return null;
   }
 
+  static String? positive(String? value, [String field = 'Este campo']) {
+    final requiredError = required(value, field);
+    if (requiredError != null) return requiredError;
+    final number = double.tryParse(value!.trim());
+    if (number == null || number <= 0) {
+      return '$field debe ser un numero mayor que 0';
+    }
+    return null;
+  }
+
+  static String? range(String? value, double min, double max,
+      [String field = 'Este campo']) {
+    final requiredError = required(value, field);
+    if (requiredError != null) return requiredError;
+    final number = double.tryParse(value!.trim());
+    if (number == null || number < min || number > max) {
+      return '$field debe estar entre $min y $max';
+    }
+    return null;
+  }
+
+  static String? year(String? value, [String field = 'Este campo']) {
+    final requiredError = required(value, field);
+    if (requiredError != null) return requiredError;
+    final number = int.tryParse(value!.trim());
+    final maxYear = DateTime.now().year + 1;
+    if (number == null || number < 1900 || number > maxYear) {
+      return '$field debe estar entre 1900 y $maxYear';
+    }
+    return null;
+  }
+
   static String? timeWindow(String? start, String? end) {
     final startError = required(start, 'La hora de inicio');
     if (startError != null) return startError;

@@ -194,7 +194,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
                               decimal: true,
                             ),
                             validator: (value) =>
-                                Validators.decimal(value, 'La capacidad en kg'),
+                                Validators.positive(value, 'La capacidad en kg'),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -209,7 +209,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
                               decimal: true,
                             ),
                             validator: (value) =>
-                                Validators.decimal(value, 'La capacidad en m3'),
+                                Validators.positive(value, 'La capacidad en m3'),
                           ),
                         ),
                       ],
@@ -228,7 +228,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
                               decimal: true,
                             ),
                             validator: (value) =>
-                                Validators.decimal(value, 'El consumo'),
+                                Validators.positive(value, 'El consumo'),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -257,7 +257,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) =>
-                          Validators.integer(value, 'El anio'),
+                          Validators.year(value, 'El anio'),
                     ),
                     const SizedBox(height: 24),
                     Row(

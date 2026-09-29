@@ -157,4 +157,46 @@ void main() {
       expect(Validators.timeWindow('08:00', ''), isNotNull);
     });
   });
+
+  group('Validators.positive', () {
+    test('accepts value greater than zero', () {
+      expect(Validators.positive('25.5', 'Peso'), isNull);
+    });
+
+    test('rejects zero to match backend exclusive minimum', () {
+      expect(
+        Validators.positive('0', 'Peso'),
+        'Peso debe ser un numero mayor que 0',
+      );
+    });
+
+    test('rejects negative and non-numeric', () {
+      expect(Validators.positive('-5', 'Peso'), isNotNull);
+      expect(Validators.positive('abc', 'Peso'), isNotNull);
+    });
+  });
+
+  group('Validators.range', () {
+    test('accepts value inside range', () {
+      expect(Validators.range('-12.0651', -90, 90, 'La latitud'), isNull);
+    });
+
+    test('rejects value outside range', () {
+      expect(
+        Validators.range('-95', -90, 90, 'La latitud'),
+        'La latitud debe estar entre -90.0 y 90.0',
+      );
+    });
+  });
+
+  group('Validators.year', () {
+    test('accepts reasonable year', () {
+      expect(Validators.year('2024', 'El anio'), isNull);
+    });
+
+    test('rejects year before 1900 and far future', () {
+      expect(Validators.year('1800', 'El anio'), isNotNull);
+      expect(Validators.year('2100', 'El anio'), isNotNull);
+    });
+  });
 }

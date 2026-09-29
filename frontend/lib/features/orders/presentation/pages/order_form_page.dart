@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../domain/entities/order.dart';
 import '../bloc/order_bloc.dart';
 import '../widgets/time_field.dart';
@@ -124,6 +125,14 @@ class _OrderFormViewState extends State<OrderFormView> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      final windowError = Validators.timeWindow(
+        _ventanaInicioController.text.trim(),
+        _ventanaFinController.text.trim(),
+      );
+      if (windowError != null) {
+        showAppSnackBar(context, windowError, isError: true);
+        return;
+      }
       final order = Order(
         id: widget.order?.id ?? '',
         clienteId: _clienteIdController.text.trim(),
@@ -233,7 +242,7 @@ class _OrderFormViewState extends State<OrderFormView> {
                               signed: true,
                             ),
                             validator: (value) =>
-                                Validators.decimal(value, 'La latitud'),
+                                Validators.range(value, -90, 90, 'La latitud'),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -248,8 +257,8 @@ class _OrderFormViewState extends State<OrderFormView> {
                               decimal: true,
                               signed: true,
                             ),
-                            validator: (value) =>
-                                Validators.decimal(value, 'La longitud'),
+                            validator: (value) => Validators.range(
+                                value, -180, 180, 'La longitud'),
                           ),
                         ),
                       ],
@@ -267,7 +276,7 @@ class _OrderFormViewState extends State<OrderFormView> {
                               decimal: true,
                             ),
                             validator: (value) =>
-                                Validators.decimal(value, 'El peso'),
+                                Validators.positive(value, 'El peso'),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -281,7 +290,7 @@ class _OrderFormViewState extends State<OrderFormView> {
                               decimal: true,
                             ),
                             validator: (value) =>
-                                Validators.decimal(value, 'El volumen'),
+                                Validators.positive(value, 'El volumen'),
                           ),
                         ),
                       ],

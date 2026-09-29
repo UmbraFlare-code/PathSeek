@@ -270,6 +270,39 @@ class CatalogIntegrationTests {
     }
 
     @Test
+    void rejectsDuplicatedOrder() throws Exception {
+        createOrder(VALID_ORDER);
+
+        mockMvc.perform(post("/api/v1/pedidos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_ORDER))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("ORDER_DUPLICATE"))
+                .andExpect(jsonPath("$.message")
+                        .value("Ya existe un pedido activo con el mismo cliente, dirección y ventana de tiempo"));
+    }
+
+    @Test
+    void cancelledOrderDoesNotBlockIdenticalOrder() throws Exception {
+        String orderId = JsonPath.read(createOrder(VALID_ORDER), "$.pedido_id");
+
+        mockMvc.perform(put("/api/v1/pedidos/{id}", orderId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_ORDER.replace(
+                                "\"prioridad\": \"ESTANDAR\"",
+                                "\"prioridad\": \"ESTANDAR\", \"estado\": \"CANCELADO\"")))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/v1/pedidos")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_ORDER))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
     void rejectsInvertedTimeWindow() throws Exception {
         mockMvc.perform(post("/api/v1/pedidos")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
@@ -315,7 +348,7 @@ class CatalogIntegrationTests {
     }
 
     @Test
-    void clientCanReadButCannotMutateOrders() throws Exception {
+    void clientCanReadAndCreateButCannotModifyOrders() throws Exception {
         createUser("client-catalog@pathseek.test", UserRole.CLIENTE, true);
         String clientToken = login("client-catalog@pathseek.test");
 
@@ -323,10 +356,23 @@ class CatalogIntegrationTests {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(post("/api/v1/pedidos")
+        String created = mockMvc.perform(post("/api/v1/pedidos")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_ORDER))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.pedido_id").isNotEmpty())
+                .andReturn().getResponse().getContentAsString();
+        String orderId = JsonPath.read(created, "$.pedido_id");
+
+        mockMvc.perform(put("/api/v1/pedidos/{id}", orderId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_ORDER))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+        mockMvc.perform(delete("/api/v1/pedidos/{id}", orderId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("FORBIDDEN"));
     }

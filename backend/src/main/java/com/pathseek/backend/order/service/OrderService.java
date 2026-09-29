@@ -1,5 +1,6 @@
 package com.pathseek.backend.order.service;
 
+import com.pathseek.backend.exception.BusinessConflictException;
 import com.pathseek.backend.exception.BusinessRuleException;
 import com.pathseek.backend.exception.ResourceNotFoundException;
 import com.pathseek.backend.order.dto.OrderRequest;
@@ -38,6 +39,7 @@ public class OrderService {
     @Transactional
     public OrderResponse create(OrderRequest request) {
         validateWindow(request.ventanaInicio(), request.ventanaFin());
+        assertNoDuplicate(request, UUID.randomUUID());
 
         Order order = new Order();
         apply(order, request, true);
@@ -49,6 +51,7 @@ public class OrderService {
         validateWindow(request.ventanaInicio(), request.ventanaFin());
 
         Order order = getOrder(id);
+        assertNoDuplicate(request, id);
         apply(order, request, false);
         return toResponse(orderRepository.saveAndFlush(order));
     }
@@ -103,6 +106,22 @@ public class OrderService {
             throw new BusinessRuleException(
                     "INVALID_ORDER_WINDOW",
                     "La hora de fin debe ser posterior a la hora de inicio");
+        }
+    }
+
+    private void assertNoDuplicate(OrderRequest request, UUID excludedId) {
+        boolean duplicated = orderRepository
+                .existsByClienteIdAndDireccionAndVentanaInicioAndVentanaFinAndEstadoNotAndIdNot(
+                        request.clienteId().trim(),
+                        request.direccion().trim(),
+                        request.ventanaInicio(),
+                        request.ventanaFin(),
+                        OrderStatus.CANCELADO,
+                        excludedId);
+        if (duplicated) {
+            throw new BusinessConflictException(
+                    "ORDER_DUPLICATE",
+                    "Ya existe un pedido activo con el mismo cliente, dirección y ventana de tiempo");
         }
     }
 }

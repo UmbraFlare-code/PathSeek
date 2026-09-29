@@ -1,6 +1,6 @@
 # PathSeek Backend
 
-API REST de PathSeek. Incluye autenticación stateless, autorización por roles y el módulo de Vehículos como referencia para los siguientes módulos.
+API REST de PathSeek. Incluye autenticación stateless, autorización por roles y el catálogo operativo: Vehículos, Conductores y Pedidos.
 
 ## Tecnologías
 
@@ -163,8 +163,8 @@ Las categorías permitidas son `AII`, `AIII`, `BII` y `BIII`. El DNI (8 dígitos
 | --- | --- | --- | --- | --- | --- | --- |
 | `GET` | `/api/v1/pedidos` | Sí | Sí | Sí | Sí | No |
 | `GET` | `/api/v1/pedidos/{id}` | Sí | Sí | Sí | Sí | No |
-| `POST` | `/api/v1/pedidos` | Sí | Sí | No | No | No |
+| `POST` | `/api/v1/pedidos` | Sí | Sí | No | Sí | No |
 | `PUT` | `/api/v1/pedidos/{id}` | Sí | Sí | No | No | No |
 | `DELETE` | `/api/v1/pedidos/{id}` | Sí | Sí | No | No | No |
 
-Valores permitidos: prioridad `EXPRESS`, `ESTANDAR`, `ECONOMICO`; tipo de producto `PERECEDERO`, `NO_PERECEDERO`; estado `PENDIENTE` (por defecto), `EN_RUTA`, `ENTREGADO`, `CANCELADO`. La ventana de tiempo usa formato `HH:mm` y la hora de fin debe ser posterior a la de inicio. `cliente_id` se guarda como texto libre hasta contar con el módulo de Clientes.
+Valores permitidos: prioridad `EXPRESS`, `ESTANDAR`, `ECONOMICO`; tipo de producto `PERECEDERO`, `NO_PERECEDERO`; estado `PENDIENTE` (por defecto), `EN_RUTA`, `ENTREGADO`, `CANCELADO`. La ventana de tiempo usa formato `HH:mm` y la hora de fin debe ser posterior a la de inicio. No se admite un pedido activo duplicado (mismo cliente, dirección y ventana): responde `409 ORDER_DUPLICATE` (RN-012). `cliente_id` se guarda como texto libre hasta contar con el módulo de Clientes.
