@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: pathseek-api
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:pathseek}
+    username: ${DB_USER:pathseek}
+    password: ${DB_PASSWORD:pathseek_local}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
