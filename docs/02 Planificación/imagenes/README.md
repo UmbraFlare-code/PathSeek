@@ -1,6 +1,6 @@
 # Carpeta de Evidencias – 02 Artefactos Jira
 
-En esta carpeta se depositan las **5 evidencias fotográficas** exigidas en el documento `../02 Artefactos Jira V_1_0_0.md`.
+En esta carpeta se depositan las **5 evidencias fotográficas** exigidas en el documento `../02 Artefactos Jira V_1_1_0.md`.
 
 ## Nomenclatura obligatoria
 

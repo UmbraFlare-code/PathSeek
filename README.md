@@ -20,11 +20,11 @@
 | **Duración**               | 14 semanas (4 iteraciones)                          |
 | **Enfoque**                | Híbrido con dominancia ágil (iterativo-incremental) |
 | **Presupuesto**            | S/ 500,000 (MVP) + S/ 120,000 anual operativo       |
-| **Versión documento**      | V_1_0_0                                             |
+| **Versión documento**      | V_1_1_0                                             |
 
 ## Índice de documentación
 
-La documentación completa reside en `docs/01 Inicio/` (Fase 01) y `docs/02 Planificación/` (Fase 02). Cada documento es accesible desde su vínculo relativo.
+La documentación completa reside en `docs/01 Inicio/` (Fase 01), `docs/02 Planificación/` (Fase 02) y `docs/03 Implementación/` (Fase 03). Cada documento es accesible desde su vínculo relativo.
 
 | Doc | Archivo                                                                                                                                   | Descripción                                                    |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -48,19 +48,22 @@ La documentación de la Fase 02 reside en `docs/02 Planificación/`. Cada docume
 
 | Doc | Archivo                                                                                                               | Descripción                                                                            |
 | --- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 14  | [01 Transformando a ágil V_1_0_0.md](docs/02%20Planificaci%C3%B3n/01%20Transformando%20a%20%C3%A1gil%20V_1_0_0.md)    | Transformación de RF/RNF a Épicas, Historias de Usuario, Enablers y Definition of Done |
-| 15  | [02 Artefactos Jira V_1_0_0.md](docs/02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_0_0.md)                     | Configuración de Jira Software: jerarquía, backlog, roadmap, sprint y releases         |
+| 14  | [01 Transformando a ágil V_1_1_0.md](docs/02%20Planificaci%C3%B3n/01%20Transformando%20a%20%C3%A1gil%20V_1_1_0.md)    | Transformación de RF/RNF a Épicas, Historias de Usuario, Enablers y Definition of Done |
+| 15  | [02 Artefactos Jira V_1_1_0.md](docs/02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_1_0.md)                     | Configuración de Jira Software: jerarquía, backlog, roadmap, sprint y releases         |
 | 16  | [03 Registro de riesgos V_1_0_0.md](docs/02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md)           | Matriz de riesgos con severidad P × I y planes de mitigación/contingencia              |
 | 17  | [04 Presupuesto del proyecto V_1_0_0.md](docs/02%20Planificaci%C3%B3n/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md) | CAPEX RRHH, licenciamiento, OPEX Cloud y reserva de contingencia                       |
 
-## Documentación operativa (`docs/03 Documentación/`)
+## Fase 03: Implementación del Proyecto
 
-Guías prácticas del proyecto, fuera de las fases 01 y 02.
+La documentación de la Fase 03 reside en `docs/03 Implementación/`. Corresponde a los entregables de gestión del **Sprint 1**. Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
 
-| Doc | Archivo                                                                                                               | Descripción                                                                            |
-| --- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 18  | [01 Guía de ejecución local V_1_0_0.md](docs/03%20Documentaci%C3%B3n/01%20Gu%C3%ADa%20de%20ejecuci%C3%B3n%20local%20V_1_0_0.md) | PostgreSQL, backend, frontend web/móvil, datos de ejemplo y troubleshooting |
-| 19  | [02 Guía para IA V_1_0_0.md](docs/03%20Documentaci%C3%B3n/02%20Gu%C3%ADa%20para%20IA%20V_1_0_0.md) | Contrato, patrones, RBAC, validaciones y reglas de trabajo con IA |
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| 20  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 1: avance 18/18 SP, métricas, impedimentos y pendientes |
+| 21  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Obstáculos del Sprint 1 con impacto, prioridad y resolución |
+| 22  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas, demostración a stakeholders y pendientes |
+| 23  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, mejoras y plan de acción |
+| 24  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/` + `backend/` en la raíz |
 
 ## Resumen de objetivos y KPIs
 
@@ -168,7 +171,7 @@ Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gic
 ## Convenciones de archivos
 
 - **Formato:** Markdown (`.md`) nativo con encabezados, tablas, diagramas Mermaid y fragmentos SQL.
-- **Nomenclatura:** `NN. Nombre del documento V_1_0_0.md` en `docs/01 Inicio/`; en `docs/02 Planificación/` los artefactos usan `NN Nombre del documento V_1_0_0.md`.
+- **Nomenclatura:** `NN. Nombre del documento V_1_0_0.md` en `docs/01 Inicio/`; en `docs/02 Planificación/` y `docs/03 Implementación/` los artefactos usan `NN Nombre del documento V_1_0_0.md`.
 - **Versionamiento:** La versión inicial es `V_1_0_0.md`; cambios menores `V_1_1_0`; revisiones estructurales `V_2_0_0`. Se preserva el historial en Git.
 - **Calidad de requisitos:** Prohibidos términos ambiguos ("fácil", "eficiente", "adecuado") y diseño técnico prematuro en descripciones atómicas.
 
@@ -179,4 +182,13 @@ La documentación se genera a partir de la consigna del proyecto "PathSeek" – 
 ## Cómo leer
 
 1. Revisa `docs/01 Inicio/` en orden numérico (01 → 13) para una lectura secuencial.
-2. Cada documento incluye su propio "Control de versiones" y "Referencia" al final.
+2. Continúa con `docs/02 Planificación/` (01 → 04) y `docs/03 Implementación/` (01 → 05).
+3. Cada documento incluye su propio "Control de versiones" y "Referencia" al final.
+
+## Control de versiones
+
+| Versión | Fecha | Descripción | Responsable |
+| --- | --- | --- | --- |
+| V_1_0_0 | 2026-09-07 | Creación inicial del README con el índice de las fases 01 y 02. | Equipo PIPRE |
+| V_1_1_0 | 2026-09-29 | Sincronización con el Sprint 1: se agrega la Fase 03 (Implementación) con enlaces a los entregables, se retiran referencias a documentos eliminados y se actualiza el versionamiento. | Equipo PIPRE |
+

@@ -1,0 +1,85 @@
+# ============================================================
+# PathSeek - .gitignore raíz (monorepo frontend/backend/database)
+# ============================================================
+
+# --- Variables de entorno y secretos ---
+.env
+.env.*
+!.env.example
+*.local
+secrets.properties
+
+# --- Logs y temporales ---
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDEs / editores ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.apt_generated
+.springBeans
+.sts4-cache
+
+# ============================================================
+# Backend (Java / Maven / Spring Boot)
+# ============================================================
+**/target/
+!.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.jar
+**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ============================================================
+# Frontend (Flutter / Dart)
+# ============================================================
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+frontend/devtools_options.yaml
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/app/debug
+frontend/android/app/profile
+frontend/android/app/release
+frontend/ios/Flutter/.last_build_id
+frontend/**/*.symbols
+frontend/**/*.map.json
+
+# ============================================================
+# Dependencias genéricas (Node / otros ecosistemas)
+# ============================================================
+node_modules/
+vendor/
+bower_components/
+.pnpm-store/
+
+# ============================================================
+# Bases de datos locales / volcados
+# ============================================================
+*.sqlite
+*.sqlite3
+*.db
+*.dump

@@ -4,7 +4,7 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-014
-Versión: V_1_0_0
+Versión: V_1_1_0
 Fecha: 2026-09-07
 
 ---
@@ -654,6 +654,8 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 
 **Total del backlog:** 89 Story Points.
 
+**Estado al cierre del Sprint 1 (2026-09-25):** los ítems **US-001, US-002, US-003 y EN-003** (18 de los 89 Story Points) quedaron **Done**, verificados conforme al DoD global. El resto de ítems permanece en el backlog priorizado para las siguientes iteraciones, comenzando por US-005 y EN-001 en el Sprint 2.
+
 ### 7.2 Notas de priorización
 
 - Los ítems 1-3 (EP-01) constituyen la base de datos maestra: sin flota, pedidos y conductores no es posible optimizar.
@@ -668,6 +670,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-09-07 | Creación inicial: transformación de RF/RNF a Épicas, US, Enablers y DoD (Fase 02: Planificación). | Equipo PIPRE |
+| V_1_1_0 | 2026-09-29 | Sincronización con el cierre del Sprint 1: se registra el estado Done de US-001, US-002, US-003 y EN-003 (18 SP) y la priorización de US-005/EN-001 para el Sprint 2. | Equipo PIPRE |
 
 ---
 
