@@ -36,7 +36,7 @@ La aplicación lee estas variables de entorno:
 | `JWT_ACCESS_EXPIRATION_MINUTES` | `15` |
 | `JWT_REFRESH_EXPIRATION_DAYS` | `7` |
 | `SESSION_INACTIVITY_MINUTES` | `30` |
-| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:8080` |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:8080` |
 | `APP_BOOTSTRAP_USER_ENABLED` | `false` |
 | `APP_BOOTSTRAP_USER_NAME` | Vacío |
 | `APP_BOOTSTRAP_USER_EMAIL` | Vacío |
@@ -144,3 +144,27 @@ Health, login, refresh, logout y Swagger son públicos. El resto de la API requi
 | `DELETE` | `/api/v1/vehiculos/{id}` | Sí | Sí | No | No |
 
 Los tipos permitidos son `CAMIONETA`, `FURGON` y `MOTO`. Las placas se guardan en mayúsculas y deben ser únicas.
+
+## Conductores
+
+| Método | Endpoint | ADMIN | OPERADOR | AUDITOR | CONDUCTOR / CLIENTE |
+| --- | --- | --- | --- | --- | --- |
+| `GET` | `/api/v1/conductores` | Sí | Sí | Sí | No |
+| `GET` | `/api/v1/conductores/{id}` | Sí | Sí | Sí | No |
+| `POST` | `/api/v1/conductores` | Sí | Sí | No | No |
+| `PUT` | `/api/v1/conductores/{id}` | Sí | Sí | No | No |
+| `DELETE` | `/api/v1/conductores/{id}` | Sí | Sí | No | No |
+
+Las categorías permitidas son `AII`, `AIII`, `BII` y `BIII`. El DNI (8 dígitos) y la licencia (formato `Q12345678`, se guarda en mayúsculas sin guiones) deben ser únicos. `usuario_id` es opcional: se omite o se envía vacío cuando el conductor aún no tiene cuenta; si se envía, debe ser un UUID válido. `disponible` por defecto es `true`.
+
+## Pedidos
+
+| Método | Endpoint | ADMIN | OPERADOR | AUDITOR | CLIENTE | CONDUCTOR |
+| --- | --- | --- | --- | --- | --- | --- |
+| `GET` | `/api/v1/pedidos` | Sí | Sí | Sí | Sí | No |
+| `GET` | `/api/v1/pedidos/{id}` | Sí | Sí | Sí | Sí | No |
+| `POST` | `/api/v1/pedidos` | Sí | Sí | No | No | No |
+| `PUT` | `/api/v1/pedidos/{id}` | Sí | Sí | No | No | No |
+| `DELETE` | `/api/v1/pedidos/{id}` | Sí | Sí | No | No | No |
+
+Valores permitidos: prioridad `EXPRESS`, `ESTANDAR`, `ECONOMICO`; tipo de producto `PERECEDERO`, `NO_PERECEDERO`; estado `PENDIENTE` (por defecto), `EN_RUTA`, `ENTREGADO`, `CANCELADO`. La ventana de tiempo usa formato `HH:mm` y la hora de fin debe ser posterior a la de inicio. `cliente_id` se guarda como texto libre hasta contar con el módulo de Clientes.

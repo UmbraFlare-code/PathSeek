@@ -1,7 +1,7 @@
 # PathSeek - Frontend (Flutter)
 
 SPA Flutter de **PathSeek**: Optimizador de Rutas Sostenibles para UGEL Huancayo.
-Cliente de la API REST de Node.js/Express (arquitectura Cliente-Servidor, ver DOC-012).
+Cliente de la API REST de Spring Boot (arquitectura Cliente-Servidor, ver DOC-012).
 
 ## Stack
 
@@ -58,9 +58,12 @@ La URL base por entorno esta en `lib/core/config/environment.dart`:
 
 | Entorno | URL |
 | --- | --- |
-| dev | `http://localhost:3000` |
+| dev | `http://localhost:8080` |
 | staging | `https://staging-api.pathseek.pe` |
 | prod | `https://api.pathseek.pe` |
+
+> Web en Chrome: usa un puerto fijo para que el CORS del backend lo acepte,
+> por ejemplo `flutter run -d chrome --web-port=5173` (origen permitido por defecto).
 
 Contrato esperado de la API (prefix `/api/v1`):
 

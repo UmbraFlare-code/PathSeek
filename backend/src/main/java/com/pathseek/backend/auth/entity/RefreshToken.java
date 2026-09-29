@@ -11,6 +11,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -29,6 +31,7 @@ public class RefreshToken {
     @JoinColumn(name = "usuario_id", nullable = false)
     private User user;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "token_hash", nullable = false, unique = true, columnDefinition = "CHAR(64)")
     private String tokenHash;
 

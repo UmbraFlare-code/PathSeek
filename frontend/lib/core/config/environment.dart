@@ -8,7 +8,7 @@ class Environment {
 
   static const Environment dev = Environment._(
     AppEnvironment.dev,
-    'http://localhost:3000',
+    'http://localhost:8080',
   );
 
   static const Environment staging = Environment._(
