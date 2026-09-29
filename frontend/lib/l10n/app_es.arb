@@ -1,0 +1,19 @@
+{
+  "@@locale": "es",
+  "appTitle": "PathSeek",
+  "appSubtitle": "Optimizador de Rutas Sostenibles",
+  "login": "Iniciar sesion",
+  "logout": "Cerrar sesion",
+  "email": "Correo electronico",
+  "password": "Contrasena",
+  "fleet": "Flota",
+  "drivers": "Conductores",
+  "orders": "Pedidos",
+  "home": "Inicio",
+  "save": "Guardar",
+  "register": "Registrar",
+  "cancel": "Cancelar",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "retry": "Reintentar"
+}

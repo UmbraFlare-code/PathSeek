@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: "jdbc:h2:mem:pathseek;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;INIT=CREATE DOMAIN IF NOT EXISTS TIMESTAMPTZ AS TIMESTAMP WITH TIME ZONE"
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+app:
+  security:
+    jwt-secret: test-only-secret-key-at-least-32-characters-long
+    access-expiration-minutes: 15
+    refresh-expiration-days: 7
+    session-inactivity-minutes: 30
+    cors-allowed-origins: http://localhost:3000
+
