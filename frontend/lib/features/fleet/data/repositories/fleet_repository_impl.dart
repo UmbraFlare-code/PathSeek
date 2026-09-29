@@ -22,16 +22,6 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Vehicle> getVehicleById(String id) async {
-    try {
-      final model = await _remoteDataSource.getVehicleById(id);
-      return model.toEntity();
-    } on DioException catch (e) {
-      throw mapDioExceptionToFailure(e);
-    }
-  }
-
-  @override
   Future<Vehicle> createVehicle(Vehicle vehicle) async {
     try {
       final model = await _remoteDataSource.createVehicle(
