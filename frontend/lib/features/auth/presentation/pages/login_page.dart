@@ -219,7 +219,7 @@ class _BrandingSection extends StatelessWidget {
         const Text(
           'Reduce costos operativos, minimiza la huella de carbono y gestiona tus flotas con algoritmos de última generación.',
           style: TextStyle(
-            color: Colors.white70,
+            color: Colors.white,
             fontSize: 16,
             height: 1.6,
           ),
@@ -265,9 +265,9 @@ class _FeatureBadge extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+            border: Border.all(color: Colors.white.withOpacity(0.3)),
           ),
           child: Text(
             number,
@@ -294,8 +294,8 @@ class _FeatureBadge extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               subtitle,
-              style: const TextStyle(
-                color: Colors.white60,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.85),
                 fontSize: 12,
               ),
             ),
@@ -316,9 +316,9 @@ class _MobileHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.2),
+            color: AppTheme.primary.withOpacity(0.3),
             shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.accent.withOpacity(0.4)),
+            border: Border.all(color: AppTheme.accent.withOpacity(0.6)),
           ),
           child: const Icon(
             Icons.route,
@@ -347,8 +347,9 @@ class _MobileHeader extends StatelessWidget {
         const Text(
           'Optimizador de Rutas Sostenibles',
           style: TextStyle(
-            color: Colors.white70,
+            color: Colors.white,
             fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -369,15 +370,15 @@ class _GlassCard extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.35),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: Colors.white.withOpacity(0.18),
+              color: Colors.white.withOpacity(0.25),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.25),
+                color: Colors.black.withOpacity(0.4),
                 blurRadius: 32,
                 spreadRadius: 4,
                 offset: const Offset(0, 12),
@@ -408,9 +409,9 @@ class _LoginCardContent extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.accent.withOpacity(0.2),
+              color: AppTheme.accent.withOpacity(0.25),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppTheme.accent.withOpacity(0.4)),
+              border: Border.all(color: AppTheme.accent.withOpacity(0.6)),
             ),
             child: const Text(
               '// INICIO DE SESIÓN',
@@ -433,10 +434,10 @@ class _LoginCardContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Ingresa tus credenciales para acceder a la plataforma',
           style: TextStyle(
-            color: Colors.white60,
+            color: Colors.white.withOpacity(0.85),
             fontSize: 13,
           ),
         ),
@@ -498,19 +499,19 @@ class _LoginFormState extends State<_LoginForm> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
-              labelStyle: const TextStyle(color: Colors.white70),
+              labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
               prefixIcon:
-                  const Icon(Icons.email_outlined, color: Colors.white70),
+                  const Icon(Icons.email_outlined, color: Colors.white),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.06),
+              fillColor: Colors.white.withOpacity(0.12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.15)),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 1.5),
+                    const BorderSide(color: AppTheme.accent, width: 2.0),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -520,7 +521,7 @@ class _LoginFormState extends State<_LoginForm> {
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.error, width: 1.5),
+                    color: Theme.of(context).colorScheme.error, width: 2.0),
               ),
             ),
             keyboardType: TextInputType.emailAddress,
@@ -533,14 +534,14 @@ class _LoginFormState extends State<_LoginForm> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Contraseña',
-              labelStyle: const TextStyle(color: Colors.white70),
-              prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+              labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+              prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscurePassword
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: Colors.white70,
+                  color: Colors.white,
                 ),
                 onPressed: () {
                   setState(() {
@@ -549,15 +550,15 @@ class _LoginFormState extends State<_LoginForm> {
                 },
               ),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.06),
+              fillColor: Colors.white.withOpacity(0.12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.15)),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 1.5),
+                    const BorderSide(color: AppTheme.accent, width: 2.0),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -567,7 +568,7 @@ class _LoginFormState extends State<_LoginForm> {
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.error, width: 1.5),
+                    color: Theme.of(context).colorScheme.error, width: 2.0),
               ),
             ),
             obscureText: _obscurePassword,

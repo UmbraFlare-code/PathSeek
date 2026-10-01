@@ -74,16 +74,6 @@ class HomeShell extends StatelessWidget {
               ),
             ),
           IconButton(
-            tooltip: 'Descargar App Móvil (APK)',
-            icon: const Icon(Icons.android, color: AppTheme.accent),
-            onPressed: () async {
-              final url = Uri.parse('/downloads/pathseek.apk');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
-              }
-            },
-          ),
-          IconButton(
             tooltip: 'Cerrar sesión',
             icon: const Icon(Icons.logout),
             onPressed: () =>
@@ -113,18 +103,57 @@ class HomeShell extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: IconButton(
-                    tooltip: 'Descargar App Móvil (APK)',
-                    icon: const Icon(Icons.android,
-                        color: AppTheme.primary, size: 28),
-                    onPressed: () async {
-                      final url = Uri.parse('/downloads/pathseek.apk');
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url,
-                            mode: LaunchMode.externalApplication);
-                      }
-                    },
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Tooltip(
+                    message: 'Descargar App Móvil (APK Conductor)',
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        final absoluteUrl =
+                            Uri.base.resolve('/downloads/pathseek.apk');
+                        try {
+                          if (await canLaunchUrl(absoluteUrl)) {
+                            await launchUrl(absoluteUrl,
+                                mode: LaunchMode.externalApplication);
+                          } else {
+                            await launchUrl(absoluteUrl,
+                                mode: LaunchMode.platformDefault);
+                          }
+                        } catch (_) {
+                          await launchUrl(absoluteUrl,
+                              mode: LaunchMode.platformDefault);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.primary.withOpacity(0.3),
+                          ),
+                        ),
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.android,
+                              color: AppTheme.primary,
+                              size: 26,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'APK',
+                              style: TextStyle(
+                                color: AppTheme.primaryDark,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
