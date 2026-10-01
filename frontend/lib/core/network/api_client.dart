@@ -62,7 +62,8 @@ class _RefreshInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     final isAuthEndpoint =
         err.requestOptions.path.contains(ApiPaths.authLogin) ||
-            err.requestOptions.path.contains(ApiPaths.authRefresh);
+            err.requestOptions.path.contains(ApiPaths.authRefresh) ||
+            err.requestOptions.path.contains(ApiPaths.authLogout);
 
     if (statusCode != 401 || isAuthEndpoint || _isRetry(err)) {
       handler.next(err);

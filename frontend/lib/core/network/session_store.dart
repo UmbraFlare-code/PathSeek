@@ -28,6 +28,8 @@ class SessionStore {
     return prefs.getString(_userKey);
   }
 
+  Future<String?> readRefreshToken() => _tokenStorage.readRefreshToken();
+
   Future<void> clear() async {
     await _tokenStorage.clear();
     final prefs = await SharedPreferences.getInstance();

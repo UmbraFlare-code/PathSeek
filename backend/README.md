@@ -43,9 +43,36 @@ La aplicación lee estas variables de entorno:
 | `APP_BOOTSTRAP_USER_PASSWORD` | Vacío |
 | `APP_BOOTSTRAP_USER_ROLE` | `ADMIN` |
 
-Usa `.env.example` como referencia. Spring Boot no carga archivos `.env` por sí solo: exporta las variables en tu terminal o configúralas en el IDE. No subas credenciales reales; `.env` está ignorado por Git.
+Spring Boot **no** carga archivos `.env` por sí solo: la variable debe existir en el entorno de la proceso. Sin esto, cada terminal nueva arranca sin `JWT_SECRET` y la aplicación muere con `JWT_SECRET debe contener al menos 32 bytes`. No subas credenciales reales; `.env` está ignorado por Git.
 
-Ejemplo en PowerShell:
+### Opción recomendada: `run-local.ps1`
+
+Carga `backend/.env` en el entorno y arranca la API. Es la vía que evita el error anterior:
+
+```powershell
+cd backend
+Copy-Item .env.example .env   # solo la primera vez
+# edita .env y pon un JWT_SECRET de 32+ caracteres
+.\run-local.ps1
+```
+
+Si PowerShell bloquea el script (ExecutionPolicy), usa el lanzador `.cmd`
+—hace lo mismo sin cambiar la configuración del sistema—:
+
+```cmd
+cd backend
+.\run-local.cmd
+```
+
+Generar un secreto aleatorio:
+
+```powershell
+$b = New-Object byte[] 48
+[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
+([System.BitConverter]::ToString($b) -replace '-','').ToLower()
+```
+
+### Opción manual: variables en la terminal
 
 ```powershell
 $env:DB_HOST="localhost"
@@ -63,7 +90,7 @@ Flyway crea y versiona el esquema al iniciar la aplicación. Hibernate únicamen
 Desde el directorio `backend`:
 
 ```powershell
-.\mvnw.cmd spring-boot:run
+.\run-local.ps1
 ```
 
 En Linux o macOS:

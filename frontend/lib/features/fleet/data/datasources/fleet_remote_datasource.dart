@@ -5,8 +5,6 @@ import '../models/vehicle_model.dart';
 abstract class FleetRemoteDataSource {
   Future<List<VehicleModel>> getVehicles();
 
-  Future<VehicleModel> getVehicleById(String id);
-
   Future<VehicleModel> createVehicle(VehicleModel vehicle);
 
   Future<VehicleModel> updateVehicle(VehicleModel vehicle);
@@ -27,15 +25,6 @@ class FleetRemoteDataSourceImpl implements FleetRemoteDataSource {
     return list
         .map((item) => VehicleModel.fromJson(item as Map<String, dynamic>))
         .toList();
-  }
-
-  @override
-  Future<VehicleModel> getVehicleById(String id) async {
-    final response =
-        await _client.dio.get('${ApiPaths.vehiculos}/$id');
-    return VehicleModel.fromJson(
-      _unwrap(response.data),
-    );
   }
 
   @override

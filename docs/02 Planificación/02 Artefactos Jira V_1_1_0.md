@@ -4,7 +4,7 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-015
-Versión: V_1_0_0
+Versión: V_1_1_0
 Fecha: 2026-09-07
 
 ---
@@ -20,7 +20,7 @@ Fecha: 2026-09-07
 | **Administrador del proyecto** | Equipo PIPRE (Project Manager) |
 | **Miembros del equipo** | Project Manager, Software Architect, 2 Developers Junior, QA Engineer, UI/UX Designer |
 | **Versión oficial creada** | `v1.0.0-MVP` |
-| **Sprint activo** | Sprint 1 (2 semanas) |
+| **Sprint activo** | Sprint 1 (2 semanas, finalizado el 2026-09-25) |
 
 ---
 
@@ -116,13 +116,13 @@ El backlog se ordenó por valor de negocio y riesgo técnico; cada elemento cuen
 
 ### 4.3 Ítems seleccionados para el Sprint 1
 
-| Clave | Resumen | Tipo | Story Points | Responsable |
-| --- | --- | --- | :---: | --- |
-| PATHSEEK-1 | US-001 Gestión de Flota | Story | 5 | Developer Junior Backend |
-| PATHSEEK-2 | US-002 Gestión de Pedidos | Story | 5 | Developer Junior Backend |
-| PATHSEEK-3 | US-003 Gestión de Conductores | Story | 3 | Developer Junior Backend |
-| PATHSEEK-6 | EN-003 Seguridad de la Plataforma (JWT + RBAC) | Task | 5 | Software Architect + Backend |
-| — | Subtareas técnicas (CRUD, validaciones, migraciones) | Sub-task | ≤ 8 h c/u | Equipo de desarrollo |
+| Clave | Resumen | Tipo | Story Points | Responsable | Estado |
+| --- | --- | --- | :---: | --- | :---: |
+| PATHSEEK-1 | US-001 Gestión de Flota | Story | 5 | Developer Junior Backend | Done |
+| PATHSEEK-2 | US-002 Gestión de Pedidos | Story | 5 | Developer Junior Backend | Done |
+| PATHSEEK-3 | US-003 Gestión de Conductores | Story | 3 | Developer Junior Backend | Done |
+| PATHSEEK-6 | EN-003 Seguridad de la Plataforma (JWT + RBAC) | Task | 5 | Software Architect + Backend | Done |
+| — | Subtareas técnicas (CRUD, validaciones, migraciones) | Sub-task | ≤ 8 h c/u | Equipo de desarrollo | Done |
 
 ### 4.4 Tablero Scrum Activo
 
@@ -136,6 +136,17 @@ El flujo de trabajo del tablero se configuró con las siguientes columnas:
 | **Done** | Finalizado | — | Cumple el DoD global y los criterios de aceptación. |
 
 Flujo: `To Do` → `In Progress` → `In Review / QA` → `Done`.
+
+### 4.5 Cierre del Sprint 1
+
+| Resultado | Valor |
+| --- | --- |
+| **Story Points comprometidos** | 18 |
+| **Story Points completados** | 18 (100 %) |
+| **Ítems traspasados al Sprint 2** | Migración Flyway `V4`, endpoint de dashboard (RF-005) y pipeline CI/CD |
+| **Pull Requests integrados** | #4 (`Feature/backend-sprint1`) y #5 (`feature/database`) |
+
+El detalle del cierre consta en los documentos de `docs/03 Implementación/` (Informe de estado, Registro de impedimentos, Revisión del Sprint y Retrospectiva).
 
 ---
 
@@ -199,6 +210,7 @@ Flujo: `To Do` → `In Progress` → `In Review / QA` → `Done`.
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-09-07 | Creación inicial: informe de parametrización de Jira Software y plantilla de evidencias (Fase 02: Planificación). | Equipo PIPRE |
+| V_1_1_0 | 2026-09-29 | Sincronización con el cierre del Sprint 1: ítems PATHSEEK-1/2/3/6 marcados como Done, resultado de 18/18 SP y sección de cierre del sprint. | Equipo PIPRE |
 
 ---
 

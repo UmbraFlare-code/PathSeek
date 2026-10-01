@@ -50,7 +50,19 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> logout() => _sessionStore.clear();
+  Future<void> logout() async {
+    final refreshToken = await _sessionStore.readRefreshToken();
+    try {
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await _remoteDataSource.logout(refreshToken: refreshToken);
+      }
+    } catch (_) {
+      // La sesión local se limpia igual: cerrar sesión no debe fallar
+      // aunque el backend no responda.
+    } finally {
+      await _sessionStore.clear();
+    }
+  }
 }
 
 extension on AuthUserModel {
