@@ -1,4 +1,4 @@
-FROM ghcr.io/cirrusci/flutter:3.24.0 AS builder
+FROM instrumentisto/flutter:3.24 AS builder
 WORKDIR /app
 
 COPY pubspec.yaml pubspec.lock ./
