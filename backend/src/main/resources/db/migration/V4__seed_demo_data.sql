@@ -5,11 +5,11 @@
 
 -- 1. USUARIOS (Password: Admin123! hashed en BCrypt)
 INSERT INTO usuarios (usuario_id, nombre, email, password_hash, rol, activo) VALUES
-('11111111-1111-1111-1111-111111111111', 'Administrador General', 'admin@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'ADMIN', TRUE),
-('22222222-2222-2222-2222-222222222222', 'Operador Logística', 'operador@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'OPERADOR', TRUE),
-('33333333-3333-3333-3333-333333333333', 'Juan Pérez Gómez', 'conductor.juan@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'CONDUCTOR', TRUE),
-('44444444-4444-4444-4444-444444444444', 'UGEL Huancayo Recepción', 'cliente.ugel@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'CLIENTE', TRUE)
-ON CONFLICT (email) DO NOTHING;
+('11111111-1111-1111-1111-111111111111', 'Administrador General', 'admin@pathseek.pe', '$2b$10$vboIuyHiFkxRdCEBaLAM4eIavvI6h/NX7AWvw0VxGR/I/MPliyvzW', 'ADMIN', TRUE),
+('22222222-2222-2222-2222-222222222222', 'Operador Logística', 'operador@pathseek.pe', '$2b$10$vboIuyHiFkxRdCEBaLAM4eIavvI6h/NX7AWvw0VxGR/I/MPliyvzW', 'OPERADOR', TRUE),
+('33333333-3333-3333-3333-333333333333', 'Juan Pérez Gómez', 'conductor.juan@pathseek.pe', '$2b$10$vboIuyHiFkxRdCEBaLAM4eIavvI6h/NX7AWvw0VxGR/I/MPliyvzW', 'CONDUCTOR', TRUE),
+('44444444-4444-4444-4444-444444444444', 'UGEL Huancayo Recepción', 'cliente.ugel@pathseek.pe', '$2b$10$vboIuyHiFkxRdCEBaLAM4eIavvI6h/NX7AWvw0VxGR/I/MPliyvzW', 'CLIENTE', TRUE)
+ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
 
 -- 2. VEHÍCULOS DE LA FLOTA UGEL HUANCAYO
 INSERT INTO vehiculos (vehiculo_id, placa, tipo, capacidad_kg, capacidad_m3, consumo_km_l, factor_emision, anio, restriccion_placa_digito) VALUES

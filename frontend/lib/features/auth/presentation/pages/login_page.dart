@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
@@ -135,6 +136,19 @@ class _LoginFormState extends State<_LoginForm> {
           ElevatedButton(
             onPressed: _submit,
             child: const Text('Iniciar sesion'),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final url = Uri.parse('/downloads/pathseek.apk');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+            icon: const Icon(Icons.android, color: Colors.green),
+            label: const Text('Descargar App Móvil (APK)'),
           ),
         ],
       ),
