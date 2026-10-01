@@ -1,0 +1,28 @@
+# ============================================================
+# PathSeek — .gitignore raíz del monorepo
+# ============================================================
+
+# Variables de entorno — NUNCA subir al repositorio
+.env
+.env.prod
+.env.local
+.env.*.local
+
+# Sobreescrituras de Docker Compose locales
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Temporales del sistema
+*.tmp
+*.bak

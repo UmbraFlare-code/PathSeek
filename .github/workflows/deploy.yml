@@ -1,0 +1,66 @@
+name: Deploy PathSeek to Contabo VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Build & Deploy on Contabo VPS
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify .env exists
+        run: |
+          if [ ! -f .env ]; then
+            echo "❌ Error: .env no encontrado. Crea el archivo .env con las variables de producción en el VPS."
+            exit 1
+          fi
+          echo "✅ .env encontrado"
+
+      - name: Pull base images (cache speedup)
+        run: |
+          docker pull postgres:16-alpine || true
+
+      - name: Build & Deploy with Docker Compose
+        run: |
+          echo "🔄 Desplegando PathSeek..."
+          docker compose -f docker-compose.prod.yml --env-file .env down --remove-orphans
+          docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+          echo "✅ Contenedores levantados"
+
+      - name: Wait for backend to be healthy
+        run: |
+          echo "⏳ Esperando que el backend esté healthy..."
+          timeout 120 bash -c '
+            until docker inspect --format="{{.State.Health.Status}}" pathseek-backend 2>/dev/null | grep -q "healthy"; do
+              echo "  Backend no listo aún..."
+              sleep 5
+            done
+          '
+          echo "✅ Backend healthy"
+
+      - name: Health Check Frontend (HTTP 200)
+        run: |
+          sleep 3
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/)
+          echo "Frontend HTTP status: $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
+          echo "✅ Frontend respondiendo con HTTP 200"
+
+      - name: Health Check Backend API via Nginx proxy
+        run: |
+          HEALTH=$(curl -s http://localhost/api/actuator/health)
+          echo "Backend health response: $HEALTH"
+          echo "$HEALTH" | grep -q '"status":"UP"'
+          echo "✅ Backend API UP"
+
+      - name: Show running containers
+        run: docker compose -f docker-compose.prod.yml ps
+
+      - name: Cleanup dangling images
+        if: always()
+        run: docker image prune -f
