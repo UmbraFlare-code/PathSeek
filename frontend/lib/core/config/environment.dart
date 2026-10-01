@@ -8,17 +8,17 @@ class Environment {
 
   static const Environment dev = Environment._(
     AppEnvironment.dev,
-    'http://localhost:8080',
+    String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8080'),
   );
 
   static const Environment staging = Environment._(
     AppEnvironment.staging,
-    'https://staging-api.pathseek.pe',
+    String.fromEnvironment('API_BASE_URL', defaultValue: 'https://169.58.74.99'),
   );
 
   static const Environment prod = Environment._(
     AppEnvironment.prod,
-    'https://api.pathseek.pe',
+    String.fromEnvironment('API_BASE_URL', defaultValue: 'https://169.58.74.99'),
   );
 
   static Environment get current {
