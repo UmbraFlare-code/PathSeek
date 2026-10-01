@@ -27,7 +27,6 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        scaffoldColorScheme: ColorScheme.light(primary: primary),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(

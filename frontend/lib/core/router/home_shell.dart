@@ -37,7 +37,7 @@ class HomeShell extends StatelessWidget {
                     'PATHSEEK',
                     style: TextStyle(
                       color: AppTheme.primaryDark,
-                      fontWeight: FontWeight.black,
+                      fontWeight: FontWeight.w900,
                       fontSize: 16,
                       letterSpacing: 1.2,
                     ),
@@ -218,7 +218,7 @@ class DashboardPage extends StatelessWidget {
                   'OPTIMIZACIÓN DE RUTAS Y FLOTAS',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.black,
+                    fontWeight: FontWeight.w900,
                     fontSize: 24,
                     letterSpacing: 0.5,
                   ),
@@ -235,7 +235,7 @@ class DashboardPage extends StatelessWidget {
                   'UGEL HUANCAYO',
                   style: TextStyle(
                     color: AppTheme.darkBg,
-                    fontWeight: FontWeight.black,
+                    fontWeight: FontWeight.w900,
                     fontSize: 24,
                     letterSpacing: 0.5,
                   ),

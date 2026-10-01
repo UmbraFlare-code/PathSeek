@@ -192,7 +192,7 @@ class _BrandingSection extends StatelessWidget {
             'OPTIMIZADOR DE RUTAS',
             style: TextStyle(
               color: Color(0xFF0F1713),
-              fontWeight: FontWeight.black,
+              fontWeight: FontWeight.w900,
               fontSize: 28,
               letterSpacing: 0.5,
             ),
@@ -209,7 +209,7 @@ class _BrandingSection extends StatelessWidget {
             'SOSTENIBLES Y EFICIENTES',
             style: TextStyle(
               color: Color(0xFF0F1713),
-              fontWeight: FontWeight.black,
+              fontWeight: FontWeight.w900,
               fontSize: 28,
               letterSpacing: 0.5,
             ),
@@ -337,7 +337,7 @@ class _MobileHeader extends StatelessWidget {
             'PATHSEEK',
             style: TextStyle(
               color: Color(0xFF0F1713),
-              fontWeight: FontWeight.black,
+              fontWeight: FontWeight.w900,
               fontSize: 22,
               letterSpacing: 1.2,
             ),

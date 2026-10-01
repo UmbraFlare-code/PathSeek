@@ -59,7 +59,7 @@ class DriverListView extends StatelessWidget {
                       'GESTIÓN DE CONDUCTORES',
                       style: TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.black,
+                        fontWeight: FontWeight.w900,
                         fontSize: 20,
                         letterSpacing: 0.5,
                       ),
