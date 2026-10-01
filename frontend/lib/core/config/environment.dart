@@ -21,7 +21,14 @@ class Environment {
     'https://api.pathseek.pe',
   );
 
-  static const Environment current = Environment.dev;
+  static Environment get current {
+    const env = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
+    return switch (env) {
+      'prod' => prod,
+      'staging' => staging,
+      _ => dev,
+    };
+  }
 
   bool get isProduction => name == AppEnvironment.prod;
 }
