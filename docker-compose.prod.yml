@@ -72,7 +72,10 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "80:80"     # Cloudflare conecta aquí → Nginx sirve SPA y hace proxy /api/
+      - "80:80"     # Redirección HTTP -> HTTPS
+      - "443:443"   # HTTPS SSL Cifrado
+    volumes:
+      - ./ssl:/etc/nginx/certs:ro
     networks:
       - pathseek-internal
 

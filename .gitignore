@@ -9,6 +9,8 @@
 !.env.prod.example
 *.local
 secrets.properties
+ssl/*.key
+ssl/*.crt
 
 # --- Docker Compose sobreescrituras locales ---
 docker-compose.override.yml
