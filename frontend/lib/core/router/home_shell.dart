@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
@@ -26,6 +27,16 @@ class HomeShell extends StatelessWidget {
               ),
             ),
           IconButton(
+            tooltip: 'Descargar App Móvil (APK)',
+            icon: const Icon(Icons.android, color: Colors.green),
+            onPressed: () async {
+              final url = Uri.parse('/downloads/pathseek.apk');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
+          IconButton(
             tooltip: 'Cerrar sesion',
             icon: const Icon(Icons.logout),
             onPressed: () =>
@@ -50,6 +61,24 @@ class HomeShell extends StatelessWidget {
               }
             },
             labelType: NavigationRailLabelType.all,
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: IconButton(
+                    tooltip: 'Descargar App Móvil (APK)',
+                    icon: const Icon(Icons.android, color: Colors.green, size: 28),
+                    onPressed: () async {
+                      final url = Uri.parse('/downloads/pathseek.apk');
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
             destinations: [
               const NavigationRailDestination(
                 icon: Icon(Icons.home),
