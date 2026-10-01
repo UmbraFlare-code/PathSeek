@@ -1,4 +1,4 @@
-FROM instrumentisto/flutter:3.41 AS builder
+FROM instrumentisto/flutter:3.41.6 AS builder
 WORKDIR /app
 
 COPY pubspec.yaml pubspec.lock ./
