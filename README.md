@@ -175,6 +175,33 @@ Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gic
 - **Versionamiento:** La versión inicial es `V_1_0_0.md`; cambios menores `V_1_1_0`; revisiones estructurales `V_2_0_0`. Se preserva el historial en Git.
 - **Calidad de requisitos:** Prohibidos términos ambiguos ("fácil", "eficiente", "adecuado") y diseño técnico prematuro en descripciones atómicas.
 
+## Despliegue y Actualización en Producción (VPS)
+
+Para actualizar el sistema completo (Frontend Web + APK Móvil, Backend Java y Base de Datos PostgreSQL) en la VPS (`169.58.74.99`), ejecuta los siguientes comandos en el servidor desde la carpeta del proyecto (`~/pathseek`):
+
+```bash
+# 1. Obtener la última versión del código fuente desde Git
+git pull origin main
+
+# 2. Reconstruir la imagen de Frontend (compila la web y genera el APK de Android)
+docker compose -f docker-compose.prod.yml build frontend
+
+# 3. (Opcional) Actualizar/Sembrar datos en la base de datos PostgreSQL
+docker exec -i pathseek-postgres psql -U pathseek_prod -d pathseek_prod < database/05_seed_demo_data.sql
+
+# 4. Levantar / Reiniciar los servicios en segundo plano
+docker compose -f docker-compose.prod.yml up -d
+```
+
+### URLs de Producción y Recursos
+- **Plataforma Web (Dashboard / Operador):** `https://169.58.74.99/`
+- **Descarga Directa de App Móvil (APK Conductor):** `https://169.58.74.99/downloads/pathseek.apk`
+- **API Health Check:** `https://169.58.74.99/api/v1/health`
+- **Credenciales de Acceso Demo:**
+  - **Administrador:** `admin@pathseek.pe` / `Admin123!`
+  - **Operador:** `operador@pathseek.pe` / `Admin123!`
+  - **Conductor:** `conductor.juan@pathseek.pe` / `Admin123!`
+
 ## Fuentes de verdad
 
 La documentación se genera a partir de la consigna del proyecto "PathSeek" – Optimizador de Rutas Sostenibles para UGEL Huancayo, y de los documentos existentes en `docs/01 Inicio/` (01-05). Los archivos referenciales originales (`requirements.md`, `rules2.md`) fueron solo de referencia y ya no forman parte del repositorio.

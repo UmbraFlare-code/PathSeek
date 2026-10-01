@@ -10,9 +10,7 @@ spring:
       ddl-auto: validate
     open-in-view: false
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: "0"
+    enabled: false
 
 springdoc:
   swagger-ui:
