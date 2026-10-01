@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -41,15 +42,28 @@ class DriverListView extends StatelessWidget {
       },
       builder: (context, state) {
         return Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(
-                    'Gestion de Conductores',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryDark,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'GESTIÓN DE CONDUCTORES',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.black,
+                        fontSize: 20,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
                   const Spacer(),
                   FilledButton.icon(
@@ -59,7 +73,7 @@ class DriverListView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Expanded(child: _buildBody(context, state)),
             ],
           ),
@@ -82,7 +96,7 @@ class DriverListView extends StatelessWidget {
 
     if (state.isEmpty) {
       return const EmptyView(
-        message: 'Aun no hay conductores registrados.',
+        message: 'Aún no hay conductores registrados.',
         icon: Icons.badge_outlined,
       );
     }
@@ -90,18 +104,35 @@ class DriverListView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${state.drivers.length} conductores registrados',
-          style: Theme.of(context).textTheme.bodySmall,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppTheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            '// ${state.drivers.length} CONDUCTORES REGISTRADOS',
+            style: const TextStyle(
+              color: AppTheme.primaryDark,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              letterSpacing: 1.0,
+            ),
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Expanded(
-          child: DriverTable(
-            drivers: state.drivers,
-            onEdit: (driver) =>
-                context.go('/drivers/${driver.id}/edit', extra: driver),
-            onDelete: (driver) =>
-                context.read<DriverBloc>().add(DriverDeleted(driver.id)),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: DriverTable(
+                drivers: state.drivers,
+                onEdit: (driver) =>
+                    context.go('/drivers/${driver.id}/edit', extra: driver),
+                onDelete: (driver) =>
+                    context.read<DriverBloc>().add(DriverDeleted(driver.id)),
+              ),
+            ),
           ),
         ),
       ],

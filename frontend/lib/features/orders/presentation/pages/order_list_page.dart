@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -41,15 +42,28 @@ class OrderListView extends StatelessWidget {
       },
       builder: (context, state) {
         return Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(
-                    'Gestion de Pedidos',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryDark,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'GESTIÓN DE PEDIDOS',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.black,
+                        fontSize: 20,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
                   const Spacer(),
                   FilledButton.icon(
@@ -59,7 +73,7 @@ class OrderListView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Expanded(child: _buildBody(context, state)),
             ],
           ),
@@ -82,7 +96,7 @@ class OrderListView extends StatelessWidget {
 
     if (state.isEmpty) {
       return const EmptyView(
-        message: 'Aun no hay pedidos registrados.',
+        message: 'Aún no hay pedidos registrados.',
         icon: Icons.inventory_2_outlined,
       );
     }
@@ -90,18 +104,35 @@ class OrderListView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${state.orders.length} pedidos registrados',
-          style: Theme.of(context).textTheme.bodySmall,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppTheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            '// ${state.orders.length} PEDIDOS REGISTRADOS',
+            style: const TextStyle(
+              color: AppTheme.primaryDark,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              letterSpacing: 1.0,
+            ),
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Expanded(
-          child: OrderTable(
-            orders: state.orders,
-            onEdit: (order) =>
-                context.go('/orders/${order.id}/edit', extra: order),
-            onDelete: (order) =>
-                context.read<OrderBloc>().add(OrderDeleted(order.id)),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: OrderTable(
+                orders: state.orders,
+                onEdit: (order) =>
+                    context.go('/orders/${order.id}/edit', extra: order),
+                onDelete: (order) =>
+                    context.read<OrderBloc>().add(OrderDeleted(order.id)),
+              ),
+            ),
           ),
         ),
       ],
