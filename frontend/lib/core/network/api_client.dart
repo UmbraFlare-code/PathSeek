@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 import '../config/environment.dart';
 import '../constants/api_paths.dart';
@@ -7,8 +10,11 @@ import '../errors/failures.dart';
 import 'token_storage.dart';
 
 class ApiClient {
-  ApiClient({required TokenStorage tokenStorage, Dio? dio})
-      : _tokenStorage = tokenStorage,
+  ApiClient({
+    required TokenStorage tokenStorage,
+    Dio? dio,
+    HttpClient? httpClient,
+  })  : _tokenStorage = tokenStorage,
         _dio = dio ??
             Dio(
               BaseOptions(
@@ -23,6 +29,15 @@ class ApiClient {
       _RefreshInterceptor(_tokenStorage, _dio),
       _ErrorInterceptor(),
     ]);
+
+    // Pin del certificado de la VPS (solo plataformas nativas).
+    // En web el adaptador del navegador gestiona su propia validacion.
+    if (httpClient != null) {
+      final adapter = _dio.httpClientAdapter;
+      if (adapter is IOHttpClientAdapter) {
+        adapter.createHttpClient = () => httpClient;
+      }
+    }
   }
 
   final TokenStorage _tokenStorage;

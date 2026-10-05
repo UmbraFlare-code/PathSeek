@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+import 'package:pathseek/core/errors/error_mapper.dart';
 import 'package:pathseek/core/network/session_store.dart';
 import 'package:pathseek/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:pathseek/features/auth/data/models/auth_response_model.dart';
@@ -21,10 +23,15 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
-    final AuthResponseModel response = await _remoteDataSource.login(
-      email: email,
-      password: password,
-    );
+    final AuthResponseModel response;
+    try {
+      response = await _remoteDataSource.login(
+        email: email,
+        password: password,
+      );
+    } on DioException catch (e) {
+      throw mapDioExceptionToFailure(e);
+    }
 
     await _sessionStore.saveSession(
       accessToken: response.token,

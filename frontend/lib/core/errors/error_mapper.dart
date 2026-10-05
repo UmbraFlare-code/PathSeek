@@ -26,7 +26,7 @@ Failure mapDioExceptionToFailure(DioException exception) {
     case 422:
       return ValidationFailure(extractMessage());
     case 401:
-      return const UnauthorizedFailure();
+      return UnauthorizedFailure(extractMessage());
     case 403:
       return const ForbiddenFailure();
     case 404:
