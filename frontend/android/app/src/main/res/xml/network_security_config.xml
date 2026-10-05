@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  PathSeek: confianza TLS por dominio.
+  - base-config: se confia en las CAs del sistema (comportamiento normal).
+  - domain-config: SOLO para la VPS 169.58.74.99 se confia en el
+    certificado auto-firmado embebido (res/raw/pathseek_cert).
+    Si el certificado de la VPS se renueva, debe reemplazarse el archivo
+    y reconstruirse el APK.
+  - cleartextTrafficPermitted=false: el trafico HTTP plano sigue bloqueado.
+-->
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">169.58.74.99</domain>
+        <trust-anchors>
+            <certificates src="@raw/pathseek_cert"/>
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

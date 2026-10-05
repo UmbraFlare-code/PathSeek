@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:get_it/get_it.dart';
 
 import '../network/api_client.dart';
+import '../network/secure_http_client.dart';
 import '../network/session_store.dart';
 import '../network/shared_prefs_token_storage.dart';
 import '../network/token_storage.dart';
@@ -30,8 +33,15 @@ Future<void> setupDependencies() async {
   locator.registerLazySingleton<SessionStore>(
     () => SessionStore(tokenStorage: locator()),
   );
+
+  // Pin TLS del certificado de la VPS (nativo: Android/iOS; en web es null)
+  HttpClient? secureHttpClient;
+  if (SecureHttpClientFactory.isSupported) {
+    secureHttpClient = await SecureHttpClientFactory.create();
+  }
+
   locator.registerLazySingleton<ApiClient>(
-    () => ApiClient(tokenStorage: locator()),
+    () => ApiClient(tokenStorage: locator(), httpClient: secureHttpClient),
   );
 
   _registerAuth();
