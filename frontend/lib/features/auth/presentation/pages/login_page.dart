@@ -124,8 +124,8 @@ class _AmbientBackground extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.accent.withOpacity(0.35),
-                    AppTheme.primary.withOpacity(0.1),
+                    AppTheme.accent.withValues(alpha: 0.35),
+                    AppTheme.primary.withValues(alpha: 0.1),
                     Colors.transparent,
                   ],
                 ),
@@ -142,8 +142,8 @@ class _AmbientBackground extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.primaryDark.withOpacity(0.4),
-                    AppTheme.primary.withOpacity(0.15),
+                    AppTheme.primaryDark.withValues(alpha: 0.4),
+                    AppTheme.primary.withValues(alpha: 0.15),
                     Colors.transparent,
                   ],
                 ),
@@ -265,9 +265,9 @@ class _FeatureBadge extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.white.withOpacity(0.3)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
           ),
           child: Text(
             number,
@@ -295,7 +295,7 @@ class _FeatureBadge extends StatelessWidget {
             Text(
               subtitle,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.85),
+                color: Colors.white.withValues(alpha: 0.85),
                 fontSize: 12,
               ),
             ),
@@ -316,9 +316,9 @@ class _MobileHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.3),
+            color: AppTheme.primary.withValues(alpha: 0.3),
             shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.accent.withOpacity(0.6)),
+            border: Border.all(color: AppTheme.accent.withValues(alpha: 0.6)),
           ),
           child: const Icon(
             Icons.route,
@@ -370,15 +370,15 @@ class _GlassCard extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.35),
+            color: Colors.black.withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: Colors.white.withOpacity(0.25),
+              color: Colors.white.withValues(alpha: 0.25),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha: 0.4),
                 blurRadius: 32,
                 spreadRadius: 4,
                 offset: const Offset(0, 12),
@@ -409,9 +409,9 @@ class _LoginCardContent extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.accent.withOpacity(0.25),
+              color: AppTheme.accent.withValues(alpha: 0.25),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppTheme.accent.withOpacity(0.6)),
+              border: Border.all(color: AppTheme.accent.withValues(alpha: 0.6)),
             ),
             child: const Text(
               '// INICIO DE SESIÓN',
@@ -437,7 +437,7 @@ class _LoginCardContent extends StatelessWidget {
         Text(
           'Ingresa tus credenciales para acceder a la plataforma',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.85),
+            color: Colors.white.withValues(alpha: 0.85),
             fontSize: 13,
           ),
         ),
@@ -499,14 +499,14 @@ class _LoginFormState extends State<_LoginForm> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
-              labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
               prefixIcon:
                   const Icon(Icons.email_outlined, color: Colors.white),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.12),
+              fillColor: Colors.white.withValues(alpha: 0.12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -534,7 +534,7 @@ class _LoginFormState extends State<_LoginForm> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Contraseña',
-              labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
               prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -550,10 +550,10 @@ class _LoginFormState extends State<_LoginForm> {
                 },
               ),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.12),
+              fillColor: Colors.white.withValues(alpha: 0.12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -585,7 +585,7 @@ class _LoginFormState extends State<_LoginForm> {
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
                 elevation: 4,
-                shadowColor: AppTheme.primary.withOpacity(0.5),
+                shadowColor: AppTheme.primary.withValues(alpha: 0.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

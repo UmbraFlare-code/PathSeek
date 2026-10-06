@@ -11,6 +11,10 @@ import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/dashboard/data/datasources/dashboard_remote_datasource.dart';
+import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import '../../features/dashboard/domain/repositories/dashboard_repository.dart';
+import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/fleet/data/datasources/fleet_remote_datasource.dart';
 import '../../features/fleet/data/repositories/fleet_repository_impl.dart';
 import '../../features/fleet/domain/repositories/fleet_repository.dart';
@@ -23,6 +27,10 @@ import '../../features/orders/data/datasources/order_remote_datasource.dart';
 import '../../features/orders/data/repositories/order_repository_impl.dart';
 import '../../features/orders/domain/repositories/order_repository.dart';
 import '../../features/orders/presentation/bloc/order_bloc.dart';
+import '../../features/routes/data/datasources/route_remote_datasource.dart';
+import '../../features/routes/data/repositories/route_repository_impl.dart';
+import '../../features/routes/domain/repositories/route_repository.dart';
+import '../../features/routes/presentation/bloc/route_bloc.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -48,6 +56,8 @@ Future<void> setupDependencies() async {
   _registerFleet();
   _registerDrivers();
   _registerOrders();
+  _registerDashboard();
+  _registerRoutes();
 }
 
 void _registerAuth() {
@@ -98,5 +108,29 @@ void _registerOrders() {
   );
   locator.registerFactory<OrderBloc>(
     () => OrderBloc(repository: locator()),
+  );
+}
+
+void _registerDashboard() {
+  locator.registerLazySingleton<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerFactory<DashboardBloc>(
+    () => DashboardBloc(repository: locator()),
+  );
+}
+
+void _registerRoutes() {
+  locator.registerLazySingleton<RouteRemoteDataSource>(
+    () => RouteRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<RouteRepository>(
+    () => RouteRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerFactory<RouteBloc>(
+    () => RouteBloc(repository: locator()),
   );
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../../core/widgets/responsive_field_row.dart';
 import '../../domain/entities/order.dart';
 import '../bloc/order_bloc.dart';
 import '../widgets/time_field.dart';
@@ -177,40 +178,35 @@ class _OrderFormViewState extends State<OrderFormView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _clienteIdController,
-                            decoration: const InputDecoration(
-                              labelText: 'ID de cliente',
-                              prefixIcon: Icon(Icons.store_outlined),
-                            ),
-                            validator: (value) =>
-                                Validators.required(value, 'El ID de cliente'),
+                        TextFormField(
+                          controller: _clienteIdController,
+                          decoration: const InputDecoration(
+                            labelText: 'ID de cliente',
+                            prefixIcon: Icon(Icons.store_outlined),
                           ),
+                          validator: (value) =>
+                              Validators.required(value, 'El ID de cliente'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _prioridad,
-                            decoration: const InputDecoration(
-                              labelText: 'Prioridad',
-                            ),
-                            items: _prioridades
-                                .map(
-                                  (prioridad) => DropdownMenuItem(
-                                    value: prioridad,
-                                    child: Text(prioridad),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _prioridad = value);
-                              }
-                            },
+                        DropdownButtonFormField<String>(
+                          initialValue: _prioridad,
+                          decoration: const InputDecoration(
+                            labelText: 'Prioridad',
                           ),
+                          items: _prioridades
+                              .map(
+                                (prioridad) => DropdownMenuItem(
+                                  value: prioridad,
+                                  child: Text(prioridad),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => _prioridad = value);
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -228,114 +224,96 @@ class _OrderFormViewState extends State<OrderFormView> {
                           Validators.required(value, 'La direccion'),
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _gpsLatController,
-                            decoration: const InputDecoration(
-                              labelText: 'Latitud GPS',
-                              prefixIcon: Icon(Icons.explore_outlined),
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                              signed: true,
-                            ),
-                            validator: (value) =>
-                                Validators.range(value, -90, 90, 'La latitud'),
+                        TextFormField(
+                          controller: _gpsLatController,
+                          decoration: const InputDecoration(
+                            labelText: 'Latitud GPS',
+                            prefixIcon: Icon(Icons.explore_outlined),
                           ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                          validator: (value) =>
+                              Validators.range(value, -90, 90, 'La latitud'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _gpsLonController,
-                            decoration: const InputDecoration(
-                              labelText: 'Longitud GPS',
-                              prefixIcon: Icon(Icons.explore_outlined),
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                              signed: true,
-                            ),
-                            validator: (value) => Validators.range(
-                                value, -180, 180, 'La longitud'),
+                        TextFormField(
+                          controller: _gpsLonController,
+                          decoration: const InputDecoration(
+                            labelText: 'Longitud GPS',
+                            prefixIcon: Icon(Icons.explore_outlined),
                           ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                          validator: (value) => Validators.range(
+                              value, -180, 180, 'La longitud'),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _pesoController,
-                            decoration: const InputDecoration(
-                              labelText: 'Peso (kg)',
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: (value) =>
-                                Validators.positive(value, 'El peso'),
+                        TextFormField(
+                          controller: _pesoController,
+                          decoration: const InputDecoration(
+                            labelText: 'Peso (kg)',
                           ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) =>
+                              Validators.positive(value, 'El peso'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _volumenController,
-                            decoration: const InputDecoration(
-                              labelText: 'Volumen (m3)',
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: (value) =>
-                                Validators.positive(value, 'El volumen'),
+                        TextFormField(
+                          controller: _volumenController,
+                          decoration: const InputDecoration(
+                            labelText: 'Volumen (m3)',
                           ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) =>
+                              Validators.positive(value, 'El volumen'),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TimeField(
-                            controller: _ventanaInicioController,
-                            labelText: 'Ventana - hora de inicio',
-                            validator: (value) =>
-                                Validators.required(value, 'La hora de inicio'),
-                          ),
+                        TimeField(
+                          controller: _ventanaInicioController,
+                          labelText: 'Ventana - hora de inicio',
+                          validator: (value) =>
+                              Validators.required(value, 'La hora de inicio'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TimeField(
-                            controller: _ventanaFinController,
-                            labelText: 'Ventana - hora de fin',
-                            validator: (value) =>
-                                Validators.required(value, 'La hora de fin'),
-                          ),
+                        TimeField(
+                          controller: _ventanaFinController,
+                          labelText: 'Ventana - hora de fin',
+                          validator: (value) =>
+                              Validators.required(value, 'La hora de fin'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _tipoProducto,
-                            decoration: const InputDecoration(
-                              labelText: 'Tipo de producto',
-                            ),
-                            items: _tiposProducto
-                                .map(
-                                  (tipo) => DropdownMenuItem(
-                                    value: tipo,
-                                    child: Text(tipo),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _tipoProducto = value);
-                              }
-                            },
+                        DropdownButtonFormField<String>(
+                          initialValue: _tipoProducto,
+                          decoration: const InputDecoration(
+                            labelText: 'Tipo de producto',
                           ),
+                          items: _tiposProducto
+                              .map(
+                                (tipo) => DropdownMenuItem(
+                                  value: tipo,
+                                  child: Text(tipo),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => _tipoProducto = value);
+                            }
+                          },
                         ),
                       ],
                     ),

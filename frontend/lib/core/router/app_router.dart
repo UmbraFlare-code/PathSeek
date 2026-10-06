@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/entities/app_user.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/drivers/domain/entities/driver.dart';
 import '../../features/drivers/presentation/pages/driver_form_page.dart';
 import '../../features/drivers/presentation/pages/driver_list_page.dart';
@@ -13,19 +14,16 @@ import '../../features/fleet/presentation/pages/vehicle_form_page.dart';
 import '../../features/orders/domain/entities/order.dart';
 import '../../features/orders/presentation/pages/order_form_page.dart';
 import '../../features/orders/presentation/pages/order_list_page.dart';
+import '../../features/routes/presentation/pages/route_detail_page.dart';
+import '../../features/routes/presentation/pages/route_list_page.dart';
 import '../constants/app_roles.dart';
+import '../constants/permissions.dart';
 import 'home_shell.dart';
 
 class AppRouter {
   AppRouter(this._authBloc);
 
   final AuthBloc _authBloc;
-
-  static const Map<String, List<String>> _routeRoles = {
-    '/fleet': [AppRoles.admin, AppRoles.operador],
-    '/drivers': [AppRoles.admin, AppRoles.operador],
-    '/orders': [AppRoles.admin, AppRoles.operador, AppRoles.cliente],
-  };
 
   late final GoRouter router = GoRouter(
     initialLocation: '/',
@@ -88,6 +86,18 @@ class AppRouter {
               ),
             ],
           ),
+          GoRoute(
+            path: '/routes',
+            builder: (context, state) => const RouteListPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) => RouteDetailPage(
+                  routeId: state.pathParameters['id'] ?? '',
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     ],
@@ -104,13 +114,54 @@ class AppRouter {
 
     if (isLoginRoute) return '/';
 
-    final allowedRoles = _routeRoles.entries
-        .where((entry) => state.matchedLocation.startsWith(entry.key))
-        .map((entry) => entry.value)
-        .firstOrNull;
+    // Roles sin dashboard (CLIENTE segun DOC-008) no permanecen en la raiz:
+    // se les envia a su modulo natural.
+    if (state.matchedLocation == '/' &&
+        !AppPermissions.canView(user, AppModule.dashboard)) {
+      return defaultHomeFor(user);
+    }
 
-    if (allowedRoles != null && !user.hasAnyRole(allowedRoles)) {
+    final requiredRoles = _rolesFor(state.matchedLocation);
+    if (requiredRoles != null && !user.hasAnyRole(requiredRoles)) {
       return '/';
+    }
+
+    return null;
+  }
+
+  /// Modulo inicial de un rol autenticado.
+  static String defaultHomeFor(AppUser? user) {
+    if (user == null) return '/login';
+    if (AppPermissions.canView(user, AppModule.dashboard)) return '/';
+    if (AppPermissions.canView(user, AppModule.orders)) return '/orders';
+    return '/';
+  }
+
+  /// Matriz RBAC del router (DOC-008): lectura vs mutacion por modulo.
+  List<String>? _rolesFor(String location) {
+    final isMutating =
+        location.endsWith('/new') || location.contains('/edit');
+
+    if (location.startsWith('/fleet') || location.startsWith('/drivers')) {
+      if (isMutating) return [AppRoles.admin, AppRoles.operador];
+      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor];
+    }
+
+    if (location.startsWith('/orders')) {
+      if (location.endsWith('/new')) {
+        return [AppRoles.admin, AppRoles.operador, AppRoles.cliente];
+      }
+      if (isMutating) return [AppRoles.admin, AppRoles.operador];
+      return [
+        AppRoles.admin,
+        AppRoles.operador,
+        AppRoles.cliente,
+        AppRoles.auditor,
+      ];
+    }
+
+    if (location.startsWith('/routes')) {
+      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor];
     }
 
     return null;

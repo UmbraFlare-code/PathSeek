@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/responsive_field_row.dart';
 import '../../domain/entities/vehicle.dart';
 import '../bloc/fleet_bloc.dart';
 
@@ -181,70 +182,60 @@ class _VehicleFormViewState extends State<VehicleFormView> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _capacidadKgController,
-                            decoration: const InputDecoration(
-                              labelText: 'Capacidad (kg)',
-                            ),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: (value) =>
-                                Validators.positive(value, 'La capacidad en kg'),
+                        TextFormField(
+                          controller: _capacidadKgController,
+                          decoration: const InputDecoration(
+                            labelText: 'Capacidad (kg)',
                           ),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) =>
+                              Validators.positive(value, 'La capacidad en kg'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _capacidadM3Controller,
-                            decoration: const InputDecoration(
-                              labelText: 'Capacidad (m3)',
-                            ),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: (value) =>
-                                Validators.positive(value, 'La capacidad en m3'),
+                        TextFormField(
+                          controller: _capacidadM3Controller,
+                          decoration: const InputDecoration(
+                            labelText: 'Capacidad (m3)',
                           ),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) =>
+                              Validators.positive(value, 'La capacidad en m3'),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _consumoController,
-                            decoration: const InputDecoration(
-                              labelText: 'Consumo (km/L)',
-                            ),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: (value) =>
-                                Validators.positive(value, 'El consumo'),
+                        TextFormField(
+                          controller: _consumoController,
+                          decoration: const InputDecoration(
+                            labelText: 'Consumo (km/L)',
                           ),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) =>
+                              Validators.positive(value, 'El consumo'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _factorEmisionController,
-                            decoration: const InputDecoration(
-                              labelText: 'Factor de emision (kg CO2/km)',
-                            ),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: (value) => Validators.decimal(
-                                value, 'El factor de emision'),
+                        TextFormField(
+                          controller: _factorEmisionController,
+                          decoration: const InputDecoration(
+                            labelText: 'Factor de emision (kg CO2/km)',
                           ),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) => Validators.decimal(
+                              value, 'El factor de emision'),
                         ),
                       ],
                     ),

@@ -1,11 +1,13 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../features/auth/domain/entities/app_user.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../constants/permissions.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key, required this.child});
@@ -16,10 +18,11 @@ class HomeShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final authState = context.watch<AuthBloc>().state;
     final user = authState.user;
+    final narrow = isNarrow(context);
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 20,
+        titleSpacing: narrow ? 12 : 20,
         title: Row(
           children: [
             Container(
@@ -48,14 +51,14 @@ class HomeShell extends StatelessWidget {
           ],
         ),
         actions: [
-          if (user != null)
+          if (user != null && !narrow)
             Container(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.25)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
               ),
               child: Row(
                 children: [
@@ -79,433 +82,214 @@ class HomeShell extends StatelessWidget {
             onPressed: () =>
                 context.read<AuthBloc>().add(const AuthLogoutRequested()),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: narrow ? 4 : 12),
         ],
       ),
-      body: Row(
-        children: [
-          NavigationRail(
-            selectedIndex: _indexFor(GoRouterState.of(context).uri.path),
-            onDestinationSelected: (index) {
-              switch (index) {
-                case 0:
-                  context.go('/');
-                case 1:
-                  context.go('/fleet');
-                case 2:
-                  context.go('/drivers');
-                case 3:
-                  context.go('/orders');
-              }
-            },
-            labelType: NavigationRailLabelType.all,
-            trailing: Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Tooltip(
-                    message: 'Descargar App Móvil (APK Conductor)',
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                        final absoluteUrl =
-                            Uri.base.resolve('/downloads/pathseek.apk');
-                        try {
-                          if (await canLaunchUrl(absoluteUrl)) {
-                            await launchUrl(absoluteUrl,
-                                mode: LaunchMode.externalApplication);
-                          } else {
-                            await launchUrl(absoluteUrl,
-                                mode: LaunchMode.platformDefault);
-                          }
-                        } catch (_) {
-                          await launchUrl(absoluteUrl,
-                              mode: LaunchMode.platformDefault);
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppTheme.primary.withOpacity(0.3),
-                          ),
-                        ),
-                        child: const Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.android,
-                              color: AppTheme.primary,
-                              size: 26,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'APK',
-                              style: TextStyle(
-                                color: AppTheme.primaryDark,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+      body: narrow
+          ? Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    color: const Color(0xFFF4F7F4),
+                    child: child,
                   ),
                 ),
-              ),
-            ),
-            destinations: [
-              const NavigationRailDestination(
-                icon: Icon(Icons.dashboard_outlined),
-                selectedIcon: Icon(Icons.dashboard),
-                label: Text('Inicio'),
-              ),
-              const NavigationRailDestination(
-                icon: Icon(Icons.local_shipping_outlined),
-                selectedIcon: Icon(Icons.local_shipping),
-                label: Text('Flota'),
-              ),
-              const NavigationRailDestination(
-                icon: Icon(Icons.badge_outlined),
-                selectedIcon: Icon(Icons.badge),
-                label: Text('Conductores'),
-              ),
-              if (user != null &&
-                  (user.isAdmin || user.isOperador || user.isCliente))
-                const NavigationRailDestination(
-                  icon: Icon(Icons.inventory_2_outlined),
-                  selectedIcon: Icon(Icons.inventory_2),
-                  label: Text('Pedidos'),
-                ),
-            ],
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(
-            child: Container(
-              color: const Color(0xFFF4F7F4),
-              child: child,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  int _indexFor(String location) {
-    if (location.startsWith('/fleet')) return 1;
-    if (location.startsWith('/drivers')) return 2;
-    if (location.startsWith('/orders')) return 3;
-    return 0;
-  }
-}
-
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Cut-Out Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text(
-              '// PANEL DE CONTROL GENERAL',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                letterSpacing: 1.5,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20), // Whitespace
-          // Cut-Out Headlines
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryDark,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'OPTIMIZACIÓN DE RUTAS Y FLOTAS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 24,
-                    letterSpacing: 0.5,
+                _BottomNav(user: user),
+              ],
+            )
+          : Row(
+              children: [
+                _SideRail(user: user),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(
+                  child: Container(
+                    color: const Color(0xFFF4F7F4),
+                    child: child,
                   ),
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppTheme.accent,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'UGEL HUANCAYO',
-                  style: TextStyle(
-                    color: AppTheme.darkBg,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 24,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Sistema integral de despacho logístico, gestión de transporte eco-eficiente y monitoreo de emisiones.',
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 15,
-            ),
-          ),
-          const SizedBox(height: 48), // Dramatic Whitespace
-          // Grid of Stat Cards
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final crossAxisCount = constraints.maxWidth > 900 ? 3 : 1;
-              return GridView.count(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 24,
-                mainAxisSpacing: 24,
-                childAspectRatio: 1.6,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _DashboardStatCard(
-                    badgeText: '01 / FLOTA',
-                    title: 'Gestión de Vehículos',
-                    description:
-                        'Control de capacidades, consumo y estado operativo de camionetas y furgones.',
-                    icon: Icons.local_shipping,
-                    actionText: 'Ver Flota',
-                    onTap: () => context.go('/fleet'),
-                  ),
-                  _DashboardStatCard(
-                    badgeText: '02 / CONDUCTORES',
-                    title: 'Conductores Registrados',
-                    description:
-                        'Monitoreo de licencias, asignaciones de vehículos y disponibilidad en ruta.',
-                    icon: Icons.badge,
-                    actionText: 'Ver Conductores',
-                    onTap: () => context.go('/drivers'),
-                  ),
-                  _DashboardStatCard(
-                    badgeText: '03 / PEDIDOS',
-                    title: 'Despacho de Pedidos',
-                    description:
-                        'Rutas programadas, estado de entrega y optimización de capacidad de carga.',
-                    icon: Icons.inventory_2,
-                    actionText: 'Ver Pedidos',
-                    onTap: () => context.go('/orders'),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 48), // Dramatic Whitespace
-          // Eco Impact Glass Card Highlight
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppTheme.primaryDark, Color(0xFF0F3818)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryDark.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
+    );
+  }
+}
+
+class _SideRail extends StatelessWidget {
+  const _SideRail({required this.user});
+
+  final AppUser? user;
+
+  @override
+  Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
+    final destinations = _destinationsFor(user, isMobile: false);
+
+    return NavigationRail(
+      selectedIndex: _selectedIndex(location, destinations),
+      onDestinationSelected: (index) {
+        final destination = destinations[index];
+        context.go(destination.path);
+      },
+      labelType: NavigationRailLabelType.all,
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Tooltip(
+              message: 'Descargar App Móvil (APK Conductor)',
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () async {
+                  final absoluteUrl = Uri.base.resolve('/downloads/pathseek.apk');
+                  try {
+                    if (await canLaunchUrl(absoluteUrl)) {
+                      await launchUrl(absoluteUrl,
+                          mode: LaunchMode.externalApplication);
+                    } else {
+                      await launchUrl(absoluteUrl,
+                          mode: LaunchMode.platformDefault);
+                    }
+                  } catch (_) {
+                    await launchUrl(absoluteUrl,
+                        mode: LaunchMode.platformDefault);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent.withOpacity(0.2),
-                    shape: BoxShape.circle,
+                    color: AppTheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.primary.withValues(alpha: 0.3),
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.eco,
-                    size: 40,
-                    color: AppTheme.accent,
-                  ),
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accent,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'IMPACTO AMBIENTAL // HUANCAYO ECO',
-                          style: TextStyle(
-                            color: AppTheme.darkBg,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Reducción Estimada de CO₂ y Ahorro de Combustible',
+                      Icon(Icons.android, color: AppTheme.primary, size: 26),
+                      SizedBox(height: 4),
+                      Text(
+                        'APK',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
+                          color: AppTheme.primaryDark,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Los algoritmos de ruta optimizada reducen hasta un 24% los kilómetros recorridos en entregas urbanas y rurales.',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
+      destinations: destinations
+          .map(
+            (destination) => NavigationRailDestination(
+              icon: Icon(destination.iconOutlined),
+              selectedIcon: Icon(destination.iconFilled),
+              label: Text(destination.label),
+            ),
+          )
+          .toList(),
     );
+  }
+
+  int _selectedIndex(String location, List<_Destination> destinations) {
+    for (var i = 0; i < destinations.length; i++) {
+      if (location.startsWith(destinations[i].path)) return i;
+    }
+    return 0;
   }
 }
 
-class _DashboardStatCard extends StatelessWidget {
-  final String badgeText;
-  final String title;
-  final String description;
-  final IconData icon;
-  final String actionText;
-  final VoidCallback onTap;
+class _BottomNav extends StatelessWidget {
+  const _BottomNav({required this.user});
 
-  const _DashboardStatCard({
-    required this.badgeText,
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.actionText,
-    required this.onTap,
-  });
+  final AppUser? user;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                        color: AppTheme.primary.withOpacity(0.2)),
-                  ),
-                  child: Text(
-                    badgeText,
-                    style: const TextStyle(
-                      color: AppTheme.primaryDark,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ),
-                Icon(icon, color: AppTheme.primary, size: 28),
-              ],
+    final location = GoRouterState.of(context).uri.path;
+    final destinations = _destinationsFor(user, isMobile: true);
+
+    return NavigationBar(
+      selectedIndex: _selectedIndex(location, destinations),
+      onDestinationSelected: (index) =>
+          context.go(destinations[index].path),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      destinations: destinations
+          .map(
+            (destination) => NavigationDestination(
+              icon: Icon(destination.iconOutlined),
+              selectedIcon: Icon(destination.iconFilled),
+              label: destination.label,
             ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E2923),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                  height: 1.4,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    actionText,
-                    style: const TextStyle(
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.arrow_forward,
-                    size: 16,
-                    color: AppTheme.primary,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          )
+          .toList(),
     );
   }
+
+  int _selectedIndex(String location, List<_Destination> destinations) {
+    for (var i = 0; i < destinations.length; i++) {
+      if (location.startsWith(destinations[i].path)) return i;
+    }
+    return 0;
+  }
+}
+
+class _Destination {
+  const _Destination({
+    required this.path,
+    required this.label,
+    required this.iconOutlined,
+    required this.iconFilled,
+  });
+
+  final String path;
+  final String label;
+  final IconData iconOutlined;
+  final IconData iconFilled;
+}
+
+List<_Destination> _destinationsFor(AppUser? user, {required bool isMobile}) {
+  final destinations = <_Destination>[
+    if (AppPermissions.canView(user, AppModule.dashboard))
+      const _Destination(
+        path: '/',
+        label: 'Inicio',
+        iconOutlined: Icons.dashboard_outlined,
+        iconFilled: Icons.dashboard,
+      ),
+    if (AppPermissions.canView(user, AppModule.fleet))
+      const _Destination(
+        path: '/fleet',
+        label: 'Flota',
+        iconOutlined: Icons.local_shipping_outlined,
+        iconFilled: Icons.local_shipping,
+      ),
+    if (AppPermissions.canView(user, AppModule.drivers))
+      const _Destination(
+        path: '/drivers',
+        label: 'Conductores',
+        iconOutlined: Icons.badge_outlined,
+        iconFilled: Icons.badge,
+      ),
+    if (AppPermissions.canView(user, AppModule.orders))
+      const _Destination(
+        path: '/orders',
+        label: 'Pedidos',
+        iconOutlined: Icons.inventory_2_outlined,
+        iconFilled: Icons.inventory_2,
+      ),
+    if (AppPermissions.canView(user, AppModule.routes))
+      const _Destination(
+        path: '/routes',
+        label: 'Rutas',
+        iconOutlined: Icons.route_outlined,
+        iconFilled: Icons.route,
+      ),
+  ];
+  return destinations;
 }

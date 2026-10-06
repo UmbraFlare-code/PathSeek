@@ -22,13 +22,15 @@ lib/
 │   ├── network/              # ApiClient (dio), TokenStorage, SessionStore
 │   ├── router/               # AppRouter (go_router + redirect RBAC), HomeShell
 │   ├── theme/                # Tema con contraste WCAG 2.1 AA
-│   ├── utils/                # Validators, Formatters
-│   └── widgets/              # Loading, Error, Empty, SnackBar
+│   ├── utils/                # Validators, Formatters, Responsive (600dp)
+│   └── widgets/              # Loading, Error, Empty, SnackBar, ResponsiveFieldRow, SearchSortControls
 ├── features/
 │   ├── auth/                 # Login, sesion JWT (EN-003)
 │   ├── fleet/                # US-001 Gestion de Flota
 │   ├── drivers/              # US-003 Gestion de Conductores
-│   └── orders/               # US-002 Gestion de Pedidos
+│   ├── orders/               # US-002 Gestion de Pedidos
+│   ├── routes/               # US-005 Generacion de Rutas Optimizadas
+│   └── dashboard/            # US-008 Dashboard de Indicadores
 └── l10n/                     # Strings en espanol (app_es.arb)
 ```
 
@@ -71,11 +73,76 @@ Contrato esperado de la API (prefix `/api/v1`):
 | --- | --- | --- |
 | POST | `/api/v1/auth/login` | EN-003 |
 | POST | `/api/v1/auth/refresh` | EN-003 |
+| POST | `/api/v1/auth/logout` | EN-003 |
 | CRUD | `/api/v1/vehiculos` | US-001 |
 | CRUD | `/api/v1/conductores` | US-003 |
 | CRUD | `/api/v1/pedidos` | US-002 |
+| GET | `/api/v1/rutas?fecha=YYYY-MM-DD` | US-005 |
+| GET | `/api/v1/rutas/{id}` | US-005 |
+| POST | `/api/v1/rutas/generar` | US-005 |
+| DELETE | `/api/v1/rutas/{id}` | US-005 |
+| GET | `/api/v1/dashboard/resumen` | US-008 |
 
 Login devuelve `{ token, refreshToken, usuario: { usuario_id, nombre, email, rol } }`.
+
+### Contrato Sprint 2 (fuente de verdad para el backend)
+
+**`POST /api/v1/rutas/generar`** (roles ADMIN/OPERADOR · SLA ≤ 45 s):
+
+```json
+{
+  "rutas": [
+    {
+      "ruta_id": "uuid",
+      "fecha": "YYYY-MM-DD",
+      "conductor_id": "uuid",
+      "conductor_nombre": "Carlos Gomez",
+      "vehiculo_id": "uuid",
+      "placa": "ABC123",
+      "distancia_km": 45.2,
+      "co2_kg": 11.3,
+      "combustible_l": 8.5,
+      "estado": "PLANIFICADA",
+      "pedidos": [
+        {
+          "pedido_id": "uuid",
+          "orden": 1,
+          "hora_estimada": "HH:mm",
+          "direccion": "Av. Real 123",
+          "gps_lat": -12.0678,
+          "gps_lon": -75.2132,
+          "peso": 20,
+          "ventana_inicio": "HH:mm",
+          "ventana_fin": "HH:mm"
+        }
+      ]
+    }
+  ],
+  "pedidos_no_asignados": ["uuid"]
+}
+```
+
+- `GET /api/v1/rutas` devuelve la lista con los mismos campos (puede omitir `pedidos`).
+- `GET /api/v1/rutas/{id}` devuelve la ruta completa con `pedidos`.
+- `DELETE /api/v1/rutas/{id}` → 204.
+- Estados de ruta: `PLANIFICADA`, `EN_PROGRESO`, `COMPLETADA`, `CANCELADA`.
+
+**`GET /api/v1/dashboard/resumen`** (roles ADMIN/OPERADOR/AUDITOR/**CONDUCTOR**) —
+retorno directo del `sp_obtener_resumen_dashboard`:
+
+```json
+{
+  "total_vehiculos": 15,
+  "conductores_disponibles": 8,
+  "pedidos_pendientes": 22,
+  "pedidos_en_ruta": 5,
+  "pedidos_entregados": 40,
+  "pedidos_cancelados": 2,
+  "rutas_planificadas": 6,
+  "co2_total_kg": 125.5,
+  "combustible_total_l": 300.25
+}
+```
 
 ## App movil (APK) y certificado SSL de la VPS
 
@@ -119,11 +186,28 @@ usa su propio motor (BoringSSL).
    ```
 3. Reconstruir el APK (`docker compose -f docker-compose.prod.yml build frontend`).
 
+## Responsive y RBAC
+
+- **Responsive** (breakpoint 600dp en `core/utils/responsive.dart`): en telefono la
+  navegacion usa `NavigationBar` inferior y los formularios apilan sus campos
+  (`core/widgets/responsive_field_row.dart`).
+- **Listas en tarjetas** (flota, conductores y pedidos): grid responsive
+  (1-4 columnas segun ancho) con **busqueda y ordenamiento** client-side
+  (`SearchSortControls` + funciones puras `*_filters.dart` por feature); la misma
+  tarjeta sirve para web y movil.
+- **RBAC** (DOC-008): la matriz de permisos por rol y modulo vive en
+  `core/constants/permissions.dart`. El router aplica guards por ruta **y accion**
+  (`/new`, `/:id/edit`) y la UI oculta botones y modulos segun el rol:
+  - ADMIN/OPERADOR: escritura total (flota, conductores, pedidos, rutas)
+  - AUDITOR: solo lectura en todos los modulos
+  - CLIENTE: crea y lee pedidos (sin editar/eliminar); su pantalla inicial es Pedidos
+  - CONDUCTOR: dashboard basico (lectura) hasta el modo conductor (EP-03)
+
 ## Calidad (DoD global)
 
 ```bash
 flutter analyze          # 0 issues
-flutter test             # 95 tests
+flutter test             # 136 tests
 flutter test --coverage  # >= 80% cobertura (requisito DoD)
 flutter build web        # compilacion release
 ```
