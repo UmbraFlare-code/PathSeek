@@ -9,6 +9,8 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../domain/entities/delivery_route.dart';
 import '../bloc/route_bloc.dart';
+import '../widgets/elevation_profile_widget.dart';
+import '../widgets/interactive_route_map.dart';
 
 class RouteDetailPage extends StatelessWidget {
   const RouteDetailPage({super.key, required this.routeId});
@@ -33,7 +35,7 @@ class RouteDetailView extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Detalle de ruta'),
+            title: const Text('Detalle de ruta y mapa'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () => context.pop(),
@@ -47,7 +49,7 @@ class RouteDetailView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, RouteState state) {
     if (state.isDetailLoading) {
-      return const LoadingIndicator(message: 'Cargando ruta...');
+      return const LoadingIndicator(message: 'Cargando ruta y contexto vial...');
     }
 
     if (state.hasDetailError) {
@@ -65,7 +67,20 @@ class RouteDetailView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _MetricsHeader(route: route),
+          const SizedBox(height: 16),
+
+          // 1. Mapa Interactivo de la Ruta
+          InteractiveRouteMap(
+            route: route,
+            height: 360,
+          ),
+          const SizedBox(height: 16),
+
+          // 2. Perfil Altimétrico y Calzada
+          ElevationProfileWidget(route: route),
           const SizedBox(height: 20),
+
+          // 3. Lista de Entregas en Secuencia
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
@@ -73,7 +88,7 @@ class RouteDetailView extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              '// ${route.pedidos.length} ENTREGAS EN ORDEN',
+              '// ${route.pedidos.length} ENTREGAS EN ORDEN SECUENCIAL',
               style: const TextStyle(
                 color: AppTheme.primaryDark,
                 fontWeight: FontWeight.bold,
@@ -110,20 +125,41 @@ class _MetricsHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'RUTA // PLANIFICADA',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 16,
-                letterSpacing: 0.5,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'RUTA // PLANIFICADA (VRPTW)',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accent.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.accent),
+                  ),
+                  child: const Text(
+                    'OSM ROAD CONTEXT',
+                    style: TextStyle(
+                      color: AppTheme.accent,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
-              '${route.fecha} · ${route.conductorNombre ?? 'Sin conductor'} · '
-              '${route.placa ?? 'Sin vehiculo'}',
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              '${route.fecha} · Conductor: ${route.conductorNombre ?? 'Sin asignar'} · '
+              'Placa: ${route.placa ?? 'Sin vehículo'}',
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -131,7 +167,7 @@ class _MetricsHeader extends StatelessWidget {
               runSpacing: 12,
               children: [
                 _Metric(label: 'Distancia', value: Formatters.km(route.distanciaKm)),
-                _Metric(label: 'CO2', value: Formatters.co2(route.co2Kg)),
+                _Metric(label: 'CO2 Estimado', value: Formatters.co2(route.co2Kg)),
                 _Metric(label: 'Combustible', value: Formatters.liters(route.combustibleL)),
                 _Metric(label: 'Estado', value: route.estado),
               ],
@@ -158,17 +194,17 @@ class _Metric extends StatelessWidget {
           label.toUpperCase(),
           style: const TextStyle(
             color: AppTheme.accent,
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.0,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -184,28 +220,70 @@ class _OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ctx = pedido.contextoVial;
+    final isTrocha = ctx.tipoSuperficie == 'TROCHA' || ctx.tipoSuperficie == 'AFIRMADO';
+
     return Card(
+      margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
+          backgroundColor: isTrocha
+              ? Colors.orange.withValues(alpha: 0.15)
+              : AppTheme.primary.withValues(alpha: 0.12),
           child: Text(
             '${pedido.orden}',
-            style: const TextStyle(
-              color: AppTheme.primaryDark,
+            style: TextStyle(
+              color: isTrocha ? Colors.orange.shade900 : AppTheme.primaryDark,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        title: Text(pedido.direccion ?? 'Direccion no disponible'),
-        subtitle: Text(
-          [
-            if (pedido.horaEstimada != null)
-              'Estimado: ${pedido.horaEstimada}',
-            if (pedido.ventanaInicio != null && pedido.ventanaFin != null)
-              'Ventana: ${pedido.ventanaInicio} - ${pedido.ventanaFin}',
-            if (pedido.peso != null)
-              'Peso: ${Formatters.decimal.format(pedido.peso)} kg',
-          ].join(' · '),
+        title: Text(
+          pedido.direccion ?? 'Dirección no disponible',
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 2),
+            Text(
+              [
+                if (pedido.horaEstimada != null) 'Estimado: ${pedido.horaEstimada}',
+                if (pedido.ventanaInicio != null && pedido.ventanaFin != null)
+                  'Ventana: ${pedido.ventanaInicio} - ${pedido.ventanaFin}',
+                if (pedido.peso != null) '${Formatters.decimal.format(pedido.peso)} kg',
+              ].join(' · '),
+              style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isTrocha ? Colors.orange.shade50 : Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: isTrocha ? Colors.orange.shade300 : Colors.green.shade300,
+                    ),
+                  ),
+                  child: Text(
+                    '${ctx.tipoSuperficie} · ${ctx.elevacionMetros} m',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: isTrocha ? Colors.orange.shade900 : Colors.green.shade900,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Pendiente: ${ctx.pendientePorcentaje}% · ${ctx.nivelCongestion}',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -75,9 +75,13 @@ class SecurityIntegrationTests {
     @Autowired
     private JwtEncoder jwtEncoder;
 
+    @Autowired
+    private com.pathseek.backend.route.repository.DeliveryRouteRepository routeRepository;
+
     @BeforeEach
     void cleanDatabase() {
         refreshTokenRepository.deleteAll();
+        routeRepository.deleteAll();
         vehicleRepository.deleteAll();
         userRepository.deleteAll();
     }

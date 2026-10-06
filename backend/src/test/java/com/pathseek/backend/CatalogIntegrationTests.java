@@ -82,9 +82,13 @@ class CatalogIntegrationTests {
 
     private String adminToken;
 
+    @Autowired
+    private com.pathseek.backend.route.repository.DeliveryRouteRepository routeRepository;
+
     @BeforeEach
     void cleanDatabase() throws Exception {
         refreshTokenRepository.deleteAll();
+        routeRepository.deleteAll();
         driverRepository.deleteAll();
         orderRepository.deleteAll();
         userRepository.deleteAll();

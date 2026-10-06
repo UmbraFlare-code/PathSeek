@@ -12,6 +12,11 @@ class RouteOrderModel extends Equatable {
     this.peso,
     this.ventanaInicio,
     this.ventanaFin,
+    this.cumplioVentana = true,
+    this.tipoSuperficie = 'ASFALTO',
+    this.elevacionMetros = 3260,
+    this.pendientePorcentaje = 2.5,
+    this.nivelCongestion = 'FLUIDO',
   });
 
   final String pedidoId;
@@ -23,18 +28,39 @@ class RouteOrderModel extends Equatable {
   final double? peso;
   final String? ventanaInicio;
   final String? ventanaFin;
+  final bool? cumplioVentana;
+  final String tipoSuperficie;
+  final int elevacionMetros;
+  final double pendientePorcentaje;
+  final String nivelCongestion;
 
   factory RouteOrderModel.fromJson(Map<String, dynamic> json) {
+    final ctx = json['contexto_vial'] ?? json['contextoVial'];
+    Map<String, dynamic>? ctxMap = ctx is Map<String, dynamic> ? ctx : null;
+
     return RouteOrderModel(
-      pedidoId: (json['pedido_id'] ?? '').toString(),
+      pedidoId: (json['pedido_id'] ?? json['pedidoId'] ?? '').toString(),
       orden: _toInt(json['orden']),
-      horaEstimada: _toStringOrNull(json['hora_estimada']),
+      horaEstimada: _toStringOrNull(json['hora_estimada'] ?? json['horaEstimada']),
       direccion: _toStringOrNull(json['direccion']),
-      gpsLat: _toDoubleOrNull(json['gps_lat']),
-      gpsLon: _toDoubleOrNull(json['gps_lon']),
+      gpsLat: _toDoubleOrNull(json['gps_lat'] ?? json['gpsLat']),
+      gpsLon: _toDoubleOrNull(json['gps_lon'] ?? json['gpsLon']),
       peso: _toDoubleOrNull(json['peso']),
-      ventanaInicio: _toStringOrNull(json['ventana_inicio']),
-      ventanaFin: _toStringOrNull(json['ventana_fin']),
+      ventanaInicio: _toStringOrNull(json['ventana_inicio'] ?? json['ventanaInicio']),
+      ventanaFin: _toStringOrNull(json['ventana_fin'] ?? json['ventanaFin']),
+      cumplioVentana: json['cumplio_ventana'] ?? json['cumplioVentana'] ?? true,
+      tipoSuperficie: ctxMap != null
+          ? _toString(ctxMap['tipo_superficie'] ?? ctxMap['tipoSuperficie'] ?? 'ASFALTO')
+          : 'ASFALTO',
+      elevacionMetros: ctxMap != null
+          ? _toInt(ctxMap['elevacion_metros'] ?? ctxMap['elevacionMetros'] ?? 3260)
+          : 3260,
+      pendientePorcentaje: ctxMap != null
+          ? _toDouble(ctxMap['pendiente_media_porcentaje'] ?? ctxMap['pendienteMediaPorcentaje'] ?? 2.5)
+          : 2.5,
+      nivelCongestion: ctxMap != null
+          ? _toString(ctxMap['nivel_congestion'] ?? ctxMap['nivelCongestion'] ?? 'FLUIDO')
+          : 'FLUIDO',
     );
   }
 
@@ -48,6 +74,13 @@ class RouteOrderModel extends Equatable {
         peso: peso,
         ventanaInicio: ventanaInicio,
         ventanaFin: ventanaFin,
+        cumplioVentana: cumplioVentana,
+        contextoVial: RoadContext(
+          tipoSuperficie: tipoSuperficie,
+          elevacionMetros: elevacionMetros,
+          pendientePorcentaje: pendientePorcentaje,
+          nivelCongestion: nivelCongestion,
+        ),
       );
 
   @override
@@ -61,6 +94,11 @@ class RouteOrderModel extends Equatable {
         peso,
         ventanaInicio,
         ventanaFin,
+        cumplioVentana,
+        tipoSuperficie,
+        elevacionMetros,
+        pendientePorcentaje,
+        nivelCongestion,
       ];
 }
 
@@ -77,6 +115,7 @@ class DeliveryRouteModel extends Equatable {
     this.combustibleL = 0,
     this.estado = 'PLANIFICADA',
     this.pedidos = const [],
+    this.encodedPolyline,
   });
 
   final String id;
@@ -90,6 +129,7 @@ class DeliveryRouteModel extends Equatable {
   final double combustibleL;
   final String estado;
   final List<RouteOrderModel> pedidos;
+  final String? encodedPolyline;
 
   factory DeliveryRouteModel.fromJson(Map<String, dynamic> json) {
     final pedidosJson = json['pedidos'];
@@ -100,17 +140,18 @@ class DeliveryRouteModel extends Equatable {
         : <RouteOrderModel>[];
 
     return DeliveryRouteModel(
-      id: (json['ruta_id'] ?? '').toString(),
+      id: (json['ruta_id'] ?? json['id'] ?? '').toString(),
       fecha: _toString(json['fecha']),
-      conductorId: _toStringOrNull(json['conductor_id']),
-      conductorNombre: _toStringOrNull(json['conductor_nombre']),
-      vehiculoId: _toStringOrNull(json['vehiculo_id']),
+      conductorId: _toStringOrNull(json['conductor_id'] ?? json['conductorId']),
+      conductorNombre: _toStringOrNull(json['conductor_nombre'] ?? json['conductorNombre']),
+      vehiculoId: _toStringOrNull(json['vehiculo_id'] ?? json['vehiculoId']),
       placa: _toStringOrNull(json['placa']),
-      distanciaKm: _toDouble(json['distancia_km']),
-      co2Kg: _toDouble(json['co2_kg']),
-      combustibleL: _toDouble(json['combustible_l']),
+      distanciaKm: _toDouble(json['distancia_km'] ?? json['distanciaKm']),
+      co2Kg: _toDouble(json['co2_kg'] ?? json['co2Kg']),
+      combustibleL: _toDouble(json['combustible_l'] ?? json['combustibleL']),
       estado: (json['estado'] ?? 'PLANIFICADA').toString(),
       pedidos: pedidos,
+      encodedPolyline: _toStringOrNull(json['encoded_polyline'] ?? json['encodedPolyline']),
     );
   }
 
@@ -126,6 +167,7 @@ class DeliveryRouteModel extends Equatable {
         combustibleL: combustibleL,
         estado: estado,
         pedidos: pedidos.map((p) => p.toEntity()).toList(),
+        encodedPolyline: encodedPolyline,
       );
 
   @override
@@ -141,6 +183,7 @@ class DeliveryRouteModel extends Equatable {
         combustibleL,
         estado,
         pedidos,
+        encodedPolyline,
       ];
 }
 

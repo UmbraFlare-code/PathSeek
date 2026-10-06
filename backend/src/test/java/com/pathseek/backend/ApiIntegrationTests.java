@@ -59,9 +59,13 @@ class ApiIntegrationTests {
 
     private String adminToken;
 
+    @Autowired
+    private com.pathseek.backend.route.repository.DeliveryRouteRepository routeRepository;
+
     @BeforeEach
     void cleanDatabase() throws Exception {
         refreshTokenRepository.deleteAll();
+        routeRepository.deleteAll();
         vehicleRepository.deleteAll();
         userRepository.deleteAll();
 
