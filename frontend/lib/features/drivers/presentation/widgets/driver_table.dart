@@ -9,30 +9,36 @@ class DriverTable extends StatelessWidget {
     required this.drivers,
     required this.onEdit,
     required this.onDelete,
+    this.canEdit = true,
+    this.canDelete = true,
   });
 
   final List<Driver> drivers;
   final ValueChanged<Driver> onEdit;
   final ValueChanged<Driver> onDelete;
+  final bool canEdit;
+  final bool canDelete;
 
-  static const List<String> _headers = [
-    'DNI',
-    'Nombre',
-    'Licencia',
-    'Categoria',
-    'Experiencia',
-    'Disponible',
-    'Contacto',
-    'Acciones',
-  ];
+  bool get _showActions => canEdit || canDelete;
 
   @override
   Widget build(BuildContext context) {
+    final headers = [
+      'DNI',
+      'Nombre',
+      'Licencia',
+      'Categoria',
+      'Experiencia',
+      'Disponible',
+      'Contacto',
+      if (_showActions) 'Acciones',
+    ];
+
     return Card(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          columns: _headers
+          columns: headers
               .map((header) => DataColumn(label: Text(header)))
               .toList(),
           rows: drivers.map((driver) {
@@ -56,25 +62,28 @@ class DriverTable extends StatelessWidget {
                   ),
                 ),
                 DataCell(Text(driver.contacto ?? '-')),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'Editar',
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => onEdit(driver),
-                      ),
-                      IconButton(
-                        tooltip: 'Eliminar',
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        onPressed: () => _confirmDelete(context, driver),
-                      ),
-                    ],
+                if (_showActions)
+                  DataCell(
+                    Row(
+                      children: [
+                        if (canEdit)
+                          IconButton(
+                            tooltip: 'Editar',
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => onEdit(driver),
+                          ),
+                        if (canDelete)
+                          IconButton(
+                            tooltip: 'Eliminar',
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            onPressed: () => _confirmDelete(context, driver),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             );
           }).toList(),

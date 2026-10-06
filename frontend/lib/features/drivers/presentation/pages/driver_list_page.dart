@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/permissions.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../domain/entities/driver.dart';
 import '../bloc/driver_bloc.dart';
 import '../widgets/driver_table.dart';
 
@@ -27,6 +32,12 @@ class DriverListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthBloc>().state.user;
+    final canCreate = AppPermissions.canCreate(user, AppModule.drivers);
+    final canEdit = AppPermissions.canUpdate(user, AppModule.drivers);
+    final canDelete = AppPermissions.canDelete(user, AppModule.drivers);
+    final narrow = isNarrow(context);
+
     return BlocConsumer<DriverBloc, DriverState>(
       listener: (context, state) {
         if (state.hasSaveError) {
@@ -42,39 +53,44 @@ class DriverListView extends StatelessWidget {
       },
       builder: (context, state) {
         return Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(narrow ? 16 : 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryDark,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      'GESTIÓN DE CONDUCTORES',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 20,
-                        letterSpacing: 0.5,
+              if (narrow)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _TitleBadge(),
+                    const SizedBox(height: 12),
+                    if (canCreate)
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => context.go('/drivers/new'),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Nuevo conductor'),
+                        ),
                       ),
-                    ),
-                  ),
-                  const Spacer(),
-                  FilledButton.icon(
-                    onPressed: () => context.go('/drivers/new'),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Nuevo conductor'),
-                  ),
-                ],
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    const _TitleBadge(),
+                    const Spacer(),
+                    if (canCreate)
+                      FilledButton.icon(
+                        onPressed: () => context.go('/drivers/new'),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Nuevo conductor'),
+                      ),
+                  ],
+                ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _buildBody(context, state, canEdit, canDelete),
               ),
-              const SizedBox(height: 24),
-              Expanded(child: _buildBody(context, state)),
             ],
           ),
         );
@@ -82,7 +98,12 @@ class DriverListView extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, DriverState state) {
+  Widget _buildBody(
+    BuildContext context,
+    DriverState state,
+    bool canEdit,
+    bool canDelete,
+  ) {
     if (state.isLoading) {
       return const LoadingIndicator(message: 'Cargando conductores...');
     }
@@ -96,8 +117,16 @@ class DriverListView extends StatelessWidget {
 
     if (state.isEmpty) {
       return const EmptyView(
-        message: 'Aún no hay conductores registrados.',
+        message: 'Aun no hay conductores registrados.',
         icon: Icons.badge_outlined,
+      );
+    }
+
+    if (isNarrow(context)) {
+      return _DriverCards(
+        drivers: state.drivers,
+        canEdit: canEdit,
+        canDelete: canDelete,
       );
     }
 
@@ -107,7 +136,7 @@ class DriverListView extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
@@ -127,6 +156,8 @@ class DriverListView extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: DriverTable(
                 drivers: state.drivers,
+                canEdit: canEdit,
+                canDelete: canDelete,
                 onEdit: (driver) =>
                     context.go('/drivers/${driver.id}/edit', extra: driver),
                 onDelete: (driver) =>
@@ -137,5 +168,130 @@ class DriverListView extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _TitleBadge extends StatelessWidget {
+  const _TitleBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryDark,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Text(
+        'GESTIÓN DE CONDUCTORES',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+          fontSize: 20,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _DriverCards extends StatelessWidget {
+  const _DriverCards({
+    required this.drivers,
+    required this.canEdit,
+    required this.canDelete,
+  });
+
+  final List<Driver> drivers;
+  final bool canEdit;
+  final bool canDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemCount: drivers.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final driver = drivers[index];
+        final showActions = canEdit || canDelete;
+        return Card(
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: CircleAvatar(
+              backgroundColor: driver.disponible
+                  ? AppTheme.primary
+                  : Theme.of(context).colorScheme.error,
+              child: Icon(
+                driver.disponible ? Icons.badge : Icons.badge_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            title: Text(
+              driver.nombre,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              '${driver.dni} · Lic. ${driver.licencia} (${driver.categoria}) · '
+              '${Formatters.integer.format(driver.experiencia)} anios',
+            ),
+            trailing: showActions
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (canEdit)
+                        IconButton(
+                          tooltip: 'Editar',
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => context.go(
+                              '/drivers/${driver.id}/edit',
+                              extra: driver),
+                        ),
+                      if (canDelete)
+                        IconButton(
+                          tooltip: 'Eliminar',
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          onPressed: () =>
+                              _confirmDelete(context, driver),
+                        ),
+                    ],
+                  )
+                : null,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, Driver driver) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar conductor'),
+        content: Text(
+            'Seguro que desea eliminar al conductor ${driver.nombre} (${driver.dni})?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+            ),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<DriverBloc>().add(DriverDeleted(driver.id));
+    }
   }
 }

@@ -9,30 +9,36 @@ class OrderTable extends StatelessWidget {
     required this.orders,
     required this.onEdit,
     required this.onDelete,
+    this.canEdit = true,
+    this.canDelete = true,
   });
 
   final List<Order> orders;
   final ValueChanged<Order> onEdit;
   final ValueChanged<Order> onDelete;
+  final bool canEdit;
+  final bool canDelete;
 
-  static const List<String> _headers = [
-    'Direccion',
-    'Peso (kg)',
-    'Vol. (m3)',
-    'Ventana',
-    'Prioridad',
-    'Tipo',
-    'Estado',
-    'Acciones',
-  ];
+  bool get _showActions => canEdit || canDelete;
 
   @override
   Widget build(BuildContext context) {
+    final headers = [
+      'Direccion',
+      'Peso (kg)',
+      'Vol. (m3)',
+      'Ventana',
+      'Prioridad',
+      'Tipo',
+      'Estado',
+      if (_showActions) 'Acciones',
+    ];
+
     return Card(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          columns: _headers
+          columns: headers
               .map((header) => DataColumn(label: Text(header)))
               .toList(),
           rows: orders.map((order) {
@@ -48,26 +54,29 @@ class OrderTable extends StatelessWidget {
                 DataCell(Text('${order.ventanaInicio} - ${order.ventanaFin}')),
                 DataCell(Text(order.prioridad)),
                 DataCell(Text(order.tipoProducto)),
-                DataCell(_EstadoChip(estado: order.estado)),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'Editar',
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => onEdit(order),
-                      ),
-                      IconButton(
-                        tooltip: 'Eliminar',
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        onPressed: () => _confirmDelete(context, order),
-                      ),
-                    ],
+                DataCell(OrderStatusChip(estado: order.estado)),
+                if (_showActions)
+                  DataCell(
+                    Row(
+                      children: [
+                        if (canEdit)
+                          IconButton(
+                            tooltip: 'Editar',
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => onEdit(order),
+                          ),
+                        if (canDelete)
+                          IconButton(
+                            tooltip: 'Eliminar',
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            onPressed: () => _confirmDelete(context, order),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             );
           }).toList(),
@@ -106,8 +115,8 @@ class OrderTable extends StatelessWidget {
   }
 }
 
-class _EstadoChip extends StatelessWidget {
-  const _EstadoChip({required this.estado});
+class OrderStatusChip extends StatelessWidget {
+  const OrderStatusChip({super.key, required this.estado});
 
   final String estado;
 
@@ -116,6 +125,7 @@ class _EstadoChip extends StatelessWidget {
     final (color, foreground) = switch (estado) {
       'PENDIENTE' => (Colors.orange.shade100, Colors.orange.shade900),
       'PLANIFICADO' => (Colors.blue.shade100, Colors.blue.shade900),
+      'EN_RUTA' => (Colors.indigo.shade100, Colors.indigo.shade900),
       'ENTREGADO' => (Colors.green.shade100, Colors.green.shade900),
       'CANCELADO' => (Colors.red.shade100, Colors.red.shade900),
       _ => (Colors.grey.shade200, Colors.grey.shade800),

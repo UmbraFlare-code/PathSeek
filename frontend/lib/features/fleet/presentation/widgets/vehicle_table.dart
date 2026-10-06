@@ -9,30 +9,36 @@ class VehicleTable extends StatelessWidget {
     required this.vehicles,
     required this.onEdit,
     required this.onDelete,
+    this.canEdit = true,
+    this.canDelete = true,
   });
 
   final List<Vehicle> vehicles;
   final ValueChanged<Vehicle> onEdit;
   final ValueChanged<Vehicle> onDelete;
+  final bool canEdit;
+  final bool canDelete;
 
-  static const List<String> _headers = [
-    'Placa',
-    'Tipo',
-    'Cap. (kg)',
-    'Cap. (m3)',
-    'Consumo (km/L)',
-    'CO2 (kg/km)',
-    'Anio',
-    'Acciones',
-  ];
+  bool get _showActions => canEdit || canDelete;
 
   @override
   Widget build(BuildContext context) {
+    final headers = [
+      'Placa',
+      'Tipo',
+      'Cap. (kg)',
+      'Cap. (m3)',
+      'Consumo (km/L)',
+      'CO2 (kg/km)',
+      'Anio',
+      if (_showActions) 'Acciones',
+    ];
+
     return Card(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          columns: _headers
+          columns: headers
               .map((header) => DataColumn(label: Text(header)))
               .toList(),
           rows: vehicles.map((vehicle) {
@@ -47,25 +53,28 @@ class VehicleTable extends StatelessWidget {
                   Text(Formatters.decimal.format(vehicle.factorEmision)),
                 ),
                 DataCell(Text('${vehicle.anio}')),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'Editar',
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => onEdit(vehicle),
-                      ),
-                      IconButton(
-                        tooltip: 'Eliminar',
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        onPressed: () => _confirmDelete(context, vehicle),
-                      ),
-                    ],
+                if (_showActions)
+                  DataCell(
+                    Row(
+                      children: [
+                        if (canEdit)
+                          IconButton(
+                            tooltip: 'Editar',
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => onEdit(vehicle),
+                          ),
+                        if (canDelete)
+                          IconButton(
+                            tooltip: 'Eliminar',
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            onPressed: () => _confirmDelete(context, vehicle),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             );
           }).toList(),

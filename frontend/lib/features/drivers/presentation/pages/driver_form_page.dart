@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/responsive_field_row.dart';
 import '../../domain/entities/driver.dart';
 import '../bloc/driver_bloc.dart';
 
@@ -169,67 +170,57 @@ class _DriverFormViewState extends State<DriverFormView> {
                       validator: (value) => Validators.required(value, 'El nombre'),
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _licenciaController,
-                            decoration: const InputDecoration(
-                              labelText: 'Licencia de conducir',
-                              prefixIcon: Icon(Icons.badge),
-                            ),
-                            textCapitalization: TextCapitalization.characters,
-                            validator: Validators.license,
+                        TextFormField(
+                          controller: _licenciaController,
+                          decoration: const InputDecoration(
+                            labelText: 'Licencia de conducir',
+                            prefixIcon: Icon(Icons.badge),
                           ),
+                          textCapitalization: TextCapitalization.characters,
+                          validator: Validators.license,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _categoria,
-                            decoration: const InputDecoration(
-                              labelText: 'Categoria',
-                            ),
-                            items: _categorias
-                                .map(
-                                  (categoria) => DropdownMenuItem(
-                                    value: categoria,
-                                    child: Text(categoria),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _categoria = value);
-                              }
-                            },
+                        DropdownButtonFormField<String>(
+                          initialValue: _categoria,
+                          decoration: const InputDecoration(
+                            labelText: 'Categoria',
                           ),
+                          items: _categorias
+                              .map(
+                                (categoria) => DropdownMenuItem(
+                                  value: categoria,
+                                  child: Text(categoria),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => _categoria = value);
+                            }
+                          },
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    ResponsiveFieldRow(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _experienciaController,
-                            decoration: const InputDecoration(
-                              labelText: 'Anios de experiencia',
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) =>
-                                Validators.integer(value, 'La experiencia'),
+                        TextFormField(
+                          controller: _experienciaController,
+                          decoration: const InputDecoration(
+                            labelText: 'Anios de experiencia',
                           ),
+                          keyboardType: TextInputType.number,
+                          validator: (value) =>
+                              Validators.integer(value, 'La experiencia'),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _contactoController,
-                            decoration: const InputDecoration(
-                              labelText: 'Contacto (telefono)',
-                              prefixIcon: Icon(Icons.phone_outlined),
-                            ),
-                            keyboardType: TextInputType.phone,
+                        TextFormField(
+                          controller: _contactoController,
+                          decoration: const InputDecoration(
+                            labelText: 'Contacto (telefono)',
+                            prefixIcon: Icon(Icons.phone_outlined),
                           ),
+                          keyboardType: TextInputType.phone,
                         ),
                       ],
                     ),
