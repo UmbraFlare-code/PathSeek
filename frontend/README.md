@@ -127,8 +127,8 @@ Login devuelve `{ token, refreshToken, usuario: { usuario_id, nombre, email, rol
 - `DELETE /api/v1/rutas/{id}` → 204.
 - Estados de ruta: `PLANIFICADA`, `EN_PROGRESO`, `COMPLETADA`, `CANCELADA`.
 
-**`GET /api/v1/dashboard/resumen`** (roles ADMIN/OPERADOR/AUDITOR) — retorno directo del
-`sp_obtener_resumen_dashboard`:
+**`GET /api/v1/dashboard/resumen`** (roles ADMIN/OPERADOR/AUDITOR/**CONDUCTOR**) —
+retorno directo del `sp_obtener_resumen_dashboard`:
 
 ```json
 {
@@ -197,8 +197,8 @@ usa su propio motor (BoringSSL).
   (`/new`, `/:id/edit`) y la UI oculta botones y modulos segun el rol:
   - ADMIN/OPERADOR: escritura total (flota, conductores, pedidos, rutas)
   - AUDITOR: solo lectura en todos los modulos
-  - CLIENTE: crea y lee pedidos (sin editar/eliminar)
-  - CONDUCTOR: solo Inicio hasta el modo conductor (EP-03)
+  - CLIENTE: crea y lee pedidos (sin editar/eliminar); su pantalla inicial es Pedidos
+  - CONDUCTOR: dashboard basico (lectura) hasta el modo conductor (EP-03)
 
 ## Calidad (DoD global)
 

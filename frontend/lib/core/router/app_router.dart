@@ -17,6 +17,7 @@ import '../../features/orders/presentation/pages/order_list_page.dart';
 import '../../features/routes/presentation/pages/route_detail_page.dart';
 import '../../features/routes/presentation/pages/route_list_page.dart';
 import '../constants/app_roles.dart';
+import '../constants/permissions.dart';
 import 'home_shell.dart';
 
 class AppRouter {
@@ -113,12 +114,27 @@ class AppRouter {
 
     if (isLoginRoute) return '/';
 
+    // Roles sin dashboard (CLIENTE segun DOC-008) no permanecen en la raiz:
+    // se les envia a su modulo natural.
+    if (state.matchedLocation == '/' &&
+        !AppPermissions.canView(user, AppModule.dashboard)) {
+      return defaultHomeFor(user);
+    }
+
     final requiredRoles = _rolesFor(state.matchedLocation);
     if (requiredRoles != null && !user.hasAnyRole(requiredRoles)) {
       return '/';
     }
 
     return null;
+  }
+
+  /// Modulo inicial de un rol autenticado.
+  static String defaultHomeFor(AppUser? user) {
+    if (user == null) return '/login';
+    if (AppPermissions.canView(user, AppModule.dashboard)) return '/';
+    if (AppPermissions.canView(user, AppModule.orders)) return '/orders';
+    return '/';
   }
 
   /// Matriz RBAC del router (DOC-008): lectura vs mutacion por modulo.

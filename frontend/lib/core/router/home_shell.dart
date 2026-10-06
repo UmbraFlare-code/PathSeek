@@ -255,12 +255,13 @@ class _Destination {
 
 List<_Destination> _destinationsFor(AppUser? user, {required bool isMobile}) {
   final destinations = <_Destination>[
-    const _Destination(
-      path: '/',
-      label: 'Inicio',
-      iconOutlined: Icons.dashboard_outlined,
-      iconFilled: Icons.dashboard,
-    ),
+    if (AppPermissions.canView(user, AppModule.dashboard))
+      const _Destination(
+        path: '/',
+        label: 'Inicio',
+        iconOutlined: Icons.dashboard_outlined,
+        iconFilled: Icons.dashboard,
+      ),
     if (AppPermissions.canView(user, AppModule.fleet))
       const _Destination(
         path: '/fleet',
