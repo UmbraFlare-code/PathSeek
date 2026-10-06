@@ -5,15 +5,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/permissions.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/search_sort_controls.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../domain/entities/order.dart';
 import '../bloc/order_bloc.dart';
-import '../widgets/order_table.dart';
+import '../order_filters.dart';
+import '../widgets/order_card.dart';
 
 class OrderListPage extends StatelessWidget {
   const OrderListPage({super.key});
@@ -122,81 +123,16 @@ class OrderListView extends StatelessWidget {
       );
     }
 
-    if (isNarrow(context)) {
-      return _OrderCards(
-        orders: state.orders,
-        canEdit: canEdit,
-        canDelete: canDelete,
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            '// ${state.orders.length} PEDIDOS REGISTRADOS',
-            style: const TextStyle(
-              color: AppTheme.primaryDark,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1.0,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: OrderTable(
-                orders: state.orders,
-                canEdit: canEdit,
-                canDelete: canDelete,
-                onEdit: (order) =>
-                    context.go('/orders/${order.id}/edit', extra: order),
-                onDelete: (order) =>
-                    context.read<OrderBloc>().add(OrderDeleted(order.id)),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return _OrderFilteredGrid(
+      orders: state.orders,
+      canEdit: canEdit,
+      canDelete: canDelete,
     );
   }
 }
 
-class _TitleBadge extends StatelessWidget {
-  const _TitleBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryDark,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Text(
-        'GESTIÓN DE PEDIDOS',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w900,
-          fontSize: 20,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-}
-
-class _OrderCards extends StatelessWidget {
-  const _OrderCards({
+class _OrderFilteredGrid extends StatefulWidget {
+  const _OrderFilteredGrid({
     required this.orders,
     required this.canEdit,
     required this.canDelete,
@@ -207,72 +143,94 @@ class _OrderCards extends StatelessWidget {
   final bool canDelete;
 
   @override
+  State<_OrderFilteredGrid> createState() => _OrderFilteredGridState();
+}
+
+class _OrderFilteredGridState extends State<_OrderFilteredGrid> {
+  final _queryController = TextEditingController();
+  OrderSort _sort = OrderSort.prioridad;
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: orders.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, index) {
-        final order = orders[index];
-        final showActions = canEdit || canDelete;
-        return Card(
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: const CircleAvatar(
-              backgroundColor: AppTheme.primary,
-              child: Icon(Icons.inventory_2, color: Colors.white, size: 20),
-            ),
-            title: Text(
-              order.direccion,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${order.prioridad} · ${order.tipoProducto} · '
-                  '${Formatters.decimal.format(order.peso)} kg',
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text('${order.ventanaInicio} - ${order.ventanaFin}'),
-                    const SizedBox(width: 8),
-                    OrderStatusChip(estado: order.estado),
-                  ],
-                ),
-              ],
-            ),
-            trailing: showActions
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (canEdit)
-                        IconButton(
-                          tooltip: 'Editar',
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () => context.go(
-                              '/orders/${order.id}/edit',
-                              extra: order),
-                        ),
-                      if (canDelete)
-                        IconButton(
-                          tooltip: 'Eliminar',
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          onPressed: () => _confirmDelete(context, order),
-                        ),
-                    ],
-                  )
-                : null,
-          ),
-        );
-      },
+    final narrow = isNarrow(context);
+    final filtered = sortOrders(
+      filterOrders(widget.orders, _queryController.text),
+      _sort,
     );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '// ${filtered.length} DE ${widget.orders.length} PEDIDOS',
+          style: const TextStyle(
+            color: AppTheme.primaryDark,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SearchSortControls<OrderSort>(
+          queryController: _queryController,
+          hint: 'Buscar por direccion o cliente',
+          sortItems: const {
+            OrderSort.prioridad: 'Ordenar: Prioridad',
+            OrderSort.ventana: 'Ordenar: Ventana',
+            OrderSort.estado: 'Ordenar: Estado',
+          },
+          sortValue: _sort,
+          onQueryChanged: () => setState(() {}),
+          onSortChanged: (value) => setState(() => _sort = value),
+        ),
+        const SizedBox(height: 16),
+        if (filtered.isEmpty)
+          const Expanded(
+            child: EmptyView(
+              message: 'Sin resultados para la busqueda.',
+              icon: Icons.search_off_outlined,
+            ),
+          )
+        else
+          Expanded(
+            child: GridView.builder(
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _columnsFor(context),
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                mainAxisExtent: narrow ? 250 : 240,
+              ),
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final order = filtered[index];
+                return OrderCard(
+                  order: order,
+                  canEdit: widget.canEdit,
+                  canDelete: widget.canDelete,
+                  onEdit: (order) =>
+                      context.go('/orders/${order.id}/edit', extra: order),
+                  onDelete: (order) => _confirmDelete(context, order),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  int _columnsFor(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width < 600) return 1;
+    if (width < 1000) return 2;
+    if (width < 1400) return 3;
+    return 4;
   }
 
   Future<void> _confirmDelete(BuildContext context, Order order) async {
@@ -301,5 +259,29 @@ class _OrderCards extends StatelessWidget {
     if (confirmed == true && context.mounted) {
       context.read<OrderBloc>().add(OrderDeleted(order.id));
     }
+  }
+}
+
+class _TitleBadge extends StatelessWidget {
+  const _TitleBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryDark,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Text(
+        'GESTIÓN DE PEDIDOS',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+          fontSize: 20,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
   }
 }

@@ -23,7 +23,7 @@ lib/
 │   ├── router/               # AppRouter (go_router + redirect RBAC), HomeShell
 │   ├── theme/                # Tema con contraste WCAG 2.1 AA
 │   ├── utils/                # Validators, Formatters, Responsive (600dp)
-│   └── widgets/              # Loading, Error, Empty, SnackBar, ResponsiveFieldRow
+│   └── widgets/              # Loading, Error, Empty, SnackBar, ResponsiveFieldRow, SearchSortControls
 ├── features/
 │   ├── auth/                 # Login, sesion JWT (EN-003)
 │   ├── fleet/                # US-001 Gestion de Flota
@@ -189,9 +189,12 @@ usa su propio motor (BoringSSL).
 ## Responsive y RBAC
 
 - **Responsive** (breakpoint 600dp en `core/utils/responsive.dart`): en telefono la
-  navegacion usa `NavigationBar` inferior, las listas se muestran como tarjetas
-  (en vez de `DataTable`) y los formularios apilan sus campos
+  navegacion usa `NavigationBar` inferior y los formularios apilan sus campos
   (`core/widgets/responsive_field_row.dart`).
+- **Listas en tarjetas** (flota, conductores y pedidos): grid responsive
+  (1-4 columnas segun ancho) con **busqueda y ordenamiento** client-side
+  (`SearchSortControls` + funciones puras `*_filters.dart` por feature); la misma
+  tarjeta sirve para web y movil.
 - **RBAC** (DOC-008): la matriz de permisos por rol y modulo vive en
   `core/constants/permissions.dart`. El router aplica guards por ruta **y accion**
   (`/new`, `/:id/edit`) y la UI oculta botones y modulos segun el rol:

@@ -5,15 +5,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/permissions.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/search_sort_controls.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../domain/entities/vehicle.dart';
 import '../bloc/fleet_bloc.dart';
-import '../widgets/vehicle_table.dart';
+import '../vehicle_filters.dart';
+import '../widgets/vehicle_card.dart';
 
 class FleetListPage extends StatelessWidget {
   const FleetListPage({super.key});
@@ -122,82 +123,16 @@ class FleetListView extends StatelessWidget {
       );
     }
 
-    if (isNarrow(context)) {
-      return _VehicleCards(
-        vehicles: state.vehicles,
-        canEdit: canEdit,
-        canDelete: canDelete,
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            '// ${state.vehicles.length} VEHICULOS REGISTRADOS',
-            style: const TextStyle(
-              color: AppTheme.primaryDark,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1.0,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: VehicleTable(
-                vehicles: state.vehicles,
-                canEdit: canEdit,
-                canDelete: canDelete,
-                onEdit: (vehicle) =>
-                    context.go('/fleet/${vehicle.id}/edit', extra: vehicle),
-                onDelete: (vehicle) => context
-                    .read<FleetBloc>()
-                    .add(FleetVehicleDeleted(vehicle.id)),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return _FleetFilteredGrid(
+      vehicles: state.vehicles,
+      canEdit: canEdit,
+      canDelete: canDelete,
     );
   }
 }
 
-class _TitleBadge extends StatelessWidget {
-  const _TitleBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryDark,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Text(
-        'GESTIÓN DE FLOTA',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w900,
-          fontSize: 20,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-}
-
-class _VehicleCards extends StatelessWidget {
-  const _VehicleCards({
+class _FleetFilteredGrid extends StatefulWidget {
+  const _FleetFilteredGrid({
     required this.vehicles,
     required this.canEdit,
     required this.canDelete,
@@ -208,59 +143,94 @@ class _VehicleCards extends StatelessWidget {
   final bool canDelete;
 
   @override
+  State<_FleetFilteredGrid> createState() => _FleetFilteredGridState();
+}
+
+class _FleetFilteredGridState extends State<_FleetFilteredGrid> {
+  final _queryController = TextEditingController();
+  VehicleSort _sort = VehicleSort.placa;
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: vehicles.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, index) {
-        final vehicle = vehicles[index];
-        final showActions = canEdit || canDelete;
-        return Card(
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: const CircleAvatar(
-              backgroundColor: AppTheme.primary,
-              child: Icon(Icons.local_shipping, color: Colors.white, size: 20),
-            ),
-            title: Text(
-              '${vehicle.placa} · ${vehicle.tipo}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              'Cap: ${Formatters.decimal.format(vehicle.capacidadKg)} kg · '
-              '${Formatters.decimal.format(vehicle.consumoKmL)} km/L · '
-              '${vehicle.anio}',
-            ),
-            trailing: showActions
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (canEdit)
-                        IconButton(
-                          tooltip: 'Editar',
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () => context.go(
-                              '/fleet/${vehicle.id}/edit',
-                              extra: vehicle),
-                        ),
-                      if (canDelete)
-                        IconButton(
-                          tooltip: 'Eliminar',
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          onPressed: () =>
-                              _confirmDelete(context, vehicle),
-                        ),
-                    ],
-                  )
-                : null,
-          ),
-        );
-      },
+    final narrow = isNarrow(context);
+    final filtered = sortVehicles(
+      filterVehicles(widget.vehicles, _queryController.text),
+      _sort,
     );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '// ${filtered.length} DE ${widget.vehicles.length} VEHICULOS',
+          style: const TextStyle(
+            color: AppTheme.primaryDark,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SearchSortControls<VehicleSort>(
+          queryController: _queryController,
+          hint: 'Buscar por placa o tipo',
+          sortItems: const {
+            VehicleSort.placa: 'Ordenar: Placa',
+            VehicleSort.anio: 'Ordenar: Anio',
+            VehicleSort.capacidad: 'Ordenar: Capacidad',
+          },
+          sortValue: _sort,
+          onQueryChanged: () => setState(() {}),
+          onSortChanged: (value) => setState(() => _sort = value),
+        ),
+        const SizedBox(height: 16),
+        if (filtered.isEmpty)
+          const Expanded(
+            child: EmptyView(
+              message: 'Sin resultados para la busqueda.',
+              icon: Icons.search_off_outlined,
+            ),
+          )
+        else
+          Expanded(
+            child: GridView.builder(
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _columnsFor(context),
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                mainAxisExtent: narrow ? 230 : 215,
+              ),
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final vehicle = filtered[index];
+                return VehicleCard(
+                  vehicle: vehicle,
+                  canEdit: widget.canEdit,
+                  canDelete: widget.canDelete,
+                  onEdit: (vehicle) => context
+                      .go('/fleet/${vehicle.id}/edit', extra: vehicle),
+                  onDelete: (vehicle) => _confirmDelete(context, vehicle),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  int _columnsFor(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width < 600) return 1;
+    if (width < 1000) return 2;
+    if (width < 1400) return 3;
+    return 4;
   }
 
   Future<void> _confirmDelete(BuildContext context, Vehicle vehicle) async {
@@ -289,5 +259,29 @@ class _VehicleCards extends StatelessWidget {
     if (confirmed == true && context.mounted) {
       context.read<FleetBloc>().add(FleetVehicleDeleted(vehicle.id));
     }
+  }
+}
+
+class _TitleBadge extends StatelessWidget {
+  const _TitleBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryDark,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Text(
+        'GESTIÓN DE FLOTA',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+          fontSize: 20,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
   }
 }
