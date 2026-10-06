@@ -39,7 +39,7 @@ class ElevationProfileWidget extends StatelessWidget {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: pedidos.length,
-                separatorBuilder: (_, __) => const VerticalDivider(width: 16),
+                separatorBuilder: (_, _) => const VerticalDivider(width: 16),
                 itemBuilder: (context, index) {
                   final p = pedidos[index];
                   final ctx = p.contextoVial;

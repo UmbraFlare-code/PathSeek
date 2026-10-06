@@ -11,6 +11,7 @@ class AppTheme {
   static const Color darkBg = Color(0xFF0B140E);
   static const Color error = Color(0xFFBA1A1A);
   static const Color textHighContrast = Color(0xFF191C19);
+  static const Color border = Color(0xFFE0E5DF);
 
   static ThemeData light() {
     final base = ThemeData(
@@ -64,7 +65,7 @@ class AppTheme {
         shadowColor: Colors.black.withValues(alpha: 0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFE0E5DF)),
+          side: const BorderSide(color: border),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
