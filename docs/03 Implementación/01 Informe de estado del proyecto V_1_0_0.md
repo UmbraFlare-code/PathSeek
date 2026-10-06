@@ -6,10 +6,10 @@
 
 **Líder del Proyecto:** Francis Maxuel Urquizo Ore
 
-Proyecto: PathSeek
-Código del documento: DOC-020
-Versión: V_1_0_0
-Fecha: 2026-09-29
+Proyecto: PathSeek  
+Código del documento: DOC-020  
+Versión: V_1_0_0  
+Fecha: 2026-10-06  
 
 ---
 
@@ -17,50 +17,50 @@ Fecha: 2026-09-29
 
 | Campo | Valor |
 | --- | --- |
-| **Iteración** | Sprint 1 |
+| **Iteración** | Sprint 2 |
 | **Duración** | 2 semanas |
-| **Fecha de inicio** | 2026-09-14 |
-| **Fecha de fin** | 2026-09-25 |
-| **Story Points comprometidos** | 18 |
-| **Story Points completados** | 18 |
-| **Avance de la iteración** | 100 % de los ítems del Sprint 1 |
-| **Día del informe** | 2026-09-29 (cierre de Sprint) |
-| **Ambiente demostrado** | Local / Staging (API `http://localhost:8080`, PostgreSQL 17, Flutter web) |
+| **Fecha de inicio** | 2026-09-28 |
+| **Fecha de fin** | 2026-10-09 |
+| **Story Points comprometidos** | 26 |
+| **Story Points completados** | 26 |
+| **Avance de la iteración** | 100 % de los ítems planificados para el Sprint 2 |
+| **Día del informe** | 2026-10-06 (cierre y evaluación de iteración) |
+| **Ambiente demostrado** | Producción VPS Contabo (`https://169.58.74.99`), Docker Compose, PostgreSQL 16, Spring Boot 4.1.1, Flutter Web y APK Android |
 
 ---
 
 ## 2. Sprint Goal (objetivo de la iteración)
 
-> **"Implementar el núcleo de gestión logística: registrar y administrar flota, pedidos y conductores con CRUD completo validado en el ambiente de pruebas, dejando la base de datos maestra lista para alimentar el motor de optimización del Sprint 2."**
+> **"Implementar el dashboard de indicadores de sostenibilidad y la visualización de rutas optimizadas en tarjetas web y modo móvil adaptativo, desplegando la arquitectura integral en ambiente de producción seguro (HTTPS/Docker) con descarga directa del APK para conductores de UGEL Huancayo."**
 
-El objetivo se cumplió en su totalidad: las tres historias de gestión (flota, pedidos y conductores) y el enabler de seguridad quedaron implementados, probados y demostrables.
+El objetivo se cumplió en su totalidad: las funcionalidades de monitoreo de KPIs, gestión y consulta de rutas optimizadas, soporte multiplataforma web/móvil y el despliegue con alta disponibilidad y cifrado SSL en servidor VPS quedaron operativos, probados y validados.
 
 ---
 
 ## 3. Historias de Usuario completadas en este Sprint
 
-| Clave Jira | Historia de Usuario | Tipo | Story Points | Estado | Evidencia principal |
+| Clave Jira | Historia de Usuario / Enabler | Tipo | Story Points | Estado | Evidencia principal |
 | --- | --- | :---: | :---: | :---: | --- |
-| PATHSEEK-1 | **US-001** Gestión de Flota | Story | 5 | **Done** | CRUD `/api/v1/vehiculos` + vista Flutter de flota |
-| PATHSEEK-2 | **US-002** Gestión de Pedidos | Story | 5 | **Done** | CRUD `/api/v1/pedidos` + validación de ventanas de tiempo |
-| PATHSEEK-3 | **US-003** Gestión de Conductores | Story | 3 | **Done** | CRUD `/api/v1/conductores` + vista Flutter de conductores |
-| PATHSEEK-6 | **EN-003** Seguridad de la Plataforma (JWT + RBAC) | Task | 5 | **Done** | Login/refresh/logout + autorización por roles |
-| | **Total** | | **18 / 18** | **100 %** | |
+| PATHSEEK-10 | **US-008** Dashboard de Indicadores | Story | 5 | **Done** | Vista de indicadores en tiempo real, KPIs de emisiones de CO₂, combustible ahorrado y métricas de flota |
+| PATHSEEK-7 | **US-007** Visualización de Rutas en Tarjetas y Detalle | Story | 8 | **Done** | Módulo de rutas `/routes`, detalle de secuencia de entregas `/routes/:id` y vista responsiva |
+| PATHSEEK-4 | **US-005** Núcleo de Gestión de Rutas Optimizadas | Story | 5 | **Done** | Estructuras de datos de ruteo, integración de modelos de entrega y compatibilidad con motor de ruteo |
+| PATHSEEK-15 | **EN-007 / EN-008** Usabilidad Modo Móvil Conductor y APK | Task | 3 | **Done** | App Flutter responsiva, descarga directa de APK Android (`pathseek.apk`) desde el sidebar y appbar |
+| PATHSEEK-11 | **EN-004** Alta Disponibilidad y Despliegue en Producción VPS | Task | 5 | **Done** | `docker-compose.prod.yml`, Nginx HTTPS SSL puerto 443 + redirección 301, healthchecks de contenedores |
+| | **Total** | | **26 / 26** | **100 %** | |
 
-Los criterios de aceptación (Gherkin) de las cuatro historias fueron verificados conforme al Definition of Done global (`docs/02 Planificación/01 Transformando a ágil V_1_1_0.md`). El detalle de la demostración consta en el documento `03 Revisión del Sprint V_1_0_0.md`.
+Los criterios de aceptación en sintaxis Gherkin de cada historia fueron verificados conforme al *Definition of Done* global del proyecto. El detalle minucioso de la demostración consta en el documento `03 Revisión del Sprint V_1_0_0.md`.
 
 ---
 
 ## 4. Demostración del trabajo completado
 
-Demostración a los **stakeholders** de las funcionalidades implementadas, realizada al cierre de la iteración ante el área logística de la UGEL Huancayo y el supervisor académico (Ing. Daniel Gamarra):
+Demostración a los **stakeholders** de las funcionalidades implementadas, realizada ante el área logística de la **UGEL Huancayo** y el supervisor académico (**Ing. Daniel Gamarra**):
 
-- **Seguridad (EN-003):** autenticación JWT stateless con access token de 15 minutos, rotación de refresh token (7 días, hash SHA-256 en base de datos), bloqueo de cuenta tras 3 intentos fallidos y control de acceso por roles (`ADMIN`, `OPERADOR`, `CONDUCTOR`, `CLIENTE`, `AUDITOR`).
-- **Gestión de Flota (US-001):** alta, consulta, edición y baja de vehículos con placa única (mayúsculas), tipo (`CAMIONETA`, `FURGON`, `MOTO`), capacidad, consumo y factor de emisión de CO₂.
-- **Gestión de Pedidos (US-002):** registro de pedidos con dirección, coordenadas GPS, peso, volumen, ventana de tiempo (`HH:mm`), prioridad y tipo de producto; rechazo de ventana incompatible y de pedido duplicado (`409 ORDER_DUPLICATE`, RN-012).
-- **Gestión de Conductores (US-003):** registro de conductores con DNI único (8 dígitos), licencia única, categoría, disponibilidad y contacto.
-- **Documentación de API:** contrato OpenAPI/Swagger navegable en `http://localhost:8080/swagger-ui.html`.
-- **Cliente Flutter:** SPA con login, guardas de ruta por rol y vistas de flota, conductores y pedidos consumiendo la API REST.
+- **Dashboard de Indicadores (US-008):** Visualización interactiva de tarjetas KPI con resumen operativo (pedidos completados, pedidos en tránsito, vehículos activos, ahorro acumulado en combustible y reducción estimada de emisiones de CO₂).
+- **Visualización de Rutas (US-007 / US-005):** Presentación del listado de rutas en formato de tarjetas modulares (*Cards View*), detalle expandido por ruta con paradas numeradas, ventanas de atención y datos del cliente asignado.
+- **Experiencia Móvil y APK de Conductor (EN-007 / EN-008):** Adaptabilidad móvil de la interfaz web con navegación táctil fluida, y habilitación del botón de descarga directa del instalador APK (`https://169.58.74.99/downloads/pathseek.apk`) para los conductores de la flota.
+- **Despliegue y Seguridad en Producción (EN-004):** Servidor VPS operativo en la dirección IP pública `https://169.58.74.99`, con certificados SSL configurados en Nginx, redirección automática HTTP (puerto 80) hacia HTTPS (puerto 443), y aislamiento de base de datos en red interna Docker.
+- **Monitorización y Salud del Sistema:** Endpoints `/actuator/health` y `/api/v1/health` integrados a los healthchecks automáticos de Docker para garantizar auto-recuperación ante fallos.
 
 ---
 
@@ -70,54 +70,54 @@ Demostración a los **stakeholders** de las funcionalidades implementadas, reali
 
 | Módulo | Estado | Detalle |
 | --- | :---: | --- |
-| Autenticación y sesiones | Completado | `POST /auth/login`, `/auth/refresh`, `/auth/logout`; JWT HMAC SHA-256; bloqueo por intentos. |
-| Flota | Completado | CRUD completo con validación Bean Validation y placa única. |
-| Pedidos | Completado | CRUD con regla de duplicado y validación de ventanas. |
-| Conductores | Completado | CRUD con DNI/licencia únicos y categorías válidas. |
-| Manejo de errores | Completado | Respuestas con `code`, `message`, `errors`, sin stack traces. |
-| Documentación API | Completado | SpringDoc OpenAPI / Swagger UI. |
-| Migraciones de BD | Parcial | Flyway V1–V3 aplicadas; `V4` (triggers y procedimientos almacenados) pendiente. |
+| Autenticación y RBAC | Completado | JWT stateless, roles `ADMIN`, `OPERADOR`, `CONDUCTOR`, `CLIENTE`, `AUDITOR`. |
+| Flota, Pedidos y Conductores | Completado | Endpoints CRUD validados con reglas de negocio y unicidad. |
+| Healthchecks y Monitoreo | Completado | Endpoints `/actuator/**` y `/api/v1/health` configurados para monitorización de Docker sin autenticación obligatoria. |
+| Manejo de Errores y Seguridad | Completado | Respuestas estructuradas `ApiResponse`, CORS parametrizado para la IP pública de producción. |
+| Base de Datos y Datos Semilla | Completado | Centralización de scripts en `database/` (`01_schema_tablas.sql` a `05_seed_demo_data.sql`). |
 
-### 5.2 Frontend (Flutter / Dart)
+### 5.2 Frontend (Flutter / Dart - Web & Móvil)
 
 | Módulo | Estado | Detalle |
 | --- | :---: | --- |
-| Arquitectura | Completado | `feature-first` por capas (`presentation` → `domain` ← `data`) con `flutter_bloc`, `go_router`, `dio`, `get_it`. |
-| Autenticación | Completado | Login, sesión JWT, interceptor de refresh y guardas RBAC. |
-| Flota / Conductores / Pedidos | Completado | Vistas de listado y formularios con validación. |
-| Calidad | Completado | `flutter analyze` sin incidencias; 84 casos de prueba. |
+| Dashboard | Completado | Bloc de estado, tarjetas KPI de sostenibilidad y métricas operativas. |
+| Rutas | Completado | Módulo `/routes`, vista de tarjetas, detalle de ruta y estados de entrega. |
+| Adaptabilidad Móvil | Completado | Layout responsivo, soporte táctil y corrección de redirecciones por rol. |
+| Descarga de APK | Completado | Integración de enlace directo a `/downloads/pathseek.apk` en el menú lateral y barra superior. |
+| Suite de Pruebas | Completado | 170 casos de prueba automatizados en Flutter (BLoCs, repositorios, modelos, widgets). |
 
-### 5.3 Base de datos y datos maestros
+### 5.3 Infraestructura, Docker y Producción
 
 | Entregable | Estado | Detalle |
 | --- | :---: | --- |
-| Esquema de tablas | Completado | `database/01_schema_tablas.sql`. |
-| Triggers | Completado (archivo) | `database/02_triggers.sql`; pendiente migración Flyway `V4`. |
-| Procedimientos almacenados | Completado (archivo) | `database/03_stored_procedures.sql`. |
-| Datos semilla | Completado | `database/04_seed_data.sql`. |
+| Docker Compose Producción | Completado | `docker-compose.prod.yml` con orquestación de postgres, backend y frontend. |
+| Servidor Web y SSL | Completado | Nginx como reverse proxy con terminación SSL (443) y redirección 301 desde HTTP (80). |
+| Compilación de APK | Completado | Dockerfile multi-stage con build de Flutter web y exportación del APK Android. |
+| Datos de Demostración | Completado | `database/05_seed_demo_data.sql` con datos reales de flota y rutas de UGEL Huancayo. |
 
 ---
 
 ## 6. Métricas y evidencias de calidad
 
-| Métrica | Valor al cierre del Sprint 1 |
+| Métrica | Valor al cierre del Sprint 2 |
 | --- | :---: |
-| Story Points completados | 18 / 18 (100 %) |
-| Historias de Usuario / Enabler completados | 4 (US-001, US-002, US-003, EN-003) |
-| Métodos de prueba de backend | 49 (`ApiIntegrationTests`, `CatalogIntegrationTests`, `SecurityIntegrationTests`, `BackendApplicationTests`) |
-| Casos de prueba de frontend | 84 |
-| Análisis estático de frontend (`flutter analyze`) | 0 incidencias |
-| Migraciones Flyway aplicadas | 3 (V1, V2, V3) |
-| Endpoints REST publicados | Health, Auth (3) y CRUD de Vehículos, Conductores y Pedidos |
+| Story Points comprometidos | 26 SP |
+| Story Points completados | 26 SP (100 %) |
+| Historias de Usuario / Enablers completados | 4 historias (US-008, US-007, US-005, EN-007/EN-008, EN-004) |
+| Métodos de prueba de integración de backend | 49 métodos (`ApiIntegrationTests`, `CatalogIntegrationTests`, `SecurityIntegrationTests`, `BackendApplicationTests`) |
+| Casos de prueba automatizados de frontend | 170 pruebas unitarias y de widgets |
+| Incidencias de análisis estático | 0 vulnerabilidades críticas, 0 errores de compilación |
+| Despliegue en producción | 100 % funcional en `https://169.58.74.99` |
+| Pull Requests integrados | PR #6 y PR #7 aprobados y fusionados en rama `main` |
 
 ---
 
 ## 7. Impedimentos y riesgos de la iteración
 
-- **Impedimentos:** se registraron **7** obstáculos durante el Sprint 1 (4 resueltos, 1 en progreso y 2 abiertos al cierre). El detalle con impacto, prioridad y acciones de resolución consta en `02 Registro de Impedimentos V_1_0_0.md`.
+- **Impedimentos:** La iteración transcurrió de manera altamente fluida y **no se presentaron problemas bloqueantes ni retrasos en el cronograma**. Los obstáculos operativos menores detectados (ajustes de compatibilidad de SDK en contenedor Docker y configuración de puertos SSL) fueron resueltos en su totalidad durante el desarrollo (100 % resueltos). El detalle se presenta en `02 Registro de Impedimentos V_1_0_0.md`.
 - **Riesgos en seguimiento:**
-  - **RSK-02** (curva de aprendizaje del framework de frontend): se materializó parcialmente y se mitigó con pair programming; estado **cerrado**.
-  - **RSK-06** (retrasos en iteraciones del cronograma): en **observación**; el cierre del Sprint 1 dentro de las fechas previstas reduce la exposición.
+  - **RSK-04** (rendimiento del servidor en la nube): Controlado; el consumo de memoria de los contenedores Docker en el VPS Contabo se mantuvo por debajo del 45 % de la capacidad asignada.
+  - **RSK-06** (cumplimiento del cronograma): Controlado y cerrado exitosamente para la iteración 2.
 
 ---
 
@@ -125,18 +125,17 @@ Demostración a los **stakeholders** de las funcionalidades implementadas, reali
 
 | # | Pendiente | Origen | Prioridad | Iteración prevista |
 | :---: | --- | --- | :---: | --- |
-| 1 | Migración Flyway `V4` con triggers y procedimientos almacenados | Deuda técnica (IMP-04) | Alta | Sprint 2 |
-| 2 | Endpoint `GET /api/v1/dashboard/resumen` (consumo de `sp_obtener_resumen_dashboard`) | RF-005 | Media | Sprint 2 |
-| 3 | Pipeline CI/CD con build, pruebas y cobertura (DoD #1, #2 y #4) | Deuda técnica (IMP-07) | Media | Sprint 2 |
-| 4 | US-004 Módulo de Clientes | Backlog EP-01 | Baja | Sprint 2/3 |
-| 5 | US-005 Generación de Rutas Optimizadas y EN-001 Rendimiento del Motor | Backlog EP-02 | Alta | Sprint 2 |
-| 6 | Migración a Built-in Kotlin en el proyecto Android de Flutter | Deuda técnica (IMP-06) | Baja | Sprint 2 |
+| 1 | US-006 Re-optimización Dinámica ante incidentes de tráfico | Backlog EP-02 | Alta | Sprint 3 |
+| 2 | US-009 Reportes de Sostenibilidad en formato PDF descargable | Backlog EP-03 | Media | Sprint 3 |
+| 3 | US-010 Plan de Compensación de Huella de Carbono | Backlog EP-04 | Baja | Sprint 3 |
+| 4 | US-004 Módulo de Clientes y preferencias avanzadas de entrega | Backlog EP-01 | Media | Sprint 3 |
+| 5 | Configuración de pipeline automatizado CI/CD en GitHub Actions para pruebas continuas | Calidad / DevOps | Media | Sprint 3 |
 
 ---
 
-## 9. Estructura del código fuente
+## 9. Estructura del código fuente y repositorio
 
-El código se organiza en carpetas independientes y claramente identificadas (`frontend/`, `backend/`, `database/`) directamente en la raíz del repositorio. La justificación técnica de esta decisión frente a la alternativa `src/frontend` + `src/backend` se desarrolla en `05 Justificación de la estructura del código V_1_0_0.md`.
+El código fuente del proyecto mantiene una organización modular y limpia en carpetas independientes en la raíz del repositorio (`backend/`, `frontend/`, `database/`), complementado con un archivo `.gitignore` estricto que previene el rastreo de binarios, dependencias externas (`node_modules/`, `.dart_tool/`, `target/`), variables de entorno (`.env`) y certificados sensibles.
 
 ---
 
@@ -144,7 +143,7 @@ El código se organiza en carpetas independientes y claramente identificadas (`f
 
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
-| V_1_0_0 | 2026-09-29 | Creación inicial: informe de estado del Sprint 1 (Fase 03: Implementación). | Equipo PIPRE |
+| V_1_0_0 | 2026-10-06 | Creación inicial: informe de estado del Sprint 2 (Fase 03: Implementación). | Equipo PIPRE |
 
 ---
 
@@ -152,4 +151,4 @@ El código se organiza en carpetas independientes y claramente identificadas (`f
 
 - **Documentos relacionados:** `02 Registro de Impedimentos V_1_0_0.md`, `03 Revisión del Sprint V_1_0_0.md`, `04 Retrospectiva del Sprint V_1_0_0.md`, `05 Justificación de la estructura del código V_1_0_0.md`.
 - **Planificación:** `docs/02 Planificación/01 Transformando a ágil V_1_1_0.md` y `docs/02 Planificación/02 Artefactos Jira V_1_1_0.md`.
-- **Arquitectura y stack:** `docs/01 Inicio/12. Modelo C4 V_1_1_0.md` y `docs/01 Inicio/10. Stack tecnológico V_1_0_0.md`.
+- **Arquitectura:** `docs/01 Inicio/12. Modelo C4 V_1_1_0.md` y `docs/01 Inicio/10. Stack tecnológico V_1_0_0.md`.

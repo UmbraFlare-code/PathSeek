@@ -146,7 +146,19 @@ Flujo: `To Do` → `In Progress` → `In Review / QA` → `Done`.
 | **Ítems traspasados al Sprint 2** | Migración Flyway `V4`, endpoint de dashboard (RF-005) y pipeline CI/CD |
 | **Pull Requests integrados** | #4 (`Feature/backend-sprint1`) y #5 (`feature/database`) |
 
-El detalle del cierre consta en los documentos de `docs/03 Implementación/` (Informe de estado, Registro de impedimentos, Revisión del Sprint y Retrospectiva).
+### 4.6 Cierre del Sprint 2
+
+| Resultado | Valor |
+| --- | --- |
+| **Sprint** | Sprint 2 (2026-09-28 a 2026-10-09) |
+| **Story Points comprometidos** | 26 |
+| **Story Points completados** | 26 (100 %) |
+| **Ítems completados en Sprint 2** | PATHSEEK-10 (US-008), PATHSEEK-7 (US-007), PATHSEEK-4 (US-005), PATHSEEK-15/16 (EN-007/008) y PATHSEEK-11 (EN-004) |
+| **Story Points acumulados totales** | 44 / 89 SP (49.4 % del backlog general) |
+| **Pull Requests integrados** | #6 y #7 (`fix-app-mobile` / mejoras web y móvil) |
+| **Entorno de producción** | Servidor VPS Contabo `https://169.58.74.99` (HTTPS SSL / Docker Compose) |
+
+El detalle del cierre de la iteración consta en los documentos de `docs/03 Implementación/` (Informe de estado, Registro de impedimentos, Revisión del Sprint y Retrospectiva).
 
 ---
 
@@ -211,6 +223,7 @@ El detalle del cierre consta en los documentos de `docs/03 Implementación/` (In
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-09-07 | Creación inicial: informe de parametrización de Jira Software y plantilla de evidencias (Fase 02: Planificación). | Equipo PIPRE |
 | V_1_1_0 | 2026-09-29 | Sincronización con el cierre del Sprint 1: ítems PATHSEEK-1/2/3/6 marcados como Done, resultado de 18/18 SP y sección de cierre del sprint. | Equipo PIPRE |
+| V_1_2_0 | 2026-10-06 | Sincronización con el cierre del Sprint 2: ítems PATHSEEK-10/7/4/15/16/11 marcados como Done, resultado de 26/26 SP (44 SP acumulados) y despliegue en producción. | Equipo PIPRE |
 
 ---
 

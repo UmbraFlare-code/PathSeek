@@ -20,7 +20,7 @@
 | **Duración**               | 14 semanas (4 iteraciones)                          |
 | **Enfoque**                | Híbrido con dominancia ágil (iterativo-incremental) |
 | **Presupuesto**            | S/ 500,000 (MVP) + S/ 120,000 anual operativo       |
-| **Versión documento**      | V_1_1_0                                             |
+| **Versión documento**      | V_1_2_0                                             |
 
 ## Índice de documentación
 
@@ -55,15 +55,15 @@ La documentación de la Fase 02 reside en `docs/02 Planificación/`. Cada docume
 
 ## Fase 03: Implementación del Proyecto
 
-La documentación de la Fase 03 reside en `docs/03 Implementación/`. Corresponde a los entregables de gestión del **Sprint 1**. Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
+La documentación de la Fase 03 reside en `docs/03 Implementación/`. Corresponde a los entregables de gestión del **Sprint 2** (así como los fundamentos arquitecturales de la solución). Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
 
 | Doc | Archivo | Descripción |
 | --- | --- | --- |
-| 20  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 1: avance 18/18 SP, métricas, impedimentos y pendientes |
-| 21  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Obstáculos del Sprint 1 con impacto, prioridad y resolución |
-| 22  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas, demostración a stakeholders y pendientes |
-| 23  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, mejoras y plan de acción |
-| 24  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/` + `backend/` en la raíz |
+| 20  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 2: avance 26/26 SP (100%), métricas de calidad, componentes y pendientes |
+| 21  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Obstáculos operativos del Sprint 2 (100% resueltos, sin bloqueos técnicos) y trazabilidad |
+| 22  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas (Dashboard, Rutas, APK móvil, VPS), demostración a UGEL Huancayo y PRs |
+| 23  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, oportunidades de mejora en 4 ejes y plan de acción para el Sprint 3 |
+| 24  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/`, `backend/` y `database/` en la raíz |
 
 ## Resumen de objetivos y KPIs
 
@@ -218,4 +218,5 @@ La documentación se genera a partir de la consigna del proyecto "PathSeek" – 
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-09-07 | Creación inicial del README con el índice de las fases 01 y 02. | Equipo PIPRE |
 | V_1_1_0 | 2026-09-29 | Sincronización con el Sprint 1: se agrega la Fase 03 (Implementación) con enlaces a los entregables, se retiran referencias a documentos eliminados y se actualiza el versionamiento. | Equipo PIPRE |
+| V_1_2_0 | 2026-10-06 | Sincronización con los entregables del Sprint 2: actualización de la Fase 03 (Implementación), enlaces relativos de ida y vuelta y despliegue en producción. | Equipo PIPRE |
 

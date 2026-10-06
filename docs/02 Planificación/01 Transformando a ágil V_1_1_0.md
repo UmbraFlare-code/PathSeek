@@ -654,7 +654,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 
 **Total del backlog:** 89 Story Points.
 
-**Estado al cierre del Sprint 1 (2026-09-25):** los ítems **US-001, US-002, US-003 y EN-003** (18 de los 89 Story Points) quedaron **Done**, verificados conforme al DoD global. El resto de ítems permanece en el backlog priorizado para las siguientes iteraciones, comenzando por US-005 y EN-001 en el Sprint 2.
+**Estado al cierre del Sprint 2 (2026-10-06):** los ítems **US-001, US-002, US-003, US-005 (gestión base), US-007, US-008, EN-003, EN-004 y EN-007/EN-008** acumulan **44 Story Points completados (Done)** sobre los 89 totales del backlog, todos verificados conforme al DoD global. El sistema cuenta con núcleo logístico, dashboard de indicadores, catálogo de rutas en tarjetas web/móvil, descarga de APK y despliegue en producción con SSL. El backlog restante para los siguientes sprints prioriza la re-optimización dinámica (US-006 / EN-002) y los reportes PDF de sostenibilidad (US-009).
 
 ### 7.2 Notas de priorización
 
@@ -671,6 +671,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-09-07 | Creación inicial: transformación de RF/RNF a Épicas, US, Enablers y DoD (Fase 02: Planificación). | Equipo PIPRE |
 | V_1_1_0 | 2026-09-29 | Sincronización con el cierre del Sprint 1: se registra el estado Done de US-001, US-002, US-003 y EN-003 (18 SP) y la priorización de US-005/EN-001 para el Sprint 2. | Equipo PIPRE |
+| V_1_2_0 | 2026-10-06 | Sincronización con el cierre del Sprint 2: se registra el estado Done de US-008, US-007, US-005, EN-007/EN-008 y EN-004 (26 SP adicionales, 44 SP acumulados) y despliegue en producción. | Equipo PIPRE |
 
 ---
 
