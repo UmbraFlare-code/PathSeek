@@ -80,6 +80,9 @@ public class OrderService {
         order.setTipoProducto(request.tipoProducto());
         if (request.estado() != null) {
             order.setEstado(request.estado());
+            if (request.estado() == OrderStatus.PENDIENTE) {
+                order.setMotivoNoAsignado(null);
+            }
         } else if (creating) {
             order.setEstado(OrderStatus.PENDIENTE);
         }

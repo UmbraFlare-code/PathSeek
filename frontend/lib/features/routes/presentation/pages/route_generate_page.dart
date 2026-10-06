@@ -1,39 +1,11 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pathseek/core/di/injection.dart';
 import 'package:pathseek/core/widgets/app_snack_bar.dart';
-import 'package:pathseek/features/routes/domain/entities/route_plan.dart';
 import 'package:pathseek/features/routes/presentation/bloc/route_bloc.dart';
-
-/// Referencia secuencial ingenua para el KPI de la demo: ir y volver al
-/// depósito por cada pedido (sin encadenar). Se etiqueta como estimada.
-double _baselineKm(RoutePlan plan) {
-  var total = 0.0;
-  for (final r in plan.rutas) {
-    for (final s in r.paradas) {
-      total += 2 *
-          _haversineKm(plan.depositoLat, plan.depositoLon, s.gpsLat, s.gpsLon);
-    }
-  }
-  return total;
-}
-
-double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
-  const r = 6371.0;
-  const toRad = math.pi / 180;
-  final dLat = (lat2 - lat1) * toRad;
-  final dLon = (lon2 - lon1) * toRad;
-  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-      math.cos(lat1 * toRad) *
-          math.cos(lat2 * toRad) *
-          math.sin(dLon / 2) *
-          math.sin(dLon / 2);
-  return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-}
 
 class RouteGeneratePage extends StatefulWidget {
   const RouteGeneratePage({super.key});
@@ -47,8 +19,6 @@ class _RouteGeneratePageState extends State<RouteGeneratePage> {
   final _fechaController = TextEditingController(
     text: DateTime.now().toIso8601String().substring(0, 10),
   );
-  // Depósito UGEL Huancayo (zona Atalaya — coincide con datos semilla
-  // database/04_seed_data.sql para que las ventanas sean alcanzables).
   final _latController = TextEditingController(text: '-12.0654');
   final _lonController = TextEditingController(text: '-75.2048');
   final _velocidadController = TextEditingController(text: '40');
@@ -96,24 +66,11 @@ class _RouteGeneratePageState extends State<RouteGeneratePage> {
               children: [
                 Text('Generación de rutas',
                     style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                const Text(
-                  'Historia 1: asigna pedidos PENDIENTE respetando capacidad, '
-                  'ventanas y restricción de placa. Historia 2: mide P95 < 45 s.',
-                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     const Icon(Icons.location_on, size: 18),
                     const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'Depósito sugerido: UGEL Huancayo, Atalaya 1280 '
-                        '(zona de los datos semilla de ciudad). '
-                        'Si escribes otro depósito lejano, algunos pedidos '
-                        'pueden salir como “ventana inalcanzable”.',
-                      ),
-                    ),
                     TextButton(
                       onPressed: () {
                         _latController.text = '-12.0654';
@@ -299,7 +256,7 @@ class _OptimizingBannerState extends State<_OptimizingBanner> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Optimizando rutas… ${seconds}s (límite 45s · SLA RNF-001)',
+              'Optimizando rutas… ${seconds}s',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -319,10 +276,6 @@ class _PlanView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plan = state.plan!;
-    final baseline = _baselineKm(plan);
-    final ahorro = baseline > 0
-        ? (1 - plan.metricas.distanciaKm / baseline) * 100
-        : 0.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -356,13 +309,6 @@ class _PlanView extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Ahorro estimado −${ahorro.toStringAsFixed(1)}% vs referencia '
-          'secuencial ingenua (${baseline.toStringAsFixed(1)} km ida-vuelta '
-          'por pedido) · KPI objetivo ≥15% · cálculo estimado',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
         const SizedBox(height: 12),
         for (final r in plan.rutas)
           Card(
@@ -374,21 +320,6 @@ class _PlanView extends StatelessWidget {
                 '${r.combustibleL} L · Estado: Planificada',
               ),
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Icon(Icons.person_outline, size: 18),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Conductor: por asignar (asignación de conductores: Sprint 3+)',
-                          style: TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
                 for (final s in r.paradas)
                   ListTile(
                     dense: true,

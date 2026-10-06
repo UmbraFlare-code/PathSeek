@@ -115,6 +115,7 @@ class _EstadoChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final (color, foreground) = switch (estado) {
       'PENDIENTE' => (Colors.orange.shade100, Colors.orange.shade900),
+      'EN_RUTA' => (Colors.blue.shade100, Colors.blue.shade900),
       'PLANIFICADO' => (Colors.blue.shade100, Colors.blue.shade900),
       'ENTREGADO' => (Colors.green.shade100, Colors.green.shade900),
       'CANCELADO' => (Colors.red.shade100, Colors.red.shade900),

@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pathseek/core/di/injection.dart';
+import 'package:pathseek/features/orders/data/datasources/order_remote_datasource.dart';
 import 'package:pathseek/features/routes/domain/entities/route_plan.dart';
-
-/// RF-004: visualización de rutas en mapa interactivo (flutter_map + OSM).
-/// Recibe el plan por navegación (`extra`), igual que los form-pages.
 class RouteMapPage extends StatelessWidget {
   const RouteMapPage({super.key, this.plan});
 
@@ -29,6 +28,9 @@ class RouteMapView extends StatefulWidget {
 class _RouteMapViewState extends State<RouteMapView> {
   /// Placas ocultas con los chips de filtro (todas visibles por defecto).
   final Set<String> _hiddenPlacas = {};
+  RoutePlan? _enRutaPlan;
+  bool _loadingEnRuta = false;
+  String? _enRutaError;
 
   static const List<Color> _routeColors = [
     Colors.blue,
@@ -48,8 +50,121 @@ class _RouteMapViewState extends State<RouteMapView> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.plan == null) _loadActivos();
+  }
+
+  /// Carga pedidos activos (PENDIENTE + EN_RUTA) para que /map siempre
+  /// funcione. ENTREGADO/CANCELADO ya no aparecen: salen del mapa.
+  Future<void> _loadActivos() async {
+    setState(() {
+      _loadingEnRuta = true;
+      _enRutaError = null;
+    });
+    try {
+      final ds = locator<OrderRemoteDataSource>();
+      final orders = await ds.getOrders();
+      final activos = orders
+          .where((o) => o.estado == 'PENDIENTE' || o.estado == 'EN_RUTA')
+          .toList();
+      if (!mounted) return;
+      if (activos.isEmpty) {
+        setState(() {
+          _loadingEnRuta = false;
+          _enRutaPlan = null;
+        });
+        return;
+      }
+      const depotLat = -12.0654;
+      const depotLon = -75.2048;
+      final rutas = <VehicleRoute>[];
+      for (final estado in ['PENDIENTE', 'EN_RUTA']) {
+        final grupo =
+            activos.where((o) => o.estado == estado).toList();
+        if (grupo.isEmpty) continue;
+        final stops = <RouteStop>[];
+        for (var i = 0; i < grupo.length; i++) {
+          final o = grupo[i];
+          stops.add(RouteStop(
+            pedidoId: o.id,
+            orden: i + 1,
+            llegadaEstimada:
+                o.ventanaInicio.isNotEmpty ? o.ventanaInicio : '—',
+            distanciaTramoKm: 0,
+            gpsLat: o.gpsLat,
+            gpsLon: o.gpsLon,
+            clienteId: o.clienteId,
+            direccion: o.direccion,
+            ventanaInicio: o.ventanaInicio,
+            ventanaFin: o.ventanaFin,
+            peso: o.peso,
+            prioridad: o.prioridad,
+            estado: o.estado,
+          ));
+        }
+        rutas.add(VehicleRoute(
+          vehiculoId: estado,
+          placa: estado,
+          distanciaKm: 0,
+          combustibleL: 0,
+          co2Kg: 0,
+          paradas: stops,
+        ));
+      }
+      setState(() {
+        _loadingEnRuta = false;
+        _enRutaPlan = RoutePlan(
+          rutaId: 'activos',
+          fechaOperacion: '',
+          duracionMs: 0,
+          metricas: RouteMetrics(
+            distanciaKm: 0,
+            combustibleL: 0,
+            co2Kg: 0,
+            cumplimientoPct: 100,
+            totalAsignados: activos.length,
+            totalNoAsignados: 0,
+            penalizacion: 0,
+          ),
+          rutas: rutas,
+          noAsignados: const [],
+          depositoLat: depotLat,
+          depositoLon: depotLon,
+        );
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadingEnRuta = false;
+        _enRutaError = e.toString();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final p = widget.plan;
+    final p = widget.plan ?? _enRutaPlan;
+    if (_loadingEnRuta) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_enRutaError != null && p == null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.map_outlined, size: 64),
+            const SizedBox(height: 12),
+            Text('No se pudo cargar pedidos en ruta: $_enRutaError'),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => context.go('/routes'),
+              child: const Text('Generar rutas'),
+            ),
+          ],
+        ),
+      );
+    }
     if (p == null || p.rutas.isEmpty) {
       return Center(
         child: Column(
@@ -172,11 +287,20 @@ class _RouteMapViewState extends State<RouteMapView> {
             children: [
               Expanded(
                 child: Text(
-                  'Mapa de rutas · ${p.rutas.length} rutas · '
-                  '${p.metricas.cumplimientoPct.toStringAsFixed(0)}% cumplimiento',
+                  widget.plan != null
+                      ? 'Mapa de rutas · ${p.rutas.length} rutas · '
+                          '${p.metricas.cumplimientoPct.toStringAsFixed(0)}% cumplimiento'
+                      : 'Mapa · ${p.metricas.totalAsignados} activos '
+                          '(PENDIENTE + EN_RUTA)',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
+              if (widget.plan == null)
+                IconButton(
+                  tooltip: 'Actualizar',
+                  icon: const Icon(Icons.refresh),
+                  onPressed: _loadingEnRuta ? null : _loadActivos,
+                ),
               OutlinedButton.icon(
                 onPressed: () => context.go('/routes'),
                 icon: const Icon(Icons.arrow_back),
@@ -248,12 +372,6 @@ class _RouteMapViewState extends State<RouteMapView> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Congestión MVP por hora de llegada (hora punta Huancayo 7–9, 12–14, 18–20). '
-            'Tiempos por tramo de referencia a 40 km/h; el backend calculará con velocidad real.',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
           for (var i = 0; i < p.rutas.length; i++)
             _RouteSegments(
               route: p.rutas[i],
@@ -293,6 +411,7 @@ class _RouteMapViewState extends State<RouteMapView> {
             ),
             const SizedBox(height: 12),
             _row('Cliente', stop.clienteId ?? '—'),
+            if (stop.estado.isNotEmpty) _row('Estado', stop.estado),
             _row('Ventana', '${stop.ventanaInicio ?? '—'} – ${stop.ventanaFin ?? '—'}'),
             _row('Peso', '${stop.peso} kg'),
             _row('Llegada estimada', stop.llegadaEstimada),
@@ -377,7 +496,8 @@ class _RouteSegments extends StatelessWidget {
                     style: const TextStyle(color: Colors.white)),
               ),
               title: Text(
-                '${s.clienteId ?? s.pedidoId.substring(0, 8)} · llegada ${s.llegadaEstimada}',
+                '${s.clienteId ?? s.pedidoId.substring(0, 8)} · llegada ${s.llegadaEstimada}'
+                '${s.estado.isNotEmpty ? ' · ${s.estado}' : ''}',
               ),
               subtitle: Text(
                 'Tramo ${s.distanciaTramoKm} km · ≈${(s.distanciaTramoKm / 40 * 60).round()} min (ref. 40 km/h)',

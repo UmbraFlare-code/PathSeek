@@ -64,6 +64,7 @@ class RoutePlanModel extends RoutePlan {
               ventanaFin: e['ventana_fin']?.toString(),
               peso: _toDouble(e['peso']),
               prioridad: (e['prioridad'] ?? '').toString(),
+              estado: (e['estado'] ?? '').toString(),
             ))
         .toList();
     return VehicleRoute(

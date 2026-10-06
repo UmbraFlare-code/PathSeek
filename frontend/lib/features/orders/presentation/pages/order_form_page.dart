@@ -72,6 +72,14 @@ class _OrderFormViewState extends State<OrderFormView> {
   late final TextEditingController _ventanaFinController;
   String _prioridad = 'ESTANDAR';
   String _tipoProducto = 'NO_PERECEDERO';
+  String _estado = 'PENDIENTE';
+
+  static const List<String> _estados = [
+    'PENDIENTE',
+    'EN_RUTA',
+    'ENTREGADO',
+    'CANCELADO',
+  ];
 
   static const List<String> _prioridades = [
     'EXPRESS',
@@ -107,6 +115,7 @@ class _OrderFormViewState extends State<OrderFormView> {
     if (order != null) {
       _prioridad = order.prioridad;
       _tipoProducto = order.tipoProducto;
+      _estado = order.estado;
     }
   }
 
@@ -145,7 +154,7 @@ class _OrderFormViewState extends State<OrderFormView> {
         ventanaFin: _ventanaFinController.text.trim(),
         prioridad: _prioridad,
         tipoProducto: _tipoProducto,
-        estado: widget.order?.estado ?? 'PENDIENTE',
+        estado: _isEditing ? _estado : 'PENDIENTE',
       );
 
       final bloc = context.read<OrderBloc>();
@@ -339,6 +348,28 @@ class _OrderFormViewState extends State<OrderFormView> {
                         ),
                       ],
                     ),
+                    if (_isEditing) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: _estado,
+                        decoration: const InputDecoration(
+                          labelText: 'Estado',
+                        ),
+                        items: _estados
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _estado = value);
+                          }
+                        },
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,

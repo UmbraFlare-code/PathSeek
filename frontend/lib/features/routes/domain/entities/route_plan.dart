@@ -14,6 +14,7 @@ class RouteStop extends Equatable {
     this.ventanaFin,
     this.peso = 0,
     this.prioridad = '',
+    this.estado = '',
   });
 
   final String pedidoId;
@@ -28,6 +29,7 @@ class RouteStop extends Equatable {
   final String? ventanaFin;
   final double peso;
   final String prioridad;
+  final String estado;
 
   /// Nivel de congestión MVP por hora de llegada (hora punta Huancayo).
   /// Sin API de tráfico en Sprint 2: heurística documentada.
@@ -56,6 +58,7 @@ class RouteStop extends Equatable {
         ventanaFin,
         peso,
         prioridad,
+        estado,
       ];
 }
 
