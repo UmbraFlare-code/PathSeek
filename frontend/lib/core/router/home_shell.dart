@@ -47,6 +47,8 @@ class HomeShell extends StatelessWidget {
                   context.go('/drivers');
                 case 3:
                   context.go('/orders');
+                case 4:
+                  context.go('/routes');
               }
             },
             labelType: NavigationRailLabelType.all,
@@ -69,6 +71,11 @@ class HomeShell extends StatelessWidget {
                   icon: Icon(Icons.inventory_2),
                   label: Text('Pedidos'),
                 ),
+              if (user != null && (user.isAdmin || user.isOperador))
+                const NavigationRailDestination(
+                  icon: Icon(Icons.route),
+                  label: Text('Rutas'),
+                ),
             ],
           ),
           Expanded(child: child),
@@ -81,6 +88,7 @@ class HomeShell extends StatelessWidget {
     if (location.startsWith('/fleet')) return 1;
     if (location.startsWith('/drivers')) return 2;
     if (location.startsWith('/orders')) return 3;
+    if (location.startsWith('/routes')) return 4;
     return 0;
   }
 }

@@ -20,6 +20,10 @@ import '../../features/orders/data/datasources/order_remote_datasource.dart';
 import '../../features/orders/data/repositories/order_repository_impl.dart';
 import '../../features/orders/domain/repositories/order_repository.dart';
 import '../../features/orders/presentation/bloc/order_bloc.dart';
+import '../../features/routes/data/datasources/route_remote_datasource.dart';
+import '../../features/routes/data/repositories/route_repository_impl.dart';
+import '../../features/routes/domain/repositories/route_repository.dart';
+import '../../features/routes/presentation/bloc/route_bloc.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -38,6 +42,7 @@ Future<void> setupDependencies() async {
   _registerFleet();
   _registerDrivers();
   _registerOrders();
+  _registerRoutes();
 }
 
 void _registerAuth() {
@@ -88,5 +93,18 @@ void _registerOrders() {
   );
   locator.registerFactory<OrderBloc>(
     () => OrderBloc(repository: locator()),
+  );
+}
+
+void _registerRoutes() {
+  locator.registerLazySingleton<RouteRemoteDataSource>(
+    () => RouteRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<RouteRepository>(
+    () => RouteRepositoryImpl(remoteDataSource: locator()),
+  );
+  // Factory: cada página crea su instancia y BlocProvider la cierra al salir.
+  locator.registerFactory<RouteBloc>(
+    () => RouteBloc(repository: locator()),
   );
 }

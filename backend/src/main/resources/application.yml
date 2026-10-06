@@ -29,4 +29,6 @@ app:
     email: ${APP_BOOTSTRAP_USER_EMAIL:}
     password: ${APP_BOOTSTRAP_USER_PASSWORD:}
     role: ${APP_BOOTSTRAP_USER_ROLE:ADMIN}
+  seed:
+    city-data-enabled: ${APP_SEED_CITY_DATA_ENABLED:true}
 

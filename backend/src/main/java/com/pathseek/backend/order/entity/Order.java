@@ -1,5 +1,6 @@
 package com.pathseek.backend.order.entity;
 
+import com.pathseek.backend.order.entity.MotivoNoAsignado;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -60,6 +61,10 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private OrderStatus estado;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "motivo_no_asignado", length = 30)
+    private MotivoNoAsignado motivoNoAsignado;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -172,5 +177,13 @@ public class Order {
 
     public void setEstado(OrderStatus estado) {
         this.estado = estado;
+    }
+
+    public MotivoNoAsignado getMotivoNoAsignado() {
+        return motivoNoAsignado;
+    }
+
+    public void setMotivoNoAsignado(MotivoNoAsignado motivoNoAsignado) {
+        this.motivoNoAsignado = motivoNoAsignado;
     }
 }

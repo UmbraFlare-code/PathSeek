@@ -13,6 +13,9 @@ import '../../features/fleet/presentation/pages/vehicle_form_page.dart';
 import '../../features/orders/domain/entities/order.dart';
 import '../../features/orders/presentation/pages/order_form_page.dart';
 import '../../features/orders/presentation/pages/order_list_page.dart';
+import '../../features/routes/domain/entities/route_plan.dart';
+import '../../features/routes/presentation/pages/route_generate_page.dart';
+import '../../features/routes/presentation/pages/route_map_page.dart';
 import '../constants/app_roles.dart';
 import 'home_shell.dart';
 
@@ -25,6 +28,8 @@ class AppRouter {
     '/fleet': [AppRoles.admin, AppRoles.operador],
     '/drivers': [AppRoles.admin, AppRoles.operador],
     '/orders': [AppRoles.admin, AppRoles.operador, AppRoles.cliente],
+    '/routes': [AppRoles.admin, AppRoles.operador],
+    '/map': [AppRoles.admin, AppRoles.operador],
   };
 
   late final GoRouter router = GoRouter(
@@ -87,6 +92,15 @@ class AppRouter {
                     OrderFormPage(order: state.extra as Order?),
               ),
             ],
+          ),
+          GoRoute(
+            path: '/routes',
+            builder: (context, state) => const RouteGeneratePage(),
+          ),
+          GoRoute(
+            path: '/map',
+            builder: (context, state) =>
+                RouteMapPage(plan: state.extra as RoutePlan?),
           ),
         ],
       ),

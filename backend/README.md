@@ -105,6 +105,54 @@ La URL base es `http://localhost:8080/api/v1`.
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - Especificación OpenAPI: `http://localhost:8080/v3/api-docs`
 
+## Rutas optimizadas (Sprint 2, RF-003)
+
+| Método | Endpoint | Roles | Descripción |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/rutas/generar` | ADMIN, OPERADOR | Heurística greedy: respeta capacidad (RN-005), ventanas (RN-006), placa (RN-003). Timeout 45 s, lock anti-concurrencia |
+| `POST` | `/api/v1/rutas/confirmar` | ADMIN, OPERADOR | Body `{pedido_ids:[...]}`: asignados PENDIENTE → EN_RUTA. Sin esto, regenerar repite el mismo plan |
+| `GET` | `/api/v1/rutas/metricas-rendimiento` | ADMIN, OPERADOR, AUDITOR | `{total_solicitudes, p50_ms, p95_ms, media_ms, min_ms, max_ms, ultima_ms, sla_45s_cumplido}` |
+| `GET` | `/api/v1/rutas/lock` | ADMIN, OPERADOR, AUDITOR | `{en_ejecucion: bool}` |
+
+Sin pedidos pendientes, `POST /rutas/generar` responde `422 NO_PENDING_ORDERS`.
+
+Body `POST /rutas/generar`:
+
+```json
+{
+  "fecha_operacion": "2026-10-05",
+  "deposito": { "latitud": -12.065, "longitud": -75.204 },
+  "velocidad_kmh": 40,
+  "tiempo_servicio_min": 15,
+  "vehiculo_ids": null,
+  "pedido_ids": null
+}
+```
+
+Reglas MVP aplicadas:
+
+- **Placa (RN-003):** `fecha_operacion → DayOfWeek → dígitos restringidos` (Lun 1-2, Mar 3-4, Mié 5-6, Jue 7-8, Vie 9-0, Sáb/Dom sin restricción). Último dígito de `placa` (o `restriccion_placa_digito` como override). Excluidos → `motivo RESTRICCION_PLACA`.
+- **No asignados:** `PENDIENTE + motivo_no_asignado ∈ {VENTANA_INALCANZABLE, CAPACIDAD, RESTRICCION_PLACA}` (columna nullable, migración `V4`). `null` = esperando asignación.
+- **Descansos (RN-004):** fuera de alcance Sprint 2; no se calcula jornada 8h/1h×4h.
+- **Distancias:** Haversine en memoria (`GeoUtils`), sin matriz persistida.
+- **Fórmulas:** `factor_emision` en kg CO₂/L. `combustible_l = distancia_km / consumo_km_l`; `co2_kg = combustible_l × factor_emision`.
+- **Concurrencia:** hilo único + `AtomicBoolean`; `409 ROUTE_GENERATION_BUSY` si hay generación en curso; `422 ROUTE_TIMEOUT` si supera 45 s.
+
+### Datos semilla de ciudad (Huancayo) — automáticos
+
+Al arrancar, el backend carga solo los datos de ciudad de
+`database/04_seed_data.sql` (3 vehículos + 3 pedidos en Huancayo) **si no
+existen** (`CitySeedRunner`, idempotente). Despliegue simple: no hay paso
+manual. Para desactivar:
+
+```powershell
+$env:APP_SEED_CITY_DATA_ENABLED="false"
+```
+
+Luego genera rutas con depósito `-12.0654, -75.2048` (botón “Usar UGEL”
+en el frontend) y una fecha cuya restricción de placa no excluya toda
+tu flota (ver tabla en `PlateRestrictionService`).
+
 ## Pruebas y build
 
 ```powershell

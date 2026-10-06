@@ -78,6 +78,10 @@ public class SecurityConfig {
                                 .hasAnyRole("ADMIN", "OPERADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/pedidos/**")
                                 .hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/rutas/generar", "/api/v1/rutas/confirmar")
+                                .hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/rutas/metricas-rendimiento", "/api/v1/rutas/lock")
+                                .hasAnyRole("ADMIN", "OPERADOR", "AUDITOR")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
