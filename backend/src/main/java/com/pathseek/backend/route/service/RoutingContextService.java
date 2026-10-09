@@ -1,11 +1,9 @@
 package com.pathseek.backend.route.service;
 
-import com.pathseek.backend.route.dto.RoadContextDto;
 import com.pathseek.backend.route.dto.RoadIncidentRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,24 +17,63 @@ public class RoutingContextService {
     public static final double DEPOT_LON = -75.210000;
     public static final int DEPOT_ELEVATION_M = 3260;
 
+    private final OsmRoutingService osmRoutingService;
     private final Map<UUID, List<RoadIncidentRequest>> incidentesPorRuta = new ConcurrentHashMap<>();
 
+    public RoutingContextService(OsmRoutingService osmRoutingService) {
+        this.osmRoutingService = osmRoutingService;
+    }
+
     /**
-     * Calcula la distancia vial estimada en kilómetros considerando el factor de serpenteo de calles andinas.
+     * Calcula la distancia vial estimada en kilómetros considerando la red vial de OpenStreetMap y orografía andina.
      */
     public double calculateRoadDistanceKm(double lat1, double lon1, double lat2, double lon2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
+        OsmRoutingService.RouteSegmentResult segment = osmRoutingService.calculateSegment(lat1, lon1, lat2, lon2);
+        return segment.distanceKm();
+    }
 
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    /**
+     * Traza la trayectoria completa entre paradas siguiendo estrictamente las carreteras permitidas de OpenStreetMap.
+     */
+    public List<double[]> getDetailedRoadPath(List<double[]> stops) {
+        if (stops == null || stops.isEmpty()) return List.of();
+        OsmRoutingService.RouteSegmentResult result = osmRoutingService.calculateMultiPointRoute(stops);
+        return result.coordinates();
+    }
 
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double haversineKm = 6371.0 * c;
+    /**
+     * Evalúa el multiplicador de tráfico / incidencias estilo Waze para un tramo vial.
+     */
+    public double getTrafficPenaltyFactor(double lat1, double lon1, double lat2, double lon2, UUID rutaId) {
+        List<RoadIncidentRequest> incidentes = getIncidentes(rutaId);
+        double penalty = 1.0;
 
-        // Factor de curvatura urbana y orográfica de Huancayo (1.35x sobre la distancia recta)
-        return haversineKm * 1.35;
+        for (RoadIncidentRequest inc : incidentes) {
+            if (inc.lat() != null && inc.lon() != null) {
+                double incLat = inc.lat().doubleValue();
+                double incLon = inc.lon().doubleValue();
+                double radiusKm = (inc.radioAfectacionMetros() != null ? inc.radioAfectacionMetros() : 250) / 1000.0;
+
+                // Verificar si cualquiera de los puntos o el punto medio cae dentro del radio del incidente
+                double d1 = osmRoutingService.haversineDistanceKm(lat1, lon1, incLat, incLon);
+                double d2 = osmRoutingService.haversineDistanceKm(lat2, lon2, incLat, incLon);
+                double dMid = osmRoutingService.haversineDistanceKm((lat1 + lat2) / 2.0, (lon1 + lon2) / 2.0, incLat, incLon);
+
+                if (d1 <= radiusKm || d2 <= radiusKm || dMid <= radiusKm) {
+                    String tipo = inc.tipo() != null ? inc.tipo().toUpperCase() : "CONGESTION";
+                    if (tipo.contains("BLOQUEO") || tipo.contains("HUAICO") || tipo.contains("CERRADA")) {
+                        return 10.0; // Penalización máxima para forzar desvío
+                    } else if (tipo.contains("ACCIDENTE") || tipo.contains("SEVERA")) {
+                        penalty = Math.max(penalty, 2.5);
+                    } else if (tipo.contains("OBRAS")) {
+                        penalty = Math.max(penalty, 1.8);
+                    } else {
+                        penalty = Math.max(penalty, 1.4);
+                    }
+                }
+            }
+        }
+        return penalty;
     }
 
     /**
@@ -56,6 +93,10 @@ public class RoutingContextService {
 
     public List<RoadIncidentRequest> getIncidentes(UUID rutaId) {
         return incidentesPorRuta.getOrDefault(rutaId, List.of());
+    }
+
+    public void limpiarIncidentes(UUID rutaId) {
+        incidentesPorRuta.remove(rutaId);
     }
 
     /**

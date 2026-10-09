@@ -24,123 +24,145 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.inventory_2,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.border,
+          width: 1.0,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.inventory_2_outlined,
                     color: AppTheme.primary,
-                    size: 22,
+                    size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        order.direccion,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: AppTheme.textHighContrast,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      order.direccion,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        letterSpacing: 0.1,
+                        color: AppTheme.textHighContrast,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        order.clienteId,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF727970),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                _PriorityChip(prioridad: order.prioridad),
-                OrderStatusChip(estado: order.estado),
-                _TipoChip(tipo: order.tipoProducto),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _MiniMetric(
-                    label: 'Peso',
-                    value: '${Formatters.decimal.format(order.peso)} kg',
-                    icon: Icons.scale_outlined,
-                  ),
-                ),
-                Expanded(
-                  child: _MiniMetric(
-                    label: 'Volumen',
-                    value: '${Formatters.decimal.format(order.volumen)} m3',
-                    icon: Icons.square_foot_outlined,
-                  ),
-                ),
-                Expanded(
-                  child: _MiniMetric(
-                    label: 'Ventana',
-                    value: '${order.ventanaInicio} - ${order.ventanaFin}',
-                    icon: Icons.schedule_outlined,
-                  ),
-                ),
-              ],
-            ),
-            if (_showActions) ...[
-              const SizedBox(height: 8),
-              const Divider(height: 1),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (canEdit)
-                    TextButton.icon(
-                      onPressed: () => onEdit(order),
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: const Text('Editar'),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  if (canDelete)
-                    TextButton.icon(
-                      onPressed: () => onDelete(order),
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      label: Text(
-                        'Eliminar',
-                        style:
-                            TextStyle(color: Theme.of(context).colorScheme.error),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Cliente: ${order.clienteId}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w300,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              _PriorityChip(prioridad: order.prioridad),
+              OrderStatusChip(estado: order.estado),
+              _TipoChip(tipo: order.tipoProducto),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _MiniMetric(
+                  label: 'Peso',
+                  value: '${Formatters.decimal.format(order.peso)} kg',
+                  icon: Icons.scale_outlined,
+                ),
+              ),
+              Expanded(
+                child: _MiniMetric(
+                  label: 'Volumen',
+                  value: '${Formatters.decimal.format(order.volumen)} m³',
+                  icon: Icons.square_foot_outlined,
+                ),
+              ),
+              Expanded(
+                child: _MiniMetric(
+                  label: 'Ventana',
+                  value: '${order.ventanaInicio}-${order.ventanaFin}',
+                  icon: Icons.schedule_outlined,
+                ),
+              ),
+            ],
+          ),
+          if (_showActions) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 1, thickness: 1, color: AppTheme.border),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (canEdit)
+                  TextButton.icon(
+                    onPressed: () => onEdit(order),
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text('Editar', style: TextStyle(fontSize: 12)),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(0, 32),
+                    ),
+                  ),
+                if (canDelete)
+                  TextButton.icon(
+                    onPressed: () => onDelete(order),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    label: Text(
+                      'Eliminar',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(0, 32),
+                    ),
+                  ),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -157,7 +179,7 @@ class _MiniMetric extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 15, color: const Color(0xFF727970)),
+        Icon(icon, size: 14, color: AppTheme.textMuted),
         const SizedBox(width: 4),
         Expanded(
           child: Column(
@@ -167,7 +189,7 @@ class _MiniMetric extends StatelessWidget {
                 value,
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: AppTheme.textHighContrast,
                 ),
                 maxLines: 1,
@@ -175,7 +197,11 @@ class _MiniMetric extends StatelessWidget {
               ),
               Text(
                 label,
-                style: const TextStyle(fontSize: 10, color: Color(0xFF727970)),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  color: AppTheme.textMuted,
+                ),
               ),
             ],
           ),
@@ -192,22 +218,23 @@ class _PriorityChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, foreground) = switch (prioridad) {
-      'EXPRESS' => (Colors.red.shade100, Colors.red.shade900),
-      'ESTANDAR' => (Colors.blue.shade100, Colors.blue.shade900),
-      'ECONOMICO' => (Colors.green.shade100, Colors.green.shade900),
-      _ => (Colors.grey.shade200, Colors.grey.shade800),
+    final (bg, fg, border) = switch (prioridad) {
+      'EXPRESS' => (const Color(0xFFFDF2F2), const Color(0xFFB91C1C), const Color(0xFFFCA5A5)),
+      'ESTANDAR' => (const Color(0xFFEFF6FF), const Color(0xFF1D4ED8), const Color(0xFFBFDBFE)),
+      'ECONOMICO' => (const Color(0xFFF0FDF4), const Color(0xFF15803D), const Color(0xFFBBF7D0)),
+      _ => (const Color(0xFFF3F4F6), const Color(0xFF374151), const Color(0xFFE5E7EB)),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: border, width: 0.8),
       ),
       child: Text(
         prioridad,
-        style: TextStyle(fontSize: 11, color: foreground),
+        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500, color: fg),
       ),
     );
   }
@@ -221,14 +248,15 @@ class _TipoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFF0F5F1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFD6E3D8), width: 0.8),
       ),
       child: Text(
         tipo,
-        style: const TextStyle(fontSize: 11, color: AppTheme.primaryDark),
+        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w400, color: AppTheme.primary),
       ),
     );
   }
@@ -241,24 +269,25 @@ class OrderStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, foreground) = switch (estado) {
-      'PENDIENTE' => (Colors.orange.shade100, Colors.orange.shade900),
-      'PLANIFICADO' => (Colors.blue.shade100, Colors.blue.shade900),
-      'EN_RUTA' => (Colors.indigo.shade100, Colors.indigo.shade900),
-      'ENTREGADO' => (Colors.green.shade100, Colors.green.shade900),
-      'CANCELADO' => (Colors.red.shade100, Colors.red.shade900),
-      _ => (Colors.grey.shade200, Colors.grey.shade800),
+    final (bg, fg, border) = switch (estado) {
+      'PENDIENTE' => (const Color(0xFFFFFBEB), const Color(0xFFB45309), const Color(0xFFFDE68A)),
+      'PLANIFICADO' => (const Color(0xFFEFF6FF), const Color(0xFF1D4ED8), const Color(0xFFBFDBFE)),
+      'EN_RUTA' => (const Color(0xFFEEF2FF), const Color(0xFF4338CA), const Color(0xFFC7D2FE)),
+      'ENTREGADO' => (const Color(0xFFF0FDF4), const Color(0xFF15803D), const Color(0xFFBBF7D0)),
+      'CANCELADO' => (const Color(0xFFFDF2F2), const Color(0xFFB91C1C), const Color(0xFFFCA5A5)),
+      _ => (const Color(0xFFF3F4F6), const Color(0xFF374151), const Color(0xFFE5E7EB)),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: border, width: 0.8),
       ),
       child: Text(
         estado,
-        style: TextStyle(fontSize: 11, color: foreground),
+        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500, color: fg),
       ),
     );
   }

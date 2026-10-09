@@ -5,9 +5,15 @@ import com.pathseek.backend.driver.repository.DriverRepository;
 import com.pathseek.backend.order.entity.Order;
 import com.pathseek.backend.order.entity.OrderStatus;
 import com.pathseek.backend.order.repository.OrderRepository;
+import com.pathseek.backend.audit.service.AuditService;
+import com.pathseek.backend.exception.BusinessRuleException;
+import com.pathseek.backend.exception.ResourceNotFoundException;
 import com.pathseek.backend.route.dto.DeliveryRouteResponse;
 import com.pathseek.backend.route.dto.GenerateRoutesResponse;
+import com.pathseek.backend.route.dto.ReoptimizeRouteRequest;
+import com.pathseek.backend.route.dto.ReoptimizeRouteResponse;
 import com.pathseek.backend.route.dto.RouteGeometryResponse;
+import com.pathseek.backend.route.dto.RouteOrderResponse;
 import com.pathseek.backend.route.entity.DeliveryRoute;
 import com.pathseek.backend.route.entity.RouteOrder;
 import com.pathseek.backend.route.entity.RouteStatus;
@@ -37,6 +43,7 @@ public class RouteOptimizationService {
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
     private final RoutingContextService routingContextService;
+    private final AuditService auditService;
 
     public RouteOptimizationService(
             DeliveryRouteRepository routeRepository,
@@ -44,13 +51,15 @@ public class RouteOptimizationService {
             OrderRepository orderRepository,
             VehicleRepository vehicleRepository,
             DriverRepository driverRepository,
-            RoutingContextService routingContextService) {
+            RoutingContextService routingContextService,
+            AuditService auditService) {
         this.routeRepository = routeRepository;
         this.routeOrderRepository = routeOrderRepository;
         this.orderRepository = orderRepository;
         this.vehicleRepository = vehicleRepository;
         this.driverRepository = driverRepository;
         this.routingContextService = routingContextService;
+        this.auditService = auditService;
     }
 
     @Transactional(readOnly = true)
@@ -61,14 +70,33 @@ public class RouteOptimizationService {
         } else {
             routes = routeRepository.findAll();
         }
-        return routes.stream().map(DeliveryRouteResponse::fromEntity).toList();
+        return routes.stream()
+                .map(r -> DeliveryRouteResponse.fromEntity(r, buildPolylineForRoute(r)))
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public DeliveryRouteResponse getRouteById(UUID id) {
         DeliveryRoute route = routeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ruta no encontrada con ID: " + id));
-        return DeliveryRouteResponse.fromEntity(route);
+        return DeliveryRouteResponse.fromEntity(route, buildPolylineForRoute(route));
+    }
+
+    private String buildPolylineForRoute(DeliveryRoute route) {
+        if (route.getPedidos() == null || route.getPedidos().isEmpty()) {
+            return null;
+        }
+        List<double[]> stops = new ArrayList<>();
+        stops.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
+        for (RouteOrder ro : route.getPedidos()) {
+            Order order = ro.getPedido();
+            if (order != null && order.getGpsLat() != null && order.getGpsLon() != null) {
+                stops.add(new double[]{order.getGpsLat().doubleValue(), order.getGpsLon().doubleValue()});
+            }
+        }
+        stops.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
+        List<double[]> path = routingContextService.getDetailedRoadPath(stops);
+        return routingContextService.encodeCoordinates(path.isEmpty() ? stops : path);
     }
 
     @Transactional
@@ -172,6 +200,8 @@ public class RouteOptimizationService {
 
                 RouteOrder ro = new RouteOrder(route, order, orderSeq++, currentTime, windowComplied);
                 route.addPedido(ro);
+                order.setEstado(OrderStatus.EN_RUTA);
+                orderRepository.save(order);
 
                 currentTime = currentTime.plusMinutes(15); // tiempo de descarga
                 currentLat = order.getGpsLat().doubleValue();
@@ -202,7 +232,7 @@ public class RouteOptimizationService {
         BigDecimal totalCo2Reduced = BigDecimal.valueOf(generatedRoutes.size() * 8.9).setScale(2, RoundingMode.HALF_UP);
 
         return new GenerateRoutesResponse(
-                generatedRoutes.stream().map(DeliveryRouteResponse::fromEntity).toList(),
+                generatedRoutes.stream().map(r -> DeliveryRouteResponse.fromEntity(r, buildPolylineForRoute(r))).toList(),
                 unassignedOrderIds,
                 generatedRoutes.size(),
                 candidates.size() - unassignedOrderIds.size(),
@@ -218,12 +248,12 @@ public class RouteOptimizationService {
         DeliveryRoute route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Ruta no encontrada con ID: " + routeId));
 
-        List<double[]> points = new ArrayList<>();
+        List<double[]> stops = new ArrayList<>();
         List<RouteGeometryResponse.WaypointDto> waypoints = new ArrayList<>();
         List<RouteGeometryResponse.ElevationPointDto> elevationProfile = new ArrayList<>();
 
         // 1. Depósito Inicial
-        points.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
+        stops.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
         waypoints.add(new RouteGeometryResponse.WaypointDto(
                 0,
                 "DEPOSITO",
@@ -248,12 +278,7 @@ public class RouteOptimizationService {
             if (order != null && order.getGpsLat() != null && order.getGpsLon() != null) {
                 double lat = order.getGpsLat().doubleValue();
                 double lon = order.getGpsLon().doubleValue();
-
-                // Puntos interpolados para suavizar la polilínea sobre calles
-                double midLat = (lastLat + lat) / 2.0;
-                double midLon = (lastLon + lon) / 2.0;
-                points.add(new double[]{midLat, midLon});
-                points.add(new double[]{lat, lon});
+                stops.add(new double[]{lat, lon});
 
                 double segmentKm = routingContextService.calculateRoadDistanceKm(lastLat, lastLon, lat, lon);
                 accumulatedKm += segmentKm;
@@ -282,7 +307,7 @@ public class RouteOptimizationService {
         }
 
         // Regreso al depósito
-        points.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
+        stops.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
         accumulatedKm += routingContextService.calculateRoadDistanceKm(lastLat, lastLon, RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON);
         elevationProfile.add(new RouteGeometryResponse.ElevationPointDto(
                 BigDecimal.valueOf(accumulatedKm).setScale(2, RoundingMode.HALF_UP),
@@ -290,17 +315,167 @@ public class RouteOptimizationService {
                 "ASFALTO"
         ));
 
-        String encoded = routingContextService.encodeCoordinates(points);
+        List<double[]> detailedRoadPath = routingContextService.getDetailedRoadPath(stops);
+        String encoded = routingContextService.encodeCoordinates(detailedRoadPath.isEmpty() ? stops : detailedRoadPath);
 
         return new RouteGeometryResponse(
                 route.getId(),
                 encoded,
                 waypoints,
                 elevationProfile,
-                "FLUIDO_CON_CONGESTION_MODERADA_CENTRO",
+                "OSM_VIO_HUANCAYO_OPTIMIZADA",
                 route.getDistanciaKm(),
-                (int) Math.round((route.getDistanciaKm().doubleValue() / 22.0) * 60) + (sortedOrders.size() * 15)
+                (int) Math.round((route.getDistanciaKm().doubleValue() / 24.0) * 60) + (sortedOrders.size() * 12)
         );
+    }
+
+    @Transactional
+    public ReoptimizeRouteResponse reoptimizeRoute(UUID routeId, ReoptimizeRouteRequest request) {
+        long startTime = System.currentTimeMillis();
+
+        DeliveryRoute route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada con ID: " + routeId));
+
+        List<RouteOrder> currentRouteOrders = route.getPedidos();
+        if (currentRouteOrders == null || currentRouteOrders.isEmpty()) {
+            throw new BusinessRuleException("RUTA_SIN_PEDIDOS", "La ruta seleccionada no tiene pedidos asignados para re-optimizar.");
+        }
+
+        List<UUID> cancelados = request.pedidosCancelados() != null ? request.pedidosCancelados() : List.of();
+        List<Order> activeOrders = currentRouteOrders.stream()
+                .map(RouteOrder::getPedido)
+                .filter(order -> order != null && !cancelados.contains(order.getId()))
+                .toList();
+
+        if (activeOrders.isEmpty()) {
+            throw new BusinessRuleException("RUTA_SIN_PEDIDOS_ACTIVOS", "No quedan pedidos activos en la ruta tras aplicar las cancelaciones.");
+        }
+
+        // Limpiar lista de pedidos asociados para reconstruir la secuencia óptima
+        route.getPedidos().clear();
+
+        double incLat = request.latitudIncidente().doubleValue();
+        double incLon = request.longitudIncidente().doubleValue();
+        double radioKm = (request.radioBloqueoMetros() != null ? request.radioBloqueoMetros() : 250) / 1000.0;
+
+        List<Order> sortedStops = sortOrdersWithIncidentEvasion(activeOrders, incLat, incLon, radioKm);
+
+        double totalDistKm = 0;
+        double currentLat = RoutingContextService.DEPOT_LAT;
+        double currentLon = RoutingContextService.DEPOT_LON;
+        LocalTime currentTime = LocalTime.of(8, 30);
+
+        int orderSeq = 1;
+        for (Order order : sortedStops) {
+            double dist = routingContextService.calculateRoadDistanceKm(
+                    currentLat, currentLon,
+                    order.getGpsLat().doubleValue(), order.getGpsLon().doubleValue()
+            );
+
+            // Penalización por desvío en caso de proximidad al punto crítico
+            double distToInc = routingContextService.calculateRoadDistanceKm(order.getGpsLat().doubleValue(), order.getGpsLon().doubleValue(), incLat, incLon);
+            if (distToInc < radioKm) {
+                dist += 0.95; // Desvío por vía alterna
+            }
+
+            totalDistKm += dist;
+            int travelMinutes = Math.max(4, (int) Math.round((dist / 22.0) * 60.0));
+            currentTime = currentTime.plusMinutes(travelMinutes);
+
+            boolean windowComplied = true;
+            if (order.getVentanaFin() != null) {
+                try {
+                    LocalTime winFin = LocalTime.parse(order.getVentanaFin(), DateTimeFormatter.ofPattern("HH:mm"));
+                    windowComplied = !currentTime.isAfter(winFin);
+                } catch (Exception ignored) {
+                }
+            }
+
+            RouteOrder ro = new RouteOrder(route, order, orderSeq++, currentTime, windowComplied);
+            route.addPedido(ro);
+
+            currentTime = currentTime.plusMinutes(15);
+            currentLat = order.getGpsLat().doubleValue();
+            currentLon = order.getGpsLon().doubleValue();
+        }
+
+        // Regreso al depósito UGEL Huancayo
+        totalDistKm += routingContextService.calculateRoadDistanceKm(
+                currentLat, currentLon,
+                RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON
+        );
+
+        Vehicle vehicle = route.getVehiculo();
+        double consumptionRate = (vehicle != null && vehicle.getConsumoKmL() != null) ? vehicle.getConsumoKmL().doubleValue() : 8.5;
+        double liters = totalDistKm / Math.max(1.0, consumptionRate);
+        double emissionFactor = (vehicle != null && vehicle.getFactorEmision() != null) ? vehicle.getFactorEmision().doubleValue() : 2.35;
+        double co2 = liters * emissionFactor;
+
+        route.setDistanciaKm(BigDecimal.valueOf(totalDistKm).setScale(2, RoundingMode.HALF_UP));
+        route.setCombustibleL(BigDecimal.valueOf(liters).setScale(2, RoundingMode.HALF_UP));
+        route.setCo2Kg(BigDecimal.valueOf(co2).setScale(2, RoundingMode.HALF_UP));
+        route.setEstado(RouteStatus.REOPTIMIZADA);
+
+        DeliveryRoute savedRoute = routeRepository.save(route);
+        long elapsed = System.currentTimeMillis() - startTime;
+
+        auditService.registrarEvento(
+                "OPERADOR_LOGISTICO",
+                "REOPTIMIZACION_RUTA",
+                "DeliveryRoute",
+                routeId.toString(),
+                String.format("Motivo: %s. Incidente: [%.4f, %.4f]. Entregas reordenadas: %d. Tiempo: %d ms",
+                        request.motivo(), incLat, incLon, sortedStops.size(), elapsed),
+                "127.0.0.1"
+        );
+
+        DeliveryRouteResponse routeResponse = DeliveryRouteResponse.fromEntity(savedRoute);
+        String polyline = buildPolylineForRoute(savedRoute);
+
+        return new ReoptimizeRouteResponse(
+                savedRoute.getId(),
+                savedRoute.getEstado(),
+                savedRoute.getDistanciaKm(),
+                savedRoute.getCombustibleL(),
+                savedRoute.getCo2Kg(),
+                elapsed,
+                "Ruta re-optimizada exitosamente esquivando el incidente vial (" + request.motivo() + ")",
+                sortedStops.size(),
+                routeResponse.pedidos(),
+                polyline
+        );
+    }
+
+    private List<Order> sortOrdersWithIncidentEvasion(List<Order> orders, double incLat, double incLon, double radioKm) {
+        if (orders.size() <= 1) return orders;
+
+        List<Order> remaining = new ArrayList<>(orders);
+        List<Order> sorted = new ArrayList<>();
+
+        double currLat = RoutingContextService.DEPOT_LAT;
+        double currLon = RoutingContextService.DEPOT_LON;
+
+        while (!remaining.isEmpty()) {
+            final double fLat = currLat;
+            final double fLon = currLon;
+
+            Order bestNext = remaining.stream()
+                    .min(Comparator.comparingDouble(o -> {
+                        double directDist = routingContextService.calculateRoadDistanceKm(fLat, fLon, o.getGpsLat().doubleValue(), o.getGpsLon().doubleValue());
+                        double distToInc = routingContextService.calculateRoadDistanceKm(o.getGpsLat().doubleValue(), o.getGpsLon().doubleValue(), incLat, incLon);
+                        // Penalizar si el pedido se encuentra dentro del área de congestión
+                        double penalty = (distToInc < radioKm) ? 15.0 : 0.0;
+                        return directDist + penalty;
+                    }))
+                    .orElse(remaining.get(0));
+
+            sorted.add(bestNext);
+            remaining.remove(bestNext);
+            currLat = bestNext.getGpsLat().doubleValue();
+            currLon = bestNext.getGpsLon().doubleValue();
+        }
+
+        return sorted;
     }
 
     private List<Order> sortOrdersNearestNeighbor(List<Order> orders) {

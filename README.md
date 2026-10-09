@@ -53,17 +53,49 @@ La documentación de la Fase 02 reside en `docs/02 Planificación/`. Cada docume
 | 16  | [03 Registro de riesgos V_1_0_0.md](docs/02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md)           | Matriz de riesgos con severidad P × I y planes de mitigación/contingencia              |
 | 17  | [04 Presupuesto del proyecto V_1_0_0.md](docs/02%20Planificaci%C3%B3n/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md) | CAPEX RRHH, licenciamiento, OPEX Cloud y reserva de contingencia                       |
 
-## Fase 03: Implementación del Proyecto
+## Fase 03: Implementación del Proyecto (Organizada por Sprints)
 
-La documentación de la Fase 03 reside en `docs/03 Implementación/`. Corresponde a los entregables de gestión del **Sprint 2** (así como los fundamentos arquitecturales de la solución). Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
+La documentación de la Fase 03 reside en `docs/03 Implementación/` y se encuentra estructurada modularmente en carpetas por cada sprint e incluye la justificación arquitectural:
+
+### Sprint 1: Núcleo Logístico y Seguridad (18 SP - Done)
 
 | Doc | Archivo | Descripción |
 | --- | --- | --- |
-| 20  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 2: avance 26/26 SP (100%), métricas de calidad, componentes y pendientes |
-| 21  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Obstáculos operativos del Sprint 2 (100% resueltos, sin bloqueos técnicos) y trazabilidad |
-| 22  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas (Dashboard, Rutas, APK móvil, VPS), demostración a UGEL Huancayo y PRs |
-| 23  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, oportunidades de mejora en 4 ejes y plan de acción para el Sprint 3 |
-| 24  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/`, `backend/` y `database/` en la raíz |
+| S1-01 | [01 Planificación del Sprint 1 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/01%20Planificaci%C3%B3n%20del%20Sprint%201%20V_1_0_0.md) | Sprint Goal, US-001, US-002, US-003, EN-003 y DoD |
+| S1-02 | [02 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/02%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | DOC-018: Cierre Sprint 1 (18/18 SP), métricas y PRs #4 y #5 |
+| S1-03 | [03 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/03%20Registro%20de%20Impedimentos%20V_1_0_0.md) | DOC-019: Obstáculos identificados y resueltos al 100% |
+| S1-04 | [04 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/04%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Demostración a UGEL Huancayo de Login JWT y CRUDs |
+| S1-05 | [05 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/05%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes en 4 ejes y compromisos para Sprint 2 |
+
+### Sprint 2: Dashboard, Visualización de Rutas y Producción VPS (26 SP - Done)
+
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| S2-01 | [01 Planificación del Sprint 2 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/01%20Planificaci%C3%B3n%20del%20Sprint%202%20V_1_0_0.md) | Sprint Goal, US-008, US-007, US-005, EN-007/008, EN-004 |
+| S2-02 | [02 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/02%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | DOC-020: Cierre Sprint 2 (26/26 SP), VPS Contabo SSL |
+| S2-03 | [03 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/03%20Registro%20de%20Impedimentos%20V_1_0_0.md) | DOC-021: Obstáculos superados en despliegue y CORS |
+| S2-04 | [04 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/04%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | DOC-022: Demostración Dashboard, tarjetas de rutas y APK |
+| S2-05 | [05 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/05%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | DOC-023: Acciones de mejora A-08 a A-12 para Sprint 3 |
+
+### Sprint 3: Re-optimización Dinámica, Reportes Sostenibilidad, Clientes y Auditoría (23 SP - Objetivo)
+
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| S3-01 | [01 Planificación del Sprint 3 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/01%20Planificaci%C3%B3n%20del%20Sprint%203%20V_1_0_0.md) | Sprint Goal, US-006, EN-002, US-009, US-004, US-010 |
+| S3-02 | [02 Especificación de Contratos API y Trazabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/02%20Especificaci%C3%B3n%20de%20Contratos%20API%20y%20Trazabilidad%20V_1_0_0.md) | Contratos REST, OpenAPI Schemas y DTOs tipados |
+| S3-03 | [03 Matriz de Seguimiento y Criterios Gherkin V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/03%20Matriz%20de%20Seguimiento%20y%20Criterios%20Gherkin%20V_1_0_0.md) | Trazabilidad RF/RNF a criterios BDD Gherkin y tests |
+| S3-04 | [04 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/04%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | DOC-025: Avance 23/23 SP, avance general 67/89 SP |
+| S3-05 | [05 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/05%20Registro%20de%20Impedimentos%20V_1_0_0.md) | DOC-026: Registro y control de riesgos del Sprint 3 |
+| S3-06 | [06 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/06%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | DOC-027: Demostración de re-optimización, PDF y clientes |
+| S3-07 | [07 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/07%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | DOC-028: Lecciones aprendidas y plan de transferencia |
+
+### Entregables Transversales de Arquitectura y Diseño
+
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| 24  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | DOC-024: Fundamento de la organización `frontend/`, `backend/` y `database/` en la raíz |
+| 25  | [DESIGN.md](DESIGN.md) | Guía del Sistema de Diseño UI/UX: Enfoque Mobile-First, Minimalista, Flat y Tipografía Ligera |
+
 
 ## Resumen de objetivos y KPIs
 

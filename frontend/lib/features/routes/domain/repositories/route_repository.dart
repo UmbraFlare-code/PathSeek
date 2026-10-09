@@ -8,5 +8,14 @@ abstract class RouteRepository {
 
   Future<GenerateRoutesResult> generateRoutes();
 
+  Future<DeliveryRoute> reoptimizeRoute(
+    String id, {
+    required String motivo,
+    required double latitudIncidente,
+    required double longitudIncidente,
+    int radioBloqueoMetros = 250,
+    List<String> pedidosCancelados = const [],
+  });
+
   Future<void> deleteRoute(String id);
 }

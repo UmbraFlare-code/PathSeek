@@ -48,6 +48,33 @@ void main() {
       ],
     );
 
+    const route2 = DeliveryRoute(
+      id: 'r-102',
+      fecha: '2026-10-06',
+      conductorNombre: 'Carlos Mendez',
+      placa: 'AFH-320',
+      distanciaKm: 28.0,
+      co2Kg: 6.1,
+      combustibleL: 2.8,
+      pedidos: [
+        RouteOrder(
+          pedidoId: 'p-3',
+          orden: 1,
+          horaEstimada: '10:15',
+          direccion: 'I.E. Politécnico Regional',
+          gpsLat: -12.080000,
+          gpsLon: -75.200000,
+          peso: 60.0,
+          contextoVial: RoadContext(
+            tipoSuperficie: 'ASFALTO',
+            elevacionMetros: 3240,
+            pendientePorcentaje: 1.5,
+            nivelCongestion: 'FLUIDO',
+          ),
+        ),
+      ],
+    );
+
     testWidgets('InteractiveRouteMap renders stops and simulation button',
         (tester) async {
       await tester.pumpWidget(
@@ -67,6 +94,25 @@ void main() {
       await tester.tap(find.text('Simular GPS'));
       await tester.pump();
       expect(find.text('Detener'), findsOneWidget);
+
+      // Tocar una parada
+      await tester.tap(find.text('1'));
+      await tester.pump();
+      expect(find.textContaining('PARADA #1'), findsOneWidget);
+    });
+
+    testWidgets('InteractiveRouteMap renders multi-route panoramic mode',
+        (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: InteractiveRouteMap(routes: [route, route2]),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('VALLE DEL MANTARO (2 RUTAS)'), findsOneWidget);
+      expect(find.byType(CustomPaint), findsWidgets);
     });
 
     testWidgets('ElevationProfileWidget renders altitude metrics for stops',

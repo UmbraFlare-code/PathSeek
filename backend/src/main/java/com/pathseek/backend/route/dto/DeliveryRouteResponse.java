@@ -19,9 +19,14 @@ public record DeliveryRouteResponse(
         BigDecimal combustibleL,
         String estado,
         List<RouteOrderResponse> pedidos,
-        Integer totalEntregas
+        Integer totalEntregas,
+        String encodedPolyline
 ) {
     public static DeliveryRouteResponse fromEntity(DeliveryRoute route) {
+        return fromEntity(route, null);
+    }
+
+    public static DeliveryRouteResponse fromEntity(DeliveryRoute route, String encodedPolyline) {
         var orderResponses = route.getPedidos() != null
                 ? route.getPedidos().stream().map(RouteOrderResponse::fromEntity).toList()
                 : List.<RouteOrderResponse>of();
@@ -38,7 +43,8 @@ public record DeliveryRouteResponse(
                 route.getCombustibleL(),
                 route.getEstado().name(),
                 orderResponses,
-                orderResponses.size()
+                orderResponses.size(),
+                encodedPolyline
         );
     }
 }

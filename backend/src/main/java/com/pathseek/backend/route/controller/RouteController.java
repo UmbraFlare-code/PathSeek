@@ -2,6 +2,8 @@ package com.pathseek.backend.route.controller;
 
 import com.pathseek.backend.route.dto.DeliveryRouteResponse;
 import com.pathseek.backend.route.dto.GenerateRoutesResponse;
+import com.pathseek.backend.route.dto.ReoptimizeRouteRequest;
+import com.pathseek.backend.route.dto.ReoptimizeRouteResponse;
 import com.pathseek.backend.route.dto.RoadIncidentRequest;
 import com.pathseek.backend.route.dto.RouteGeometryResponse;
 import com.pathseek.backend.route.service.RouteOptimizationService;
@@ -75,6 +77,15 @@ public class RouteController {
             @Valid @RequestBody RoadIncidentRequest request) {
         routingContextService.registrarIncidente(id, request);
         return ResponseEntity.ok(Map.of("mensaje", "Incidente vial registrado exitosamente en la ruta"));
+    }
+
+    @PostMapping("/{id}/reoptimizar")
+    @Operation(summary = "Re-optimizar ruta dinámicamente", description = "Recalcula y reordena las paradas de la ruta en tiempo real esquivando incidentes viales reportados")
+    public ResponseEntity<ReoptimizeRouteResponse> reoptimizeRoute(
+            @PathVariable UUID id,
+            @Valid @RequestBody ReoptimizeRouteRequest request) {
+        ReoptimizeRouteResponse response = optimizationService.reoptimizeRoute(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

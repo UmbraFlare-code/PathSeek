@@ -15,6 +15,7 @@ class RouteBloc extends Bloc<RouteEvent, RouteState> {
     on<RoutesLoaded>(_onRoutesLoaded);
     on<RoutesGenerated>(_onRoutesGenerated);
     on<RouteDetailRequested>(_onRouteDetailRequested);
+    on<RouteReoptimized>(_onRouteReoptimized);
     on<RouteDeleted>(_onRouteDeleted);
   }
 
@@ -70,6 +71,39 @@ class RouteBloc extends Bloc<RouteEvent, RouteState> {
     } on Failure catch (failure) {
       emit(
         state.copyWith(isDetailLoading: false, detailError: failure.message),
+      );
+    }
+  }
+
+  Future<void> _onRouteReoptimized(
+    RouteReoptimized event,
+    Emitter<RouteState> emit,
+  ) async {
+    emit(state.copyWith(isReoptimizing: true, reoptimizeErrorMessage: null, reoptimizeSuccess: false));
+    try {
+      final updatedRoute = await _repository.reoptimizeRoute(
+        event.id,
+        motivo: event.motivo,
+        latitudIncidente: event.latitudIncidente,
+        longitudIncidente: event.longitudIncidente,
+        radioBloqueoMetros: event.radioBloqueoMetros,
+        pedidosCancelados: event.pedidosCancelados,
+      );
+      final updatedRoutes = state.routes.map((r) => r.id == event.id ? updatedRoute : r).toList();
+      emit(
+        state.copyWith(
+          isReoptimizing: false,
+          reoptimizeSuccess: true,
+          selectedRoute: updatedRoute,
+          routes: updatedRoutes,
+        ),
+      );
+    } on Failure catch (failure) {
+      emit(
+        state.copyWith(
+          isReoptimizing: false,
+          reoptimizeErrorMessage: failure.message,
+        ),
       );
     }
   }

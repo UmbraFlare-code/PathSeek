@@ -62,6 +62,30 @@ class RouteRepositoryImpl implements RouteRepository {
   }
 
   @override
+  Future<DeliveryRoute> reoptimizeRoute(
+    String id, {
+    required String motivo,
+    required double latitudIncidente,
+    required double longitudIncidente,
+    int radioBloqueoMetros = 250,
+    List<String> pedidosCancelados = const [],
+  }) async {
+    try {
+      final model = await _remoteDataSource.reoptimizeRoute(
+        id,
+        motivo: motivo,
+        latitudIncidente: latitudIncidente,
+        longitudIncidente: longitudIncidente,
+        radioBloqueoMetros: radioBloqueoMetros,
+        pedidosCancelados: pedidosCancelados,
+      );
+      return model.toEntity();
+    } on DioException catch (e) {
+      throw mapDioExceptionToFailure(e);
+    }
+  }
+
+  @override
   Future<void> deleteRoute(String id) async {
     try {
       await _remoteDataSource.deleteRoute(id);

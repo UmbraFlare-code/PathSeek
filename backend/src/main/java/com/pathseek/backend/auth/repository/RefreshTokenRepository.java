@@ -15,4 +15,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select rt from RefreshToken rt join fetch rt.user where rt.tokenHash = :tokenHash")
     Optional<RefreshToken> findByTokenHashForUpdate(@Param("tokenHash") String tokenHash);
+
+    long deleteByExpiresAtBefore(java.time.OffsetDateTime now);
+    long deleteByRevokedAtIsNotNull();
 }

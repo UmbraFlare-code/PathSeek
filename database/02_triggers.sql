@@ -61,30 +61,30 @@ CREATE OR REPLACE FUNCTION fn_audit_usuarios()
 RETURNS TRIGGER AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
-        INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-        VALUES (NEW.usuario_id, 'CREAR_USUARIO', 'usuarios', 
+        INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+        VALUES (NEW.email, 'CREAR_USUARIO', 'usuarios', NEW.usuario_id::text,
                 format('Usuario creado con email %s y rol %s', NEW.email, NEW.rol));
     ELSIF (TG_OP = 'UPDATE') THEN
         IF OLD.activo <> NEW.activo THEN
-            INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-            VALUES (NEW.usuario_id, 
+            INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+            VALUES (NEW.email, 
                     CASE WHEN NEW.activo THEN 'ACTIVAR_USUARIO' ELSE 'DESACTIVAR_USUARIO' END, 
-                    'usuarios', 
+                    'usuarios', NEW.usuario_id::text,
                     format('Estado activo cambió de %s a %s', OLD.activo, NEW.activo));
         END IF;
         IF OLD.rol <> NEW.rol THEN
-            INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-            VALUES (NEW.usuario_id, 'CAMBIO_ROL', 'usuarios', 
+            INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+            VALUES (NEW.email, 'CAMBIO_ROL', 'usuarios', NEW.usuario_id::text,
                     format('Rol modificado de %s a %s', OLD.rol, NEW.rol));
         END IF;
         IF OLD.bloqueado_hasta IS NULL AND NEW.bloqueado_hasta IS NOT NULL THEN
-            INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-            VALUES (NEW.usuario_id, 'BLOQUEO_CUENTA', 'usuarios', 
+            INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+            VALUES (NEW.email, 'BLOQUEO_CUENTA', 'usuarios', NEW.usuario_id::text,
                     format('Cuenta bloqueada hasta %s por intentos fallidos', NEW.bloqueado_hasta));
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
-        INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-        VALUES (OLD.usuario_id, 'ELIMINAR_USUARIO', 'usuarios', 
+        INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+        VALUES (OLD.email, 'ELIMINAR_USUARIO', 'usuarios', OLD.usuario_id::text,
                 format('Usuario con email %s fue eliminado', OLD.email));
     END IF;
     RETURN NEW;
@@ -105,13 +105,13 @@ CREATE OR REPLACE FUNCTION fn_audit_pedidos_estado()
 RETURNS TRIGGER AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
-        INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-        VALUES (NULL, 'CREAR_PEDIDO', 'pedidos', 
+        INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+        VALUES ('SISTEMA', 'CREAR_PEDIDO', 'pedidos', NEW.pedido_id::text,
                 format('Pedido %s creado para cliente %s con prioridad %s', NEW.pedido_id, NEW.cliente_id, NEW.prioridad));
     ELSIF (TG_OP = 'UPDATE') THEN
         IF OLD.estado <> NEW.estado THEN
-            INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-            VALUES (NULL, 'CAMBIO_ESTADO_PEDIDO', 'pedidos', 
+            INSERT INTO auditoria (usuario, accion, entidad, entidad_id, detalles)
+            VALUES ('SISTEMA', 'CAMBIO_ESTADO_PEDIDO', 'pedidos', NEW.pedido_id::text,
                     format('Pedido %s cambió de estado %s a %s', NEW.pedido_id, OLD.estado, NEW.estado));
         END IF;
     END IF;

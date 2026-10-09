@@ -54,7 +54,7 @@ class FleetListView extends StatelessWidget {
       },
       builder: (context, state) {
         return Padding(
-          padding: EdgeInsets.all(narrow ? 16 : 32),
+          padding: EdgeInsets.all(narrow ? 14 : 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -62,33 +62,33 @@ class FleetListView extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const _TitleBadge(),
+                    const _FleetHeader(),
                     const SizedBox(height: 12),
                     if (canCreate)
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton.icon(
                           onPressed: () => context.go('/fleet/new'),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Nuevo vehiculo'),
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Nuevo vehículo'),
                         ),
                       ),
                   ],
                 )
               else
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const _TitleBadge(),
-                    const Spacer(),
+                    const Expanded(child: _FleetHeader()),
                     if (canCreate)
                       FilledButton.icon(
                         onPressed: () => context.go('/fleet/new'),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Nuevo vehiculo'),
+                        icon: const Icon(Icons.add_rounded, size: 18),
+                        label: const Text('Nuevo vehículo'),
                       ),
                   ],
                 ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Expanded(
                 child: _buildBody(context, state, canEdit, canDelete),
               ),
@@ -131,6 +131,60 @@ class FleetListView extends StatelessWidget {
   }
 }
 
+class _FleetHeader extends StatelessWidget {
+  const _FleetHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: AppTheme.accent,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'GESTIÓN DE FLOTA',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Control de Flota y Vehículos',
+          style: TextStyle(
+            color: AppTheme.textHighContrast,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 2),
+        const Text(
+          'Capacidades de carga, rendimiento y registro de emisiones',
+          style: TextStyle(
+            color: AppTheme.textMuted,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _FleetFilteredGrid extends StatefulWidget {
   const _FleetFilteredGrid({
     required this.vehicles,
@@ -167,16 +221,19 @@ class _FleetFilteredGridState extends State<_FleetFilteredGrid> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '// ${filtered.length} DE ${widget.vehicles.length} VEHICULOS',
-          style: const TextStyle(
-            color: AppTheme.primaryDark,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            letterSpacing: 1.0,
-          ),
+        Row(
+          children: [
+            Text(
+              '${filtered.length} de ${widget.vehicles.length} vehículos registrados',
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         SearchSortControls<VehicleSort>(
           queryController: _queryController,
           hint: 'Buscar por placa o tipo',
@@ -189,7 +246,7 @@ class _FleetFilteredGridState extends State<_FleetFilteredGrid> {
           onQueryChanged: () => setState(() {}),
           onSortChanged: (value) => setState(() => _sort = value),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         if (filtered.isEmpty)
           const Expanded(
             child: EmptyView(
@@ -203,9 +260,9 @@ class _FleetFilteredGridState extends State<_FleetFilteredGrid> {
               padding: EdgeInsets.zero,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: _columnsFor(context),
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                mainAxisExtent: narrow ? 230 : 215,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                mainAxisExtent: narrow ? 210 : 195,
               ),
               itemCount: filtered.length,
               itemBuilder: (context, index) {
@@ -237,9 +294,9 @@ class _FleetFilteredGridState extends State<_FleetFilteredGrid> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Eliminar vehiculo'),
+        title: const Text('Eliminar vehículo'),
         content: Text(
-            'Seguro que desea eliminar el vehiculo con placa ${vehicle.placa}?'),
+            '¿Seguro que desea eliminar el vehículo con placa ${vehicle.placa}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -259,29 +316,5 @@ class _FleetFilteredGridState extends State<_FleetFilteredGrid> {
     if (confirmed == true && context.mounted) {
       context.read<FleetBloc>().add(FleetVehicleDeleted(vehicle.id));
     }
-  }
-}
-
-class _TitleBadge extends StatelessWidget {
-  const _TitleBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryDark,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Text(
-        'GESTIÓN DE FLOTA',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w900,
-          fontSize: 20,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
   }
 }

@@ -40,12 +40,12 @@ class DashboardView extends StatelessWidget {
               context.read<DashboardBloc>().add(const DashboardLoaded()),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.all(isNarrow(context) ? 16 : 32),
+            padding: EdgeInsets.all(isNarrow(context) ? 14 : 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _HeaderBadge(),
-                const SizedBox(height: 20),
+                const _DashboardHeader(),
+                const SizedBox(height: 16),
                 if (state.isLoading)
                   const LoadingIndicator(message: 'Cargando indicadores...')
                 else if (state.hasError)
@@ -64,7 +64,7 @@ class DashboardView extends StatelessWidget {
                   )
                 else ...[
                   _KpiGrid(summary: state.summary!),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   const _QuickAccess(),
                 ],
               ],
@@ -76,24 +76,56 @@ class DashboardView extends StatelessWidget {
   }
 }
 
-class _HeaderBadge extends StatelessWidget {
+class _DashboardHeader extends StatelessWidget {
+  const _DashboardHeader();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Text(
-        '// PANEL DE CONTROL GENERAL',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-          letterSpacing: 1.5,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: AppTheme.accent,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'PANEL DE CONTROL',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
         ),
-      ),
+        const SizedBox(height: 8),
+        const Text(
+          'Resumen de Operaciones',
+          style: TextStyle(
+            color: AppTheme.textHighContrast,
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Métricas operativas de flota, pedidos y optimización de sostenibilidad',
+          style: TextStyle(
+            color: AppTheme.textMuted,
+            fontSize: 13,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -108,64 +140,64 @@ class _KpiGrid extends StatelessWidget {
     final narrow = isNarrow(context);
     final cards = <Widget>[
       KpiCard(
-        label: 'Vehiculos registrados',
+        label: 'Vehículos registrados',
         value: Formatters.integer.format(summary.totalVehiculos),
-        icon: Icons.local_shipping,
+        icon: Icons.local_shipping_outlined,
       ),
       KpiCard(
         label: 'Conductores disponibles',
         value: Formatters.integer.format(summary.conductoresDisponibles),
-        icon: Icons.badge,
-        accent: AppTheme.primaryDark,
+        icon: Icons.badge_outlined,
+        accent: AppTheme.primary,
       ),
       KpiCard(
         label: 'Pedidos pendientes',
         value: Formatters.integer.format(summary.pedidosPendientes),
-        icon: Icons.schedule,
-        accent: const Color(0xFFE67E22),
+        icon: Icons.schedule_rounded,
+        accent: const Color(0xFFD97706),
       ),
       KpiCard(
         label: 'Pedidos en ruta',
         value: Formatters.integer.format(summary.pedidosEnRuta),
-        icon: Icons.local_shipping_outlined,
-        accent: const Color(0xFF1565C0),
+        icon: Icons.alt_route_rounded,
+        accent: const Color(0xFF2563EB),
       ),
       KpiCard(
         label: 'Pedidos entregados',
         value: Formatters.integer.format(summary.pedidosEntregados),
-        icon: Icons.check_circle_outline,
-        accent: const Color(0xFF2E7D32),
+        icon: Icons.check_circle_outline_rounded,
+        accent: const Color(0xFF16A34A),
       ),
       KpiCard(
         label: 'Pedidos cancelados',
         value: Formatters.integer.format(summary.pedidosCancelados),
         icon: Icons.cancel_outlined,
-        accent: const Color(0xFFBA1A1A),
+        accent: AppTheme.error,
       ),
       KpiCard(
         label: 'Rutas planificadas',
         value: Formatters.integer.format(summary.rutasPlanificadas),
-        icon: Icons.route,
+        icon: Icons.route_outlined,
       ),
       KpiCard(
-        label: 'CO2 total emitido',
+        label: 'CO₂ total emitido',
         value: Formatters.co2(summary.co2TotalKg),
-        icon: Icons.eco,
+        icon: Icons.eco_outlined,
         accent: AppTheme.accent,
       ),
       KpiCard(
         label: 'Combustible consumido',
         value: Formatters.liters(summary.combustibleTotalL),
         icon: Icons.local_gas_station_outlined,
-        accent: AppTheme.primaryDark,
+        accent: AppTheme.primary,
       ),
     ];
 
     return GridView.count(
       crossAxisCount: narrow ? 2 : 3,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: narrow ? 1.35 : 1.9,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: narrow ? 1.6 : 2.5,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: cards,
@@ -182,36 +214,48 @@ class _QuickAccess extends StatelessWidget {
     final entries = _entriesFor(user);
     if (entries.isEmpty) return const SizedBox.shrink();
 
-    final narrow = isNarrow(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            '// ACCESO RAPIDO',
-            style: TextStyle(
-              color: AppTheme.primaryDark,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1.0,
+        Row(
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: AppTheme.primary,
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            const Text(
+              'ACCESO RÁPIDO',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: narrow ? 1 : 3,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: narrow ? 3.2 : 1.8,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: entries,
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final count = width < 550 ? 1 : (width < 950 ? 2 : 4);
+            final ratio = width < 550 ? 3.2 : (width < 950 ? 2.4 : 1.75);
+
+            return GridView.count(
+              crossAxisCount: count,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: ratio,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: entries,
+            );
+          },
         ),
       ],
     );
@@ -221,30 +265,30 @@ class _QuickAccess extends StatelessWidget {
     return [
       if (AppPermissions.canView(user, AppModule.fleet))
         _QuickCard(
-          title: 'Gestion de Vehiculos',
-          description: 'Control de capacidades, consumo y emisiones.',
-          icon: Icons.local_shipping,
+          title: 'Gestión de Flota',
+          description: 'Capacidad, tipo de combustible y estado operativo.',
+          icon: Icons.local_shipping_outlined,
           onTap: (context) => context.go('/fleet'),
         ),
       if (AppPermissions.canView(user, AppModule.drivers))
         _QuickCard(
-          title: 'Conductores Registrados',
-          description: 'Licencias, disponibilidad y asignaciones.',
-          icon: Icons.badge,
+          title: 'Conductores',
+          description: 'Licencias, disponibilidad y turnos asignados.',
+          icon: Icons.badge_outlined,
           onTap: (context) => context.go('/drivers'),
         ),
       if (AppPermissions.canView(user, AppModule.orders))
         _QuickCard(
           title: 'Despacho de Pedidos',
-          description: 'Estado de entrega y ventanas de tiempo.',
-          icon: Icons.inventory_2,
+          description: 'Estado de entregas y ventanas horarias escolares.',
+          icon: Icons.inventory_2_outlined,
           onTap: (context) => context.go('/orders'),
         ),
       if (AppPermissions.canView(user, AppModule.routes))
         _QuickCard(
-          title: 'Rutas Optimizadas',
-          description: 'Generacion y seguimiento de rutas sostenibles.',
-          icon: Icons.route,
+          title: 'Rutas Sostenibles',
+          description: 'Optimización de trayectos y cálculo de huella CO₂.',
+          icon: Icons.route_outlined,
           onTap: (context) => context.go('/routes'),
         ),
     ];
@@ -266,50 +310,71 @@ class _QuickCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.border,
+          width: 1.0,
+        ),
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         onTap: () => onTap(context),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: AppTheme.primary, size: 30),
-              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        icon,
+                        color: AppTheme.primary,
+                        size: 19,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 15,
+                    color: AppTheme.textMuted,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: AppTheme.textHighContrast,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 6),
-              Expanded(
-                child: Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black54,
-                    height: 1.4,
-                  ),
+              const SizedBox(height: 3),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w300,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
                 ),
-              ),
-              const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Abrir',
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  SizedBox(width: 6),
-                  Icon(Icons.arrow_forward, size: 16, color: AppTheme.primary),
-                ],
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

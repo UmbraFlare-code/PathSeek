@@ -15,6 +15,9 @@ class RouteState extends Equatable {
     this.saveErrorMessage,
     this.isDetailLoading = false,
     this.detailError,
+    this.isReoptimizing = false,
+    this.reoptimizeSuccess = false,
+    this.reoptimizeErrorMessage,
   });
 
   const RouteState.initial()
@@ -33,11 +36,15 @@ class RouteState extends Equatable {
   final String? saveErrorMessage;
   final bool isDetailLoading;
   final String? detailError;
+  final bool isReoptimizing;
+  final bool reoptimizeSuccess;
+  final String? reoptimizeErrorMessage;
 
   bool get hasError => errorMessage != null;
   bool get hasGenerateError => generateErrorMessage != null;
   bool get hasSaveError => saveErrorMessage != null;
   bool get hasDetailError => detailError != null;
+  bool get hasReoptimizeError => reoptimizeErrorMessage != null;
   bool get isEmpty => routes.isEmpty && !isLoading;
 
   RouteState copyWith({
@@ -54,6 +61,9 @@ class RouteState extends Equatable {
     String? saveErrorMessage,
     bool? isDetailLoading,
     String? detailError,
+    bool? isReoptimizing,
+    bool? reoptimizeSuccess,
+    String? reoptimizeErrorMessage,
   }) {
     return RouteState(
       routes: routes ?? this.routes,
@@ -69,6 +79,9 @@ class RouteState extends Equatable {
       saveErrorMessage: saveErrorMessage,
       isDetailLoading: isDetailLoading ?? this.isDetailLoading,
       detailError: detailError,
+      isReoptimizing: isReoptimizing ?? this.isReoptimizing,
+      reoptimizeSuccess: reoptimizeSuccess ?? this.reoptimizeSuccess,
+      reoptimizeErrorMessage: reoptimizeErrorMessage,
     );
   }
 
@@ -87,5 +100,8 @@ class RouteState extends Equatable {
         saveErrorMessage,
         isDetailLoading,
         detailError,
+        isReoptimizing,
+        reoptimizeSuccess,
+        reoptimizeErrorMessage,
       ];
 }

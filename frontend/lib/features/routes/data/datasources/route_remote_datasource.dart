@@ -12,6 +12,15 @@ abstract class RouteRemoteDataSource {
   /// Devuelve las rutas generadas y los IDs de pedidos no asignados.
   Future<Map<String, dynamic>> generateRoutes();
 
+  Future<DeliveryRouteModel> reoptimizeRoute(
+    String id, {
+    required String motivo,
+    required double latitudIncidente,
+    required double longitudIncidente,
+    int radioBloqueoMetros = 250,
+    List<String> pedidosCancelados = const [],
+  });
+
   Future<void> deleteRoute(String id);
 }
 
@@ -51,6 +60,30 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
       ),
     );
     return _unwrap(response.data);
+  }
+
+  @override
+  Future<DeliveryRouteModel> reoptimizeRoute(
+    String id, {
+    required String motivo,
+    required double latitudIncidente,
+    required double longitudIncidente,
+    int radioBloqueoMetros = 250,
+    List<String> pedidosCancelados = const [],
+  }) async {
+    await _client.dio.post(
+      '${ApiPaths.rutas}/$id/reoptimizar',
+      data: {
+        'motivo': motivo,
+        'latitudIncidente': latitudIncidente,
+        'longitudIncidente': longitudIncidente,
+        'radioBloqueoMetros': radioBloqueoMetros,
+        'pedidosCancelados': pedidosCancelados,
+      },
+    );
+    // Tras reoptimizar, recargar la ruta completa actualizada
+    final updated = await getRouteById(id);
+    return updated;
   }
 
   @override

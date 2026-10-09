@@ -14,4 +14,6 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     boolean existsByLicencia(String licencia);
 
     boolean existsByLicenciaAndIdNot(String licencia, UUID id);
+
+    java.util.List<Driver> findByDisponibleTrue();
 }

@@ -126,23 +126,27 @@ CREATE INDEX IF NOT EXISTS idx_pedidos_ventana ON pedidos (ventana_inicio, venta
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
--- 6. TABLA: clientes (Roadmap RF-009)
+-- 6. TABLA: clientes (Módulo de Clientes - DOC-024)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS clientes (
     cliente_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    usuario_id UUID NOT NULL REFERENCES usuarios(usuario_id) ON DELETE CASCADE,
-    nombre VARCHAR(120) NOT NULL,
-    direccion TEXT,
-    punto_referencia TEXT,
-    telefono VARCHAR(15),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    nombre VARCHAR(150) NOT NULL,
+    direccion VARCHAR(200) NOT NULL,
+    punto_referencia VARCHAR(200),
+    telefono VARCHAR(20),
+    contacto VARCHAR(100),
+    gps_lat NUMERIC(10, 7),
+    gps_lon NUMERIC(10, 7),
+    ventana_inicio_preferida VARCHAR(5),
+    ventana_fin_preferida VARCHAR(5),
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_clientes_usuario ON clientes(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_clientes_activo ON clientes(activo);
 
 -- -----------------------------------------------------------------------------
--- 7. TABLA: rutas (Roadmap RF-003)
+-- 7. TABLA: rutas (Roadmap RF-003 / EN-002)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS rutas (
     ruta_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -155,7 +159,7 @@ CREATE TABLE IF NOT EXISTS rutas (
     estado VARCHAR(20) NOT NULL DEFAULT 'PLANIFICADA',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_rutas_estado CHECK (estado IN ('PLANIFICADA', 'EN_PROGRESO', 'COMPLETADA', 'CANCELADA'))
+    CONSTRAINT chk_rutas_estado CHECK (estado IN ('PLANIFICADA', 'EN_PROGRESO', 'COMPLETADA', 'CANCELADA', 'REOPTIMIZADA'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_rutas_fecha ON rutas(fecha);
@@ -179,17 +183,18 @@ CREATE INDEX IF NOT EXISTS idx_ruta_pedidos_ruta ON ruta_pedidos(ruta_id);
 CREATE INDEX IF NOT EXISTS idx_ruta_pedidos_pedido ON ruta_pedidos(pedido_id);
 
 -- -----------------------------------------------------------------------------
--- 9. TABLA: auditoria (Roadmap Auditoría)
+-- 9. TABLA: auditoria (Auditoría del Sistema - Sprint 3)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS auditoria (
     auditoria_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    usuario_id UUID REFERENCES usuarios(usuario_id) ON DELETE SET NULL,
-    accion VARCHAR(50) NOT NULL,
-    entidad VARCHAR(50) NOT NULL,
+    usuario VARCHAR(100),
+    accion VARCHAR(100) NOT NULL,
+    entidad VARCHAR(100) NOT NULL,
+    entidad_id VARCHAR(100),
     detalles TEXT,
-    fecha TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ip VARCHAR(45)
+    ip_origen VARCHAR(45),
+    fecha_hora TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_auditoria_usuario ON auditoria(usuario_id);
-CREATE INDEX IF NOT EXISTS idx_auditoria_fecha ON auditoria(fecha);
+CREATE INDEX IF NOT EXISTS idx_auditoria_fecha ON auditoria(fecha_hora);
+

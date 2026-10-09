@@ -21,89 +21,143 @@ class HomeShell extends StatelessWidget {
     final narrow = isNarrow(context);
 
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: narrow ? 12 : 20,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.route, color: AppTheme.primaryDark, size: 22),
-                  SizedBox(width: 8),
-                  Text(
-                    'PATHSEEK',
-                    style: TextStyle(
-                      color: AppTheme.primaryDark,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ],
-              ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: AppTheme.border, width: 1.0),
             ),
-          ],
-        ),
-        actions: [
-          if (user != null && !narrow)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.account_circle_outlined,
-                      size: 20, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${user.nombre} (${user.rol})',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout),
-            onPressed: () =>
-                context.read<AuthBloc>().add(const AuthLogoutRequested()),
           ),
-          SizedBox(width: narrow ? 4 : 12),
-        ],
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            titleSpacing: narrow ? 16 : 24,
+            title: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppTheme.primary.withValues(alpha: 0.2),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.alt_route_rounded,
+                      color: AppTheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Path',
+                      style: TextStyle(
+                        color: AppTheme.textHighContrast,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                    Text(
+                      'Seek',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              if (user != null && !narrow)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F5F1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFD6E3D8), width: 1.0),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.account_circle_outlined,
+                        size: 17,
+                        color: AppTheme.primary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        user.nombre,
+                        style: const TextStyle(
+                          color: AppTheme.textHighContrast,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '(${user.rol})',
+                        style: const TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              IconButton(
+                tooltip: 'Cerrar sesión',
+                icon: const Icon(Icons.logout_rounded, size: 20, color: AppTheme.textSecondary),
+                onPressed: () =>
+                    context.read<AuthBloc>().add(const AuthLogoutRequested()),
+              ),
+              SizedBox(width: narrow ? 8 : 16),
+            ],
+          ),
+        ),
       ),
       body: narrow
           ? Column(
               children: [
                 Expanded(
                   child: Container(
-                    color: const Color(0xFFF4F7F4),
+                    color: AppTheme.surface,
                     child: child,
                   ),
                 ),
-                _BottomNav(user: user),
+                Container(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: AppTheme.border, width: 1.0),
+                    ),
+                  ),
+                  child: _BottomNav(user: user),
+                ),
               ],
             )
           : Row(
               children: [
                 _SideRail(user: user),
-                const VerticalDivider(thickness: 1, width: 1),
+                const VerticalDivider(thickness: 1, width: 1, color: AppTheme.border),
                 Expanded(
                   child: Container(
-                    color: const Color(0xFFF4F7F4),
+                    color: AppTheme.surface,
                     child: child,
                   ),
                 ),
@@ -155,25 +209,27 @@ class _SideRail extends StatelessWidget {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0xFFF0F5F1),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: AppTheme.primary.withValues(alpha: 0.3),
+                      color: const Color(0xFFD6E3D8),
+                      width: 1.0,
                     ),
                   ),
                   child: const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.android, color: AppTheme.primary, size: 26),
-                      SizedBox(height: 4),
+                      Icon(Icons.android_rounded, color: AppTheme.primary, size: 22),
+                      SizedBox(height: 3),
                       Text(
                         'APK',
                         style: TextStyle(
-                          color: AppTheme.primaryDark,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textHighContrast,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
@@ -198,7 +254,13 @@ class _SideRail extends StatelessWidget {
 
   int _selectedIndex(String location, List<_Destination> destinations) {
     for (var i = 0; i < destinations.length; i++) {
-      if (location.startsWith(destinations[i].path)) return i;
+      final path = destinations[i].path;
+      if (path == '/' && (location == '/' || location.isEmpty)) {
+        return i;
+      }
+      if (path != '/' && (location == path || location.startsWith('$path/'))) {
+        return i;
+      }
     }
     return 0;
   }
@@ -233,7 +295,13 @@ class _BottomNav extends StatelessWidget {
 
   int _selectedIndex(String location, List<_Destination> destinations) {
     for (var i = 0; i < destinations.length; i++) {
-      if (location.startsWith(destinations[i].path)) return i;
+      final path = destinations[i].path;
+      if (path == '/' && (location == '/' || location.isEmpty)) {
+        return i;
+      }
+      if (path != '/' && (location == path || location.startsWith('$path/'))) {
+        return i;
+      }
     }
     return 0;
   }

@@ -47,8 +47,8 @@ lib/
 ```bash
 flutter pub get
 
-# Web (operador/dashboard)
-flutter run -d chrome
+# Web (operador/dashboard) - puerto fijo para el CORS del backend
+flutter run -d chrome --web-port=5173
 
 # Android (modo conductor - EP-03)
 flutter run -d <device-id>
@@ -63,9 +63,6 @@ La URL base por entorno esta en `lib/core/config/environment.dart`:
 | dev | `http://localhost:8080` |
 | staging | `https://169.58.74.99` |
 | prod | `https://169.58.74.99` |
-
-> Web en Chrome: usa un puerto fijo para que el CORS del backend lo acepte,
-> por ejemplo `flutter run -d chrome --web-port=5173` (origen permitido por defecto).
 
 Contrato esperado de la API (prefix `/api/v1`):
 

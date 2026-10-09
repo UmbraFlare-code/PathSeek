@@ -84,6 +84,20 @@ public class SecurityConfig {
                                 .hasAnyRole("ADMIN", "OPERADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/rutas/**")
                                 .hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/clientes", "/api/v1/clientes/**")
+                                .hasAnyRole("ADMIN", "OPERADOR", "AUDITOR")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/clientes", "/api/v1/clientes/**")
+                                .hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/clientes/**")
+                                .hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/clientes/**")
+                                .hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reportes/**", "/api/v1/compensacion/**")
+                                .hasAnyRole("ADMIN", "OPERADOR", "AUDITOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/dashboard/**")
+                                .hasAnyRole("ADMIN", "OPERADOR", "AUDITOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/auditoria/**")
+                                .hasAnyRole("ADMIN", "AUDITOR")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
@@ -138,9 +152,15 @@ public class SecurityConfig {
                 .map(String::trim)
                 .filter(origin -> !origin.isBlank())
                 .toList();
-        configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        if (origins.contains("*")) {
+            configuration.setAllowedOriginPatterns(List.of("*"));
+        } else {
+            configuration.setAllowedOrigins(origins);
+            configuration.addAllowedOriginPattern("http://localhost:*");
+            configuration.addAllowedOriginPattern("http://127.0.0.1:*");
+        }
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
         configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
 

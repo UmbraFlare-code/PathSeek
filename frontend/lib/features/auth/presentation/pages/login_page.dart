@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,12 +6,16 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../bloc/auth_bloc.dart';
 
+/// Propuesta de diseño Minimalista y Flat para el Login móvil de PathSeek.
+/// Prioriza tipografía ligera (w300/w400), líneas limpias, cero sombras pesadas
+/// y una ergonomía optimizada para interacción táctil en dispositivos móviles.
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0F1411),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.hasError) {
@@ -20,82 +23,55 @@ class LoginPage extends StatelessWidget {
               ..hideCurrentSnackBar()
               ..showSnackBar(
                 SnackBar(
-                  content: Text(state.errorMessage!),
+                  content: Text(
+                    state.errorMessage!,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 13,
+                    ),
+                  ),
                   backgroundColor: Theme.of(context).colorScheme.error,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               );
           }
         },
         builder: (context, state) {
-          return Stack(
-            children: [
-              // Fondo ambiental degradado con orbes de luz
-              const _AmbientBackground(),
-              // Layout Split-Screen Responsivo
-              SafeArea(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isDesktop = constraints.maxWidth >= 840;
-                    if (isDesktop) {
-                      return Row(
-                        children: [
-                          // Panel Izquierdo: Branding + Cut-Out Headlines + Dramatic Whitespace
-                          const Expanded(
-                            flex: 5,
-                            child: SingleChildScrollView(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 64,
-                                vertical: 48,
-                              ),
-                              child: _BrandingSection(),
-                            ),
-                          ),
-                          // Panel Derecho: Tarjeta Glassmorphic de Login
-                          Expanded(
-                            flex: 5,
-                            child: Center(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(40),
-                                child: ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 440),
-                                  child: _GlassCard(
-                                    child: _LoginCardContent(state: state),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      // Layout Móvil: Columna centrada con encabezado y tarjeta Glassmorphism
-                      return Center(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 36,
-                          ),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 420),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const _MobileHeader(),
-                                const SizedBox(height: 32),
-                                _GlassCard(
-                                  child: _LoginCardContent(state: state),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  },
+          return SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 390),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 1. Cabecera Minimalista
+                      const _MinimalMobileHeader(),
+                      const SizedBox(height: 36),
+
+                      // 2. Tarjeta Flat de Formulario
+                      _FlatLoginCard(state: state),
+
+                      const SizedBox(height: 28),
+
+                      // 3. Accesos Rápidos de Demostración (Chips Flat para Móvil)
+                      const _QuickRoleCredentials(),
+
+                      const SizedBox(height: 32),
+
+                      // 4. Pie Institucional
+                      const _MinimalFooter(),
+                    ],
+                  ),
                 ),
               ),
-            ],
+            ),
           );
         },
       ),
@@ -103,359 +79,162 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _AmbientBackground extends StatelessWidget {
-  const _AmbientBackground();
+/// Cabecera con isotipo geométrico lineal y tipografía ligera
+class _MinimalMobileHeader extends StatelessWidget {
+  const _MinimalMobileHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Isotipo geométrico flat
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: const Color(0xFF162019),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppTheme.primary.withValues(alpha: 0.35),
+              width: 1.0,
+            ),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.alt_route_rounded,
+              color: AppTheme.accent,
+              size: 26,
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+
+        // Título del Sistema en tipografía ligera
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'Path',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.w300,
+                letterSpacing: 0.8,
+              ),
+            ),
+            Text(
+              'Seek',
+              style: TextStyle(
+                color: AppTheme.accent,
+                fontSize: 26,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+
+        // Subtítulo institucional delicado
+        const Text(
+          'UGEL Huancayo  •  Logística Sostenible',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color(0xFF8E9E93),
+            fontSize: 12,
+            fontWeight: FontWeight.w300,
+            letterSpacing: 0.6,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tarjeta Flat sin sombras, con borde tenue y fondo mate
+class _FlatLoginCard extends StatelessWidget {
+  final AuthState state;
+
+  const _FlatLoginCard({required this.state});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F1713),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141C16),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1.0,
+        ),
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Container(
-              width: 380,
-              height: 380,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppTheme.accent.withValues(alpha: 0.35),
-                    AppTheme.primary.withValues(alpha: 0.1),
-                    Colors.transparent,
-                  ],
+          // Etiqueta superior sutil
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: AppTheme.accent,
+                  shape: BoxShape.circle,
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            bottom: -120,
-            right: -100,
-            child: Container(
-              width: 450,
-              height: 450,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppTheme.primaryDark.withValues(alpha: 0.4),
-                    AppTheme.primary.withValues(alpha: 0.15),
-                    Colors.transparent,
-                  ],
+              const SizedBox(width: 8),
+              const Text(
+                'ACCESO AL SISTEMA',
+                style: TextStyle(
+                  color: Color(0xFF9EAEA3),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 1.2,
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Título del formulario
+          const Text(
+            'Ingresa a tu cuenta',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 19,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.2,
             ),
           ),
+          const SizedBox(height: 4),
+          const Text(
+            'Ingresa tus credenciales para gestionar rutas y flota',
+            style: TextStyle(
+              color: Color(0xFF7E8F83),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w300,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 26),
+
+          if (state.isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: LoadingIndicator(
+                message: 'Verificando credenciales...',
+              ),
+            )
+          else
+            const _LoginForm(),
         ],
       ),
     );
   }
 }
 
-class _BrandingSection extends StatelessWidget {
-  const _BrandingSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: const Text(
-            'PATHSEEK // PLATAFORMA INTELIGENTE',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 36),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            'OPTIMIZADOR DE RUTAS',
-            style: TextStyle(
-              color: Color(0xFF0F1713),
-              fontWeight: FontWeight.w900,
-              fontSize: 28,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppTheme.accent,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            'SOSTENIBLES Y EFICIENTES',
-            style: TextStyle(
-              color: Color(0xFF0F1713),
-              fontWeight: FontWeight.w900,
-              fontSize: 28,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 48),
-        const Text(
-          'Reduce costos operativos, minimiza la huella de carbono y gestiona tus flotas con algoritmos de última generación.',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            height: 1.6,
-          ),
-        ),
-        const SizedBox(height: 48),
-        const _FeatureBadge(
-          number: '01 /',
-          title: 'ALGORITMOS DE ENRUTAMIENTO',
-          subtitle: 'Optimización de caminos en tiempo real.',
-        ),
-        const SizedBox(height: 20),
-        const _FeatureBadge(
-          number: '02 /',
-          title: 'REDUCCIÓN DE EMISIONES',
-          subtitle: 'Monitoreo de ahorro de combustible y CO₂.',
-        ),
-        const SizedBox(height: 20),
-        const _FeatureBadge(
-          number: '03 /',
-          title: 'GESTIÓN DE FLOTAS',
-          subtitle: 'Control total de vehículos y conductores.',
-        ),
-      ],
-    );
-  }
-}
-
-class _FeatureBadge extends StatelessWidget {
-  final String number;
-  final String title;
-  final String subtitle;
-
-  const _FeatureBadge({
-    required this.number,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-          ),
-          child: Text(
-            number,
-            style: const TextStyle(
-              color: AppTheme.accent,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.85),
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _MobileHeader extends StatelessWidget {
-  const _MobileHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.3),
-            shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.accent.withValues(alpha: 0.6)),
-          ),
-          child: const Icon(
-            Icons.route,
-            size: 40,
-            color: AppTheme.accent,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            'PATHSEEK',
-            style: TextStyle(
-              color: Color(0xFF0F1713),
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Optimizador de Rutas Sostenibles',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-
-  const _GlassCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
-                blurRadius: 32,
-                spreadRadius: 4,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(36),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
-
-class _LoginCardContent extends StatelessWidget {
-  final AuthState state;
-
-  const _LoginCardContent({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.accent.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppTheme.accent.withValues(alpha: 0.6)),
-            ),
-            child: const Text(
-              '// INICIO DE SESIÓN',
-              style: TextStyle(
-                color: AppTheme.accent,
-                fontWeight: FontWeight.bold,
-                fontSize: 11,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Bienvenido de nuevo',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Ingresa tus credenciales para acceder a la plataforma',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.85),
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 32),
-        if (state.isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: LoadingIndicator(
-              message: 'Iniciando sesion...',
-            ),
-          )
-        else
-          const _LoginForm(),
-      ],
-    );
-  }
-}
-
+/// Formulario Flat con inputs lineales y tipografía ligera
 class _LoginForm extends StatefulWidget {
   const _LoginForm();
 
@@ -494,54 +273,111 @@ class _LoginFormState extends State<_LoginForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Campo Correo
+          const Text(
+            'Correo electrónico',
+            style: TextStyle(
+              color: Color(0xFFB0C0B5),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 6),
           TextFormField(
             controller: _emailController,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w300,
+            ),
             decoration: InputDecoration(
-              labelText: 'Correo electrónico',
-              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
-              prefixIcon:
-                  const Icon(Icons.email_outlined, color: Colors.white),
+              hintText: 'ejemplo@pathseek.pe',
+              hintStyle: TextStyle(
+                color: Colors.white.withValues(alpha: 0.25),
+                fontWeight: FontWeight.w300,
+                fontSize: 13,
+              ),
+              prefixIcon: const Icon(
+                Icons.mail_outline_rounded,
+                color: Color(0xFF7E8F83),
+                size: 19,
+              ),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.12),
+              fillColor: const Color(0xFF1B251F),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1.0,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 2.0),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(
+                  color: AppTheme.accent,
+                  width: 1.2,
+                ),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.error),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+                  width: 1.0,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.error, width: 2.0),
+                  color: Theme.of(context).colorScheme.error,
+                  width: 1.2,
+                ),
               ),
             ),
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
             validator: Validators.email,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
+
+          // Campo Contraseña
+          const Text(
+            'Contraseña',
+            style: TextStyle(
+              color: Color(0xFFB0C0B5),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 6),
           TextFormField(
             controller: _passwordController,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w300,
+            ),
             decoration: InputDecoration(
-              labelText: 'Contraseña',
-              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
-              prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+              hintText: '••••••••',
+              hintStyle: TextStyle(
+                color: Colors.white.withValues(alpha: 0.25),
+                fontWeight: FontWeight.w300,
+                fontSize: 13,
+              ),
+              prefixIcon: const Icon(
+                Icons.lock_outline_rounded,
+                color: Color(0xFF7E8F83),
+                size: 19,
+              ),
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscurePassword
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: Colors.white,
+                  color: const Color(0xFF7E8F83),
+                  size: 19,
                 ),
                 onPressed: () {
                   setState(() {
@@ -550,25 +386,35 @@ class _LoginFormState extends State<_LoginForm> {
                 },
               ),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.12),
+              fillColor: const Color(0xFF1B251F),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1.0,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 2.0),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(
+                  color: AppTheme.accent,
+                  width: 1.2,
+                ),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.error),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+                  width: 1.0,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.error, width: 2.0),
+                  color: Theme.of(context).colorScheme.error,
+                  width: 1.2,
+                ),
               ),
             ),
             obscureText: _obscurePassword,
@@ -576,32 +422,194 @@ class _LoginFormState extends State<_LoginForm> {
             validator: Validators.password,
             onFieldSubmitted: (_) => _submit(),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 26),
+
+          // Botón Flat de Ingreso
           SizedBox(
-            height: 52,
+            height: 48,
             child: ElevatedButton(
               onPressed: _submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
-                elevation: 4,
-                shadowColor: AppTheme.primary.withValues(alpha: 0.5),
+                elevation: 0,
+                shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text(
-                'Iniciar sesión',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Iniciar Sesión',
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 17,
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Selector rápido de credenciales para comodidad en pruebas móviles
+class _QuickRoleCredentials extends StatelessWidget {
+  const _QuickRoleCredentials();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Center(
+          child: Text(
+            'CUENTAS DE DEMOSTRACIÓN',
+            style: TextStyle(
+              color: Color(0xFF6E7E73),
+              fontSize: 10.5,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: const [
+            _RoleChip(
+              roleName: 'Admin',
+              email: 'admin@pathseek.pe',
+              icon: Icons.shield_outlined,
+            ),
+            _RoleChip(
+              roleName: 'Operador',
+              email: 'operador@pathseek.pe',
+              icon: Icons.tune_rounded,
+            ),
+            _RoleChip(
+              roleName: 'Conductor',
+              email: 'conductor.juan@pathseek.pe',
+              icon: Icons.directions_car_outlined,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _RoleChip extends StatelessWidget {
+  final String roleName;
+  final String email;
+  final IconData icon;
+
+  const _RoleChip({
+    required this.roleName,
+    required this.email,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.read<AuthBloc>().add(
+              AuthLoginRequested(
+                email: email,
+                password: 'Admin123!',
+              ),
+            );
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: const Color(0xFF131B15),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1.0,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: AppTheme.accent.withValues(alpha: 0.8),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              roleName,
+              style: const TextStyle(
+                color: Color(0xFFA5B5AA),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w300,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Pie de página minimalista con versión, entidad y micro-badge de sostenibilidad
+class _MinimalFooter extends StatelessWidget {
+  const _MinimalFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.eco_outlined,
+              size: 13,
+              color: AppTheme.accent.withValues(alpha: 0.7),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              'Optimización de Emisiones CO₂',
+              style: TextStyle(
+                color: const Color(0xFF8E9E93).withValues(alpha: 0.8),
+                fontSize: 11,
+                fontWeight: FontWeight.w300,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'v1.0.0-MVP  •  Huancayo, Perú',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.25),
+            fontSize: 11,
+            fontWeight: FontWeight.w300,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ],
     );
   }
 }

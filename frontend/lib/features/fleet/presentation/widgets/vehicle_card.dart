@@ -24,114 +24,136 @@ class VehicleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.local_shipping,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.border,
+          width: 1.0,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.local_shipping_outlined,
                     color: AppTheme.primary,
-                    size: 22,
+                    size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        vehicle.placa,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          color: AppTheme.textHighContrast,
-                        ),
-                      ),
-                      Text(
-                        vehicle.tipo,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF424940),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryDark.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${vehicle.anio}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryDark,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _MetricRow(
-              items: [
-                _Metric(label: 'Cap. kg', value: vehicle.capacidadKg.toStringAsFixed(0)),
-                _Metric(label: 'Cap. m3', value: vehicle.capacidadM3.toStringAsFixed(1)),
-                _Metric(
-                  label: 'km/L',
-                  value: Formatters.decimal.format(vehicle.consumoKmL),
-                ),
-                _Metric(
-                  label: 'CO2 kg/km',
-                  value: Formatters.decimal.format(vehicle.factorEmision),
-                ),
-              ],
-            ),
-            if (_showActions) ...[
-              const SizedBox(height: 12),
-              const Divider(height: 1),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (canEdit)
-                    TextButton.icon(
-                      onPressed: () => onEdit(vehicle),
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: const Text('Editar'),
-                    ),
-                  if (canDelete)
-                    TextButton.icon(
-                      onPressed: () => onDelete(vehicle),
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      label: Text(
-                        'Eliminar',
-                        style:
-                            TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      vehicle.placa,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                        letterSpacing: 0.2,
+                        color: AppTheme.textHighContrast,
                       ),
                     ),
-                ],
+                    Text(
+                      vehicle.tipo,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w300,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F5F1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFD6E3D8), width: 1.0),
+                ),
+                child: Text(
+                  '${vehicle.anio}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.primary,
+                  ),
+                ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          _MetricRow(
+            items: [
+              _Metric(label: 'Cap. kg', value: vehicle.capacidadKg.toStringAsFixed(0)),
+              _Metric(label: 'Cap. m³', value: vehicle.capacidadM3.toStringAsFixed(1)),
+              _Metric(
+                label: 'km/L',
+                value: Formatters.decimal.format(vehicle.consumoKmL),
+              ),
+              _Metric(
+                label: 'CO₂ kg/km',
+                value: Formatters.decimal.format(vehicle.factorEmision),
+              ),
+            ],
+          ),
+          if (_showActions) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 1, thickness: 1, color: AppTheme.border),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (canEdit)
+                  TextButton.icon(
+                    onPressed: () => onEdit(vehicle),
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text('Editar', style: TextStyle(fontSize: 12)),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(0, 32),
+                    ),
+                  ),
+                if (canDelete)
+                  TextButton.icon(
+                    onPressed: () => onDelete(vehicle),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    label: Text(
+                      'Eliminar',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(0, 32),
+                    ),
+                  ),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -154,25 +176,26 @@ class _MetricRow extends StatelessWidget {
                 Text(
                   items[i].value,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                     color: AppTheme.textHighContrast,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
                   items[i].label,
                   style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF727970),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.textMuted,
                   ),
                 ),
               ],
             ),
           ),
-          if (i < items.length - 1) const SizedBox(width: 8),
+          if (i < items.length - 1) const SizedBox(width: 6),
         ],
       ],
     );
