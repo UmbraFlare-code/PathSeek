@@ -27,15 +27,17 @@ public class RefreshTokenService {
     private final RefreshTokenRepository repository;
     private final SecurityProperties properties;
     private final Clock clock;
+    private final com.pathseek.backend.user.repository.UserRepository users;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public RefreshTokenService(
             RefreshTokenRepository repository,
             SecurityProperties properties,
-            Clock clock) {
+            Clock clock, com.pathseek.backend.user.repository.UserRepository users) {
         this.repository = repository;
         this.properties = properties;
         this.clock = clock;
+        this.users = users;
     }
 
     @Transactional
@@ -56,6 +58,10 @@ public class RefreshTokenService {
     @Transactional(noRollbackFor = ApiAuthenticationException.class)
     public IssuedRefreshToken rotate(String value) {
         OffsetDateTime now = now();
+        // Always lock the user before its tokens, like login and user administration.
+        // This prevents rotation from recreating a session concurrently with revocation.
+        var userId = repository.findUserIdByTokenHash(hash(value)).orElseThrow(this::invalidRefreshToken);
+        users.findByIdForUpdate(userId).orElseThrow(this::invalidRefreshToken);
         RefreshToken current = repository.findByTokenHashForUpdate(hash(value))
                 .orElseThrow(this::invalidRefreshToken);
 

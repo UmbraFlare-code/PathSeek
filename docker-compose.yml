@@ -16,7 +16,6 @@ services:
       - ./database/02_triggers.sql:/docker-entrypoint-initdb.d/02_triggers.sql:ro
       - ./database/03_stored_procedures.sql:/docker-entrypoint-initdb.d/03_stored_procedures.sql:ro
       - ./database/04_seed_data.sql:/docker-entrypoint-initdb.d/04_seed_data.sql:ro
-      - ./database/05_incremental_reoptimization.sql:/docker-entrypoint-initdb.d/05_incremental_reoptimization.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pathseek} -d ${DB_NAME:-pathseek}"]
       interval: 10s

@@ -16,6 +16,7 @@ import '../../features/orders/presentation/pages/order_form_page.dart';
 import '../../features/orders/presentation/pages/order_list_page.dart';
 import '../../features/routes/presentation/pages/route_detail_page.dart';
 import '../../features/routes/presentation/pages/route_list_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../constants/app_roles.dart';
 import '../constants/permissions.dart';
 import 'home_shell.dart';
@@ -30,13 +31,22 @@ class AppRouter {
     refreshListenable: _AuthRefreshListenable(_authBloc),
     redirect: (context, state) => _redirect(state),
     routes: [
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginPage(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       ShellRoute(
         builder: (context, state, child) => HomeShell(child: child),
         routes: [
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) {
+              final user = _authBloc.state.user;
+              return user == null
+                  ? const LoginPage()
+                  : SettingsPage(
+                      key: ValueKey('${user.id}-${user.rol}'),
+                      user: user,
+                    );
+            },
+          ),
           GoRoute(
             path: '/',
             builder: (context, state) => const DashboardPage(),
@@ -51,8 +61,10 @@ class AppRouter {
               ),
               GoRoute(
                 path: ':id/edit',
-                redirect: (context, state) => state.extra is Vehicle &&
-                        (state.extra as Vehicle).id == state.pathParameters['id']
+                redirect: (context, state) =>
+                    state.extra is Vehicle &&
+                        (state.extra as Vehicle).id ==
+                            state.pathParameters['id']
                     ? null
                     : '/fleet',
                 builder: (context, state) =>
@@ -70,7 +82,8 @@ class AppRouter {
               ),
               GoRoute(
                 path: ':id/edit',
-                redirect: (context, state) => state.extra is Driver &&
+                redirect: (context, state) =>
+                    state.extra is Driver &&
                         (state.extra as Driver).id == state.pathParameters['id']
                     ? null
                     : '/drivers',
@@ -89,7 +102,8 @@ class AppRouter {
               ),
               GoRoute(
                 path: ':id/edit',
-                redirect: (context, state) => state.extra is Order &&
+                redirect: (context, state) =>
+                    state.extra is Order &&
                         (state.extra as Order).id == state.pathParameters['id']
                     ? null
                     : '/orders',
@@ -104,9 +118,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: ':id',
-                builder: (context, state) => RouteDetailPage(
-                  routeId: state.pathParameters['id'] ?? '',
-                ),
+                builder: (context, state) =>
+                    RouteDetailPage(routeId: state.pathParameters['id'] ?? ''),
               ),
             ],
           ),
@@ -151,8 +164,10 @@ class AppRouter {
 
   /// Matriz RBAC del router (DOC-008): lectura vs mutacion por modulo.
   List<String>? _rolesFor(String location) {
-    final isMutating =
-        location.endsWith('/new') || location.contains('/edit');
+    if (location == '/settings' || location.startsWith('/settings/')) {
+      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor];
+    }
+    final isMutating = location.endsWith('/new') || location.contains('/edit');
 
     if (location.startsWith('/fleet') || location.startsWith('/drivers')) {
       if (isMutating) return [AppRoles.admin, AppRoles.operador];
@@ -173,7 +188,12 @@ class AppRouter {
     }
 
     if (location.startsWith('/routes')) {
-      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor, AppRoles.conductor];
+      return [
+        AppRoles.admin,
+        AppRoles.operador,
+        AppRoles.auditor,
+        AppRoles.conductor,
+      ];
     }
 
     return null;

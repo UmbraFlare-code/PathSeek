@@ -54,6 +54,10 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/health", "/actuator/health").permitAll()
                         .requestMatchers("/actuator/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/configuracion/roles")
+                                .hasAnyRole("ADMIN", "OPERADOR", "AUDITOR")
+                        .requestMatchers("/api/v1/usuarios", "/api/v1/usuarios/**")
+                                .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/vehiculos", "/api/v1/vehiculos/**")
                                 .hasAnyRole("ADMIN", "OPERADOR", "AUDITOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/vehiculos", "/api/v1/vehiculos/**")
@@ -117,11 +121,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtDecoder jwtDecoder(SecretKey secretKey) {
+    JwtDecoder jwtDecoder(SecretKey secretKey, UserSessionValidator sessionValidator) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
-        decoder.setJwtValidator(JwtValidators.createDefault());
+        decoder.setJwtValidator(new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefault(), sessionValidator));
         return decoder;
     }
 

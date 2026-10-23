@@ -31,13 +31,15 @@ import '../../features/routes/data/datasources/route_remote_datasource.dart';
 import '../../features/routes/data/repositories/route_repository_impl.dart';
 import '../../features/routes/domain/repositories/route_repository.dart';
 import '../../features/routes/presentation/bloc/route_bloc.dart';
+import '../../features/settings/data/datasources/settings_remote_datasource.dart';
+import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/repositories/settings_repository.dart';
+import '../../features/settings/presentation/bloc/settings_bloc.dart';
 
 final GetIt locator = GetIt.instance;
 
 Future<void> setupDependencies() async {
-  locator.registerLazySingleton<TokenStorage>(
-    () => SharedPrefsTokenStorage(),
-  );
+  locator.registerLazySingleton<TokenStorage>(() => SharedPrefsTokenStorage());
   locator.registerLazySingleton<SessionStore>(
     () => SessionStore(tokenStorage: locator()),
   );
@@ -49,7 +51,14 @@ Future<void> setupDependencies() async {
   }
 
   locator.registerLazySingleton<ApiClient>(
-    () => ApiClient(tokenStorage: locator(), httpClient: secureHttpClient),
+    () => ApiClient(
+      tokenStorage: locator(),
+      httpClient: secureHttpClient,
+      onSessionExpired: () async {
+        await locator<SessionStore>().clear();
+        locator<AuthBloc>().add(const AuthSessionExpired());
+      },
+    ),
   );
 
   _registerAuth();
@@ -58,6 +67,7 @@ Future<void> setupDependencies() async {
   _registerOrders();
   _registerDashboard();
   _registerRoutes();
+  _registerSettings();
 }
 
 void _registerAuth() {
@@ -82,9 +92,7 @@ void _registerFleet() {
   locator.registerLazySingleton<FleetRepository>(
     () => FleetRepositoryImpl(remoteDataSource: locator()),
   );
-  locator.registerFactory<FleetBloc>(
-    () => FleetBloc(repository: locator()),
-  );
+  locator.registerFactory<FleetBloc>(() => FleetBloc(repository: locator()));
 }
 
 void _registerDrivers() {
@@ -94,9 +102,7 @@ void _registerDrivers() {
   locator.registerLazySingleton<DriverRepository>(
     () => DriverRepositoryImpl(remoteDataSource: locator()),
   );
-  locator.registerFactory<DriverBloc>(
-    () => DriverBloc(repository: locator()),
-  );
+  locator.registerFactory<DriverBloc>(() => DriverBloc(repository: locator()));
 }
 
 void _registerOrders() {
@@ -106,9 +112,7 @@ void _registerOrders() {
   locator.registerLazySingleton<OrderRepository>(
     () => OrderRepositoryImpl(remoteDataSource: locator()),
   );
-  locator.registerFactory<OrderBloc>(
-    () => OrderBloc(repository: locator()),
-  );
+  locator.registerFactory<OrderBloc>(() => OrderBloc(repository: locator()));
 }
 
 void _registerDashboard() {
@@ -130,7 +134,17 @@ void _registerRoutes() {
   locator.registerLazySingleton<RouteRepository>(
     () => RouteRepositoryImpl(remoteDataSource: locator()),
   );
-  locator.registerFactory<RouteBloc>(
-    () => RouteBloc(repository: locator()),
+  locator.registerFactory<RouteBloc>(() => RouteBloc(repository: locator()));
+}
+
+void _registerSettings() {
+  locator.registerLazySingleton<SettingsRemoteDataSource>(
+    () => SettingsRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<SettingsRepository>(
+    () => SettingsRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerFactory<SettingsBloc>(
+    () => SettingsBloc(repository: locator()),
   );
 }

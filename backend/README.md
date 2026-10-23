@@ -83,7 +83,7 @@ $env:DB_PASSWORD="tu_clave_local"
 $env:JWT_SECRET="reemplaza-esto-por-un-secreto-aleatorio-de-al-menos-32-caracteres"
 ```
 
-Flyway está desactivado en la configuración actual. Inicializa PostgreSQL ejecutando los scripts de `database/` en orden (o con `docker compose up -d postgres` desde la raíz, que los carga en un volumen nuevo). Hibernate únicamente valida que las entidades coincidan con ese esquema. Consulta la [guía local](../LOCAL.md).
+Flyway migra PostgreSQL automáticamente antes de la validación de Hibernate, tanto en bases nuevas como existentes. No hace falta aplicar SQL manualmente. Las migraciones versionadas viven en `src/main/resources/db/migration/`; consulta la [guía local](../LOCAL.md).
 
 ## Ejecución
 
@@ -112,7 +112,7 @@ La URL base es `http://localhost:8080/api/v1`.
 .\mvnw.cmd clean package
 ```
 
-Las pruebas usan H2 en memoria con compatibilidad PostgreSQL; Hibernate crea el esquema de pruebas y Flyway permanece desactivado. Antes de desplegar, verifica también contra PostgreSQL real para detectar diferencias específicas del motor.
+Las pruebas H2 en memoria mantienen Flyway desactivado y Hibernate crea su esquema. Las pruebas PostgreSQL validan además migraciones reales desde una base vacía o histórica. En la aplicación, Flyway está activado por defecto y se ejecuta antes de validar JPA.
 
 ## Reoptimización incremental
 
@@ -120,7 +120,11 @@ Para la visualización por calles, consulta la [integración OSRM y configuraci�
 
 `POST /api/v1/rutas/reoptimizar` permite a ADMIN/OPERADOR procesar nuevos pedidos, cancelaciones, incidentes y averías sin regenerar todas las rutas. Incluye idempotencia por `evento_id`, presupuesto de cálculo, preservación de entregas realizadas y bandeja persistente de avisos.
 
-Antes de arrancar esta versión sobre una base existente, aplica `database/05_incremental_reoptimization.sql`. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/03%20Implementación/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
+La migración de reoptimización se aplica automáticamente al iniciar el backend. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/03%20Implementación/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
+
+## Configuración y usuarios
+
+La nueva sección `/settings` permite a ADMIN crear y editar cuentas, asignar roles y activar/desactivar acceso. OPERADOR/AUDITOR pueden consultar únicamente el catálogo de roles. El backend aplica automáticamente las migraciones de usuarios y DNI al iniciar. Consulta el [contrato, permisos y pasos Docker](../docs/03%20Implementación/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md).
 
 ## Arquitectura
 

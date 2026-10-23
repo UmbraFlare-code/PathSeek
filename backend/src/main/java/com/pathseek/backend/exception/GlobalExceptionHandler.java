@@ -16,6 +16,12 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    ResponseEntity<ApiErrorResponse> handleUnsupportedMethod(org.springframework.web.HttpRequestMethodNotSupportedException exception) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ApiErrorResponse.of("METHOD_NOT_ALLOWED", "La operación solicitada no está disponible"));
+    }
+
     @ExceptionHandler({org.springframework.dao.CannotAcquireLockException.class,
             org.springframework.dao.PessimisticLockingFailureException.class,
             org.springframework.dao.QueryTimeoutException.class,
