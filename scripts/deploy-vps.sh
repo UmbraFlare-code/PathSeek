@@ -61,7 +61,20 @@ else
   echo "⚠️ Advertencia: No se encontró database/05_incremental_reoptimization.sql. Saltando migración."
 fi
 
-# 5. Reconstruir imágenes y reiniciar servicios
+# 5. Asegurar certificados SSL para Nginx
+if [ ! -f ssl/pathseek.crt ] || [ ! -f ssl/pathseek.key ]; then
+  echo "🔐 Generando certificados SSL auto-firmados en ssl/..."
+  mkdir -p ssl
+  openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+    -keyout ssl/pathseek.key -out ssl/pathseek.crt \
+    -subj "/CN=169.58.74.99/O=PathSeek/OU=UGEL Huancayo" \
+    -addext "subjectAltName=IP:169.58.74.99"
+  chmod 600 ssl/pathseek.key
+  chmod 644 ssl/pathseek.crt
+  echo "✅ Certificados SSL generados correctamente."
+fi
+
+# 6. Reconstruir imágenes y reiniciar servicios
 echo "🏗️  [4/6] Reconstruyendo imágenes Docker (Backend + Frontend Web + APK) y levantando servicios..."
 docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
