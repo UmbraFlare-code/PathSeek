@@ -16,14 +16,14 @@ jobs:
         database: [h2, postgres]
     services:
       postgres:
-        image: postgres:16-alpine
+        image: ${{ matrix.database == 'postgres' && 'postgres:16-alpine' || '' }}
         env:
           POSTGRES_USER: pathseek_test
           POSTGRES_PASSWORD: isolated_ci_only
           POSTGRES_DB: pathseek_test
         ports: ['5432:5432']
         options: >-
-          --health-cmd 'pg_isready -U pathseek_test -d pathseek_test'
+          --health-cmd "pg_isready -U pathseek_test -d pathseek_test"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
