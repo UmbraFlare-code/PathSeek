@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/responsive_field_row.dart';
+import '../../../../core/widgets/form_page_layout.dart';
 import '../../domain/entities/driver.dart';
 import '../bloc/driver_bloc.dart';
 
@@ -31,7 +32,7 @@ class DriverFormPage extends StatelessWidget {
                 ),
               ),
             );
-            context.pop();
+            context.canPop() ? context.pop() : context.go('/drivers');
           } else if (state.hasSaveError) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -69,12 +70,7 @@ class _DriverFormViewState extends State<DriverFormView> {
   String _categoria = 'AII';
   bool _disponible = true;
 
-  static const List<String> _categorias = [
-    'AII',
-    'AIII',
-    'BII',
-    'BIII',
-  ];
+  static const List<String> _categorias = ['AII', 'AIII', 'BII', 'BIII'];
 
   bool get _isEditing => widget.driver != null;
 
@@ -84,8 +80,7 @@ class _DriverFormViewState extends State<DriverFormView> {
     final driver = widget.driver;
     _dniController = TextEditingController(text: driver?.dni ?? '');
     _nombreController = TextEditingController(text: driver?.nombre ?? '');
-    _licenciaController =
-        TextEditingController(text: driver?.licencia ?? '');
+    _licenciaController = TextEditingController(text: driver?.licencia ?? '');
     _experienciaController = TextEditingController(
       text: driver?.experiencia.toString() ?? '',
     );
@@ -135,131 +130,123 @@ class _DriverFormViewState extends State<DriverFormView> {
   Widget build(BuildContext context) {
     final isSaving = context.watch<DriverBloc>().state.isSaving;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Editar conductor' : 'Nuevo conductor'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      controller: _dniController,
-                      decoration: const InputDecoration(
-                        labelText: 'DNI',
-                        prefixIcon: Icon(Icons.badge_outlined),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: Validators.dni,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _nombreController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre completo',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      validator: (value) => Validators.required(value, 'El nombre'),
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _licenciaController,
-                          decoration: const InputDecoration(
-                            labelText: 'Licencia de conducir',
-                            prefixIcon: Icon(Icons.badge),
-                          ),
-                          textCapitalization: TextCapitalization.characters,
-                          validator: Validators.license,
-                        ),
-                        DropdownButtonFormField<String>(
-                          initialValue: _categoria,
-                          decoration: const InputDecoration(
-                            labelText: 'Categoria',
-                          ),
-                          items: _categorias
-                              .map(
-                                (categoria) => DropdownMenuItem(
-                                  value: categoria,
-                                  child: Text(categoria),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => _categoria = value);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _experienciaController,
-                          decoration: const InputDecoration(
-                            labelText: 'Anios de experiencia',
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) =>
-                              Validators.integer(value, 'La experiencia'),
-                        ),
-                        TextFormField(
-                          controller: _contactoController,
-                          decoration: const InputDecoration(
-                            labelText: 'Contacto (telefono)',
-                            prefixIcon: Icon(Icons.phone_outlined),
-                          ),
-                          keyboardType: TextInputType.phone,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Disponible para rutas'),
-                      value: _disponible,
-                      onChanged: (value) =>
-                          setState(() => _disponible = value),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        OutlinedButton(
-                          onPressed: isSaving ? null : () => context.pop(),
-                          child: const Text('Cancelar'),
-                        ),
-                        const SizedBox(width: 12),
-                        FilledButton(
-                          onPressed: isSaving ? null : _submit,
-                          child: isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(_isEditing ? 'Guardar' : 'Registrar'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+    return FormPageLayout(
+      title: _isEditing ? 'Editar conductor' : 'Nuevo conductor',
+      description:
+          'Mantén actualizados los datos, la licencia y la disponibilidad.',
+      icon: Icons.badge_outlined,
+      backPath: '/drivers',
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _dniController,
+              decoration: const InputDecoration(
+                labelText: 'DNI',
+                prefixIcon: Icon(Icons.badge_outlined),
               ),
+              keyboardType: TextInputType.number,
+              validator: Validators.dni,
             ),
-          ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _nombreController,
+              decoration: const InputDecoration(
+                labelText: 'Nombre completo',
+                prefixIcon: Icon(Icons.person_outline),
+              ),
+              validator: (value) => Validators.required(value, 'El nombre'),
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _licenciaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Licencia de conducir',
+                    prefixIcon: Icon(Icons.badge),
+                  ),
+                  textCapitalization: TextCapitalization.characters,
+                  validator: Validators.license,
+                ),
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  initialValue: _categoria,
+                  decoration: const InputDecoration(labelText: 'Categoría'),
+                  items: _categorias
+                      .map(
+                        (categoria) => DropdownMenuItem(
+                          value: categoria,
+                          child: Text(categoria),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _categoria = value);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _experienciaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Años de experiencia',
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) =>
+                      Validators.integer(value, 'La experiencia'),
+                ),
+                TextFormField(
+                  controller: _contactoController,
+                  decoration: const InputDecoration(
+                    labelText: 'Contacto (teléfono)',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Disponible para rutas'),
+              value: _disponible,
+              onChanged: (value) => setState(() => _disponible = value),
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                OutlinedButton(
+                  onPressed: isSaving
+                      ? null
+                      : () => context.canPop()
+                            ? context.pop()
+                            : context.go('/drivers'),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: isSaving ? null : _submit,
+                  child: isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(_isEditing ? 'Guardar' : 'Registrar'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

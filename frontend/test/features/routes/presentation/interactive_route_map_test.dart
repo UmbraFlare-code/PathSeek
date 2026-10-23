@@ -48,38 +48,45 @@ void main() {
       ],
     );
 
-    testWidgets('InteractiveRouteMap renders stops and simulation button',
-        (tester) async {
+    testWidgets('Geographic map selects deliveries and supports recentering', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: InteractiveRouteMap(route: route),
+            body: SingleChildScrollView(
+              child: InteractiveRouteMap(route: route, showBaseMap: false),
+            ),
           ),
         ),
       );
 
-      expect(find.textContaining('MAPA // UGEL HUANCAYO'), findsOneWidget);
-      expect(find.text('Simular GPS'), findsOneWidget);
+      expect(find.textContaining('Trazado estimado'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
 
-      // Tocar botón de simulación
-      await tester.tap(find.text('Simular GPS'));
+      await tester.tap(find.byKey(const ValueKey('stop-p-1')));
       await tester.pump();
-      expect(find.text('Detener'), findsOneWidget);
+      expect(
+        find.textContaining('Parada #1: I.E. Santa Isabel'),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.text('Ver ruta completa'));
+      await tester.tap(find.text('Ver ruta completa'));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('ElevationProfileWidget renders altitude metrics for stops',
-        (tester) async {
+    testWidgets('ElevationProfileWidget renders altitude metrics for stops', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: ElevationProfileWidget(route: route),
-          ),
+          home: Scaffold(body: ElevationProfileWidget(route: route)),
         ),
       );
 
-      expect(find.textContaining('PERFIL ALTIMÉTRICO'), findsOneWidget);
+      expect(find.text('Altitud y calzada estimadas'), findsOneWidget);
       expect(find.text('Parada #1'), findsOneWidget);
       expect(find.text('3260 m'), findsOneWidget);
       expect(find.text('Parada #2'), findsOneWidget);

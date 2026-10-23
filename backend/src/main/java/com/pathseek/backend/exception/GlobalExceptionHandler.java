@@ -3,6 +3,7 @@ package com.pathseek.backend.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +15,20 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler({org.springframework.dao.CannotAcquireLockException.class,
+            org.springframework.dao.PessimisticLockingFailureException.class,
+            org.springframework.dao.QueryTimeoutException.class,
+            org.springframework.transaction.TransactionTimedOutException.class})
+    ResponseEntity<ApiErrorResponse> handlePlanningBusy(Exception exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiErrorResponse.of(
+                "PLANNING_BUSY", "La planificación está ocupada o excedió el tiempo de espera. Reintente el mismo evento."));
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    ResponseEntity<ApiErrorResponse> handleAccessDenied(org.springframework.security.access.AccessDeniedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiErrorResponse.of("ACCESS_DENIED", "No tiene permiso para acceder a este recurso"));
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -73,5 +88,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body(ApiErrorResponse.of(
                 "INTERNAL_ERROR",
                 "Ocurrió un error inesperado"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ResponseEntity<ApiErrorResponse> handleDataConflict(DataIntegrityViolationException exception) {
+        String detail = exception.getMostSpecificCause().getMessage();
+        if (detail != null && (detail.contains("ORDER_DUPLICATE") || detail.contains("uq_pedidos_activos_ventana"))) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiErrorResponse.of(
+                    "ORDER_DUPLICATE", "Ya existe un pedido activo con el mismo cliente, dirección y ventana de tiempo"));
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiErrorResponse.of(
+                "DATA_CONFLICT", "La operación entra en conflicto con datos existentes o registros relacionados"));
     }
 }

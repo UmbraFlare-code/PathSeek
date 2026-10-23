@@ -2,6 +2,12 @@
 
 **Optimizador de Rutas Sostenibles para UGEL Huancayo**
 
+Para ejecutar el sistema, consulta la [guía de ejecución local](LOCAL.md). La [revisión de contratos](CONTRACT_REVIEW.md) describe las correcciones de integración y sus límites.
+
+La [revisión de código y lógica](CODE_REVIEW.md) recoge las correcciones posteriores, pruebas y pendientes confirmados.
+
+El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) documenta la continuidad del Sprint 3 y los límites de integración pendientes.
+
 ## Presentación
 
 **PathSeek** es una plataforma web de optimización de rutas de distribución de última milla para **UGEL Huancayo**, institución educativa con operaciones logísticas. El sistema resuelve el Problema de Ruteo de Vehículos con Ventanas de Tiempo (VRPTW) y consideraciones ambientales (Green VRP) mediante metaheurísticas (Algoritmos Genéticos, Búsqueda Tabú, Colonia de Hormigas o Enfriamiento Simulado).

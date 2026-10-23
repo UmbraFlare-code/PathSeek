@@ -1,5 +1,6 @@
 package com.pathseek.backend.route.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pathseek.backend.route.entity.RouteOrder;
 
 import java.math.BigDecimal;
@@ -7,17 +8,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public record RouteOrderResponse(
-        UUID pedidoId,
+        @JsonProperty("pedido_id") UUID pedidoId,
         Integer orden,
-        String horaEstimada,
+        @JsonProperty("hora_estimada") String horaEstimada,
         String direccion,
-        BigDecimal gpsLat,
-        BigDecimal gpsLon,
+        @JsonProperty("gps_lat") BigDecimal gpsLat,
+        @JsonProperty("gps_lon") BigDecimal gpsLon,
         BigDecimal peso,
-        String ventanaInicio,
-        String ventanaFin,
-        Boolean cumplioVentana,
-        RoadContextDto contextoVial
+        @JsonProperty("ventana_inicio") String ventanaInicio,
+        @JsonProperty("ventana_fin") String ventanaFin,
+        @JsonProperty("cumplio_ventana") Boolean cumplioVentana,
+        @JsonProperty("contexto_vial") RoadContextDto contextoVial,
+        @JsonProperty("cliente_id") String clienteId
 ) {
     public static RouteOrderResponse fromEntity(RouteOrder routeOrder) {
         var pedido = routeOrder.getPedido();
@@ -41,7 +43,8 @@ public record RouteOrderResponse(
                 pedido != null ? pedido.getVentanaInicio() : null,
                 pedido != null ? pedido.getVentanaFin() : null,
                 routeOrder.getCumplioVentana(),
-                contexto
+                contexto,
+                pedido != null ? pedido.getClienteId() : null
         );
     }
 }

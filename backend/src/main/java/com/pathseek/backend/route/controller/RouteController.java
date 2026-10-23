@@ -73,6 +73,7 @@ public class RouteController {
     public ResponseEntity<Map<String, String>> reportIncident(
             @PathVariable UUID id,
             @Valid @RequestBody RoadIncidentRequest request) {
+        optimizationService.getRouteById(id);
         routingContextService.registrarIncidente(id, request);
         return ResponseEntity.ok(Map.of("mensaje", "Incidente vial registrado exitosamente en la ruta"));
     }

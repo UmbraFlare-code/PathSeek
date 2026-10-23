@@ -28,6 +28,13 @@ void main() {
       expect(model.anio, 2020);
     });
 
+    test('fromJson preserves the nullable year allowed by the backend', () {
+      final model = VehicleModel.fromJson({...json, 'anio': null});
+      expect(model.anio, isNull);
+      expect(model.toEntity().anio, isNull);
+      expect(model.toJson()['anio'], isNull);
+    });
+
     test('fromJson handles numeric strings', () {
       final model = VehicleModel.fromJson({
         ...json,

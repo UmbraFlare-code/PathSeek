@@ -36,7 +36,10 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
   @override
   Future<DeliveryRouteModel> getRouteById(String id) async {
     final response = await _client.dio.get('${ApiPaths.rutas}/$id');
-    return DeliveryRouteModel.fromJson(_unwrap(response.data));
+    final geometry = await _client.dio.get('${ApiPaths.rutas}/$id/geometria');
+    final data = _unwrap(geometry.data);
+    return DeliveryRouteModel.fromJson({..._unwrap(response.data),
+      'encoded_polyline': data['encodedPolyline'] ?? data['encoded_polyline']});
   }
 
   @override

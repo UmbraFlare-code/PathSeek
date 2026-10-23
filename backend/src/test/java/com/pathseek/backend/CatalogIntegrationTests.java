@@ -288,6 +288,35 @@ class CatalogIntegrationTests {
     }
 
     @Test
+    void deliveredOrderDoesNotBlockARepeatDelivery() throws Exception {
+        createOrder(VALID_ORDER.replace("\"prioridad\": \"ESTANDAR\"", "\"prioridad\": \"ESTANDAR\", \"estado\": \"ENTREGADO\""));
+        createOrder(VALID_ORDER);
+    }
+
+    @Test
+    void differentWindowEndDoesNotCountAsDuplicate() throws Exception {
+        createOrder(VALID_ORDER);
+        createOrder(VALID_ORDER.replace("12:00", "13:00"));
+    }
+
+    @Test
+    void clientCannotReadOthersOrSpoofOrderOwnership() throws Exception {
+        String otherId = JsonPath.read(createOrder(VALID_ORDER), "$.pedido_id");
+        createUser("scope-client@test.pe", UserRole.CLIENTE, true);
+        String clientToken = login("scope-client@test.pe");
+        mockMvc.perform(get("/api/v1/pedidos/" + otherId).header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/v1/pedidos").header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+        String ownId = userRepository.findByEmail("scope-client@test.pe").orElseThrow().getId().toString();
+        mockMvc.perform(post("/api/v1/pedidos").header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken)
+                        .contentType(MediaType.APPLICATION_JSON).content(VALID_ORDER))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.cliente_id").value(ownId));
+        mockMvc.perform(get("/api/v1/pedidos").header(HttpHeaders.AUTHORIZATION, "Bearer " + clientToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
     void cancelledOrderDoesNotBlockIdenticalOrder() throws Exception {
         String orderId = JsonPath.read(createOrder(VALID_ORDER), "$.pedido_id");
 

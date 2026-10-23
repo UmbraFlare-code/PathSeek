@@ -35,7 +35,7 @@ void main() {
       expect(AppPermissions.canView(operador, AppModule.dashboard), isTrue);
       expect(AppPermissions.canView(auditor, AppModule.routes), isTrue);
       expect(AppPermissions.canView(cliente, AppModule.routes), isFalse);
-      expect(AppPermissions.canView(conductor, AppModule.routes), isFalse);
+      expect(AppPermissions.canView(conductor, AppModule.routes), isTrue);
     });
 
     test('dashboard: conductor ve lectura basica, cliente no (DOC-008)', () {

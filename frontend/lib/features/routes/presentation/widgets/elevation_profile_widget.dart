@@ -21,21 +21,27 @@ class ElevationProfileWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.terrain_rounded, color: AppTheme.primary, size: 20),
+                const Icon(
+                  Icons.terrain_rounded,
+                  color: AppTheme.primary,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
-                const Text(
-                  'PERFIL ALTIMÉTRICO Y CALZADA // VALLE DEL MANTARO',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                const Expanded(
+                  child: Text(
+                    'Altitud y calzada estimadas',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 90,
+              height: 110 * MediaQuery.textScalerOf(context).scale(1),
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: pedidos.length,
@@ -43,10 +49,12 @@ class ElevationProfileWidget extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final p = pedidos[index];
                   final ctx = p.contextoVial;
-                  final isTrocha = ctx.tipoSuperficie == 'TROCHA' || ctx.tipoSuperficie == 'AFIRMADO';
+                  final isTrocha =
+                      ctx.tipoSuperficie == 'TROCHA' ||
+                      ctx.tipoSuperficie == 'AFIRMADO';
 
                   return Container(
-                    width: 140,
+                    width: 170 * MediaQuery.textScalerOf(context).scale(1),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isTrocha
@@ -54,7 +62,9 @@ class ElevationProfileWidget extends StatelessWidget {
                           : AppTheme.primary.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isTrocha ? Colors.orange.shade300 : AppTheme.border,
+                        color: isTrocha
+                            ? Colors.orange.shade300
+                            : AppTheme.border,
                       ),
                     ),
                     child: Column(
@@ -72,7 +82,11 @@ class ElevationProfileWidget extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.height, size: 14, color: Colors.blueGrey),
+                            const Icon(
+                              Icons.height,
+                              size: 14,
+                              color: Colors.blueGrey,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${ctx.elevacionMetros} m',
@@ -87,7 +101,9 @@ class ElevationProfileWidget extends StatelessWidget {
                         Row(
                           children: [
                             Icon(
-                              isTrocha ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+                              isTrocha
+                                  ? Icons.warning_amber_rounded
+                                  : Icons.check_circle_outline,
                               size: 14,
                               color: isTrocha ? Colors.orange : Colors.green,
                             ),
@@ -97,7 +113,9 @@ class ElevationProfileWidget extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
-                                color: isTrocha ? Colors.orange.shade900 : Colors.green.shade800,
+                                color: isTrocha
+                                    ? Colors.orange.shade900
+                                    : Colors.green.shade800,
                               ),
                             ),
                           ],

@@ -36,6 +36,7 @@ class KpiCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -45,18 +46,13 @@ class KpiCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textHighContrast,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF424940),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText),
                   ),
                 ],
               ),

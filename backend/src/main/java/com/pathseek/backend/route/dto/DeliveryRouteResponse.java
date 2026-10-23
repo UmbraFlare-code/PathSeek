@@ -1,5 +1,6 @@
 package com.pathseek.backend.route.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pathseek.backend.route.entity.DeliveryRoute;
 
 import java.math.BigDecimal;
@@ -8,18 +9,18 @@ import java.util.List;
 import java.util.UUID;
 
 public record DeliveryRouteResponse(
-        UUID id,
+        @JsonProperty("ruta_id") UUID id,
         LocalDate fecha,
-        UUID conductorId,
-        String conductorNombre,
-        UUID vehiculoId,
+        @JsonProperty("conductor_id") UUID conductorId,
+        @JsonProperty("conductor_nombre") String conductorNombre,
+        @JsonProperty("vehiculo_id") UUID vehiculoId,
         String placa,
-        BigDecimal distanciaKm,
-        BigDecimal co2Kg,
-        BigDecimal combustibleL,
+        @JsonProperty("distancia_km") BigDecimal distanciaKm,
+        @JsonProperty("co2_kg") BigDecimal co2Kg,
+        @JsonProperty("combustible_l") BigDecimal combustibleL,
         String estado,
         List<RouteOrderResponse> pedidos,
-        Integer totalEntregas
+        @JsonProperty("total_entregas") Integer totalEntregas
 ) {
     public static DeliveryRouteResponse fromEntity(DeliveryRoute route) {
         var orderResponses = route.getPedidos() != null

@@ -20,7 +20,7 @@ List<Vehicle> sortVehicles(List<Vehicle> vehicles, VehicleSort sort) {
     case VehicleSort.placa:
       list.sort((a, b) => a.placa.compareTo(b.placa));
     case VehicleSort.anio:
-      list.sort((a, b) => b.anio.compareTo(a.anio));
+      list.sort((a, b) => (b.anio ?? 0).compareTo(a.anio ?? 0));
     case VehicleSort.capacidad:
       list.sort((a, b) => b.capacidadKg.compareTo(a.capacidadKg));
   }

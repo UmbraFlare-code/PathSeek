@@ -1,5 +1,7 @@
 # PathSeek - Frontend (Flutter)
 
+Consulta la [guía local completa](../LOCAL.md) para iniciar PostgreSQL, backend y frontend con el mismo contrato y configurar el usuario de acceso.
+
 SPA Flutter de **PathSeek**: Optimizador de Rutas Sostenibles para UGEL Huancayo.
 Cliente de la API REST de Spring Boot (arquitectura Cliente-Servidor, ver DOC-012).
 

@@ -6,9 +6,13 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/responsive_field_row.dart';
+import '../../../../core/widgets/form_page_layout.dart';
 import '../../domain/entities/order.dart';
 import '../bloc/order_bloc.dart';
 import '../widgets/time_field.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import 'package:latlong2/latlong.dart';
+import '../widgets/delivery_location_picker.dart';
 
 class OrderFormPage extends StatelessWidget {
   const OrderFormPage({super.key, this.order});
@@ -33,7 +37,7 @@ class OrderFormPage extends StatelessWidget {
                 ),
               ),
             );
-            context.pop();
+            context.canPop() ? context.pop() : context.go('/orders');
           } else if (state.hasSaveError) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -74,16 +78,9 @@ class _OrderFormViewState extends State<OrderFormView> {
   String _prioridad = 'ESTANDAR';
   String _tipoProducto = 'NO_PERECEDERO';
 
-  static const List<String> _prioridades = [
-    'EXPRESS',
-    'ESTANDAR',
-    'ECONOMICO',
-  ];
+  static const List<String> _prioridades = ['EXPRESS', 'ESTANDAR', 'ECONOMICO'];
 
-  static const List<String> _tiposProducto = [
-    'PERECEDERO',
-    'NO_PERECEDERO',
-  ];
+  static const List<String> _tiposProducto = ['PERECEDERO', 'NO_PERECEDERO'];
 
   bool get _isEditing => widget.order != null;
 
@@ -91,20 +88,27 @@ class _OrderFormViewState extends State<OrderFormView> {
   void initState() {
     super.initState();
     final order = widget.order;
-    _clienteIdController =
-        TextEditingController(text: order?.clienteId ?? '');
+    final user = context.read<AuthBloc>().state.user;
+    _clienteIdController = TextEditingController(
+      text: order?.clienteId ?? (user?.rol == 'CLIENTE' ? user!.id : ''),
+    );
     _direccionController = TextEditingController(text: order?.direccion ?? '');
-    _gpsLatController =
-        TextEditingController(text: order?.gpsLat.toString() ?? '');
-    _gpsLonController =
-        TextEditingController(text: order?.gpsLon.toString() ?? '');
+    _gpsLatController = TextEditingController(
+      text: order?.gpsLat.toString() ?? '',
+    );
+    _gpsLonController = TextEditingController(
+      text: order?.gpsLon.toString() ?? '',
+    );
     _pesoController = TextEditingController(text: order?.peso.toString() ?? '');
-    _volumenController =
-        TextEditingController(text: order?.volumen.toString() ?? '');
-    _ventanaInicioController =
-        TextEditingController(text: order?.ventanaInicio ?? '');
-    _ventanaFinController =
-        TextEditingController(text: order?.ventanaFin ?? '');
+    _volumenController = TextEditingController(
+      text: order?.volumen.toString() ?? '',
+    );
+    _ventanaInicioController = TextEditingController(
+      text: order?.ventanaInicio ?? '',
+    );
+    _ventanaFinController = TextEditingController(
+      text: order?.ventanaFin ?? '',
+    );
     if (order != null) {
       _prioridad = order.prioridad;
       _tipoProducto = order.tipoProducto;
@@ -158,193 +162,217 @@ class _OrderFormViewState extends State<OrderFormView> {
     }
   }
 
+  Future<void> _pickDestination() async {
+    final lat = double.tryParse(_gpsLatController.text.trim());
+    final lon = double.tryParse(_gpsLonController.text.trim());
+    final initial =
+        lat != null &&
+            lon != null &&
+            lat.isFinite &&
+            lon.isFinite &&
+            lat.abs() <= 90 &&
+            lon.abs() <= 180
+        ? LatLng(lat, lon)
+        : null;
+    final point = await showDialog<LatLng>(
+      context: context,
+      builder: (_) => DeliveryLocationPicker(initial: initial),
+    );
+    if (!mounted || point == null) return;
+    _gpsLatController.text = point.latitude.toStringAsFixed(6);
+    _gpsLonController.text = point.longitude.toStringAsFixed(6);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSaving = context.watch<OrderBloc>().state.isSaving;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Editar pedido' : 'Nuevo pedido'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _clienteIdController,
-                          decoration: const InputDecoration(
-                            labelText: 'ID de cliente',
-                            prefixIcon: Icon(Icons.store_outlined),
-                          ),
-                          validator: (value) =>
-                              Validators.required(value, 'El ID de cliente'),
-                        ),
-                        DropdownButtonFormField<String>(
-                          initialValue: _prioridad,
-                          decoration: const InputDecoration(
-                            labelText: 'Prioridad',
-                          ),
-                          items: _prioridades
-                              .map(
-                                (prioridad) => DropdownMenuItem(
-                                  value: prioridad,
-                                  child: Text(prioridad),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => _prioridad = value);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _direccionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Direccion o punto de referencia',
-                        helperText:
-                            'Ej. "frente a la bodega El Ahorro" si no hay direccion formal',
-                        prefixIcon: Icon(Icons.place_outlined),
-                      ),
-                      maxLines: 2,
-                      validator: (value) =>
-                          Validators.required(value, 'La direccion'),
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _gpsLatController,
-                          decoration: const InputDecoration(
-                            labelText: 'Latitud GPS',
-                            prefixIcon: Icon(Icons.explore_outlined),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                            signed: true,
-                          ),
-                          validator: (value) =>
-                              Validators.range(value, -90, 90, 'La latitud'),
-                        ),
-                        TextFormField(
-                          controller: _gpsLonController,
-                          decoration: const InputDecoration(
-                            labelText: 'Longitud GPS',
-                            prefixIcon: Icon(Icons.explore_outlined),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                            signed: true,
-                          ),
-                          validator: (value) => Validators.range(
-                              value, -180, 180, 'La longitud'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _pesoController,
-                          decoration: const InputDecoration(
-                            labelText: 'Peso (kg)',
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) =>
-                              Validators.positive(value, 'El peso'),
-                        ),
-                        TextFormField(
-                          controller: _volumenController,
-                          decoration: const InputDecoration(
-                            labelText: 'Volumen (m3)',
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) =>
-                              Validators.positive(value, 'El volumen'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TimeField(
-                          controller: _ventanaInicioController,
-                          labelText: 'Ventana - hora de inicio',
-                          validator: (value) =>
-                              Validators.required(value, 'La hora de inicio'),
-                        ),
-                        TimeField(
-                          controller: _ventanaFinController,
-                          labelText: 'Ventana - hora de fin',
-                          validator: (value) =>
-                              Validators.required(value, 'La hora de fin'),
-                        ),
-                        DropdownButtonFormField<String>(
-                          initialValue: _tipoProducto,
-                          decoration: const InputDecoration(
-                            labelText: 'Tipo de producto',
-                          ),
-                          items: _tiposProducto
-                              .map(
-                                (tipo) => DropdownMenuItem(
-                                  value: tipo,
-                                  child: Text(tipo),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => _tipoProducto = value);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        OutlinedButton(
-                          onPressed: isSaving ? null : () => context.pop(),
-                          child: const Text('Cancelar'),
-                        ),
-                        const SizedBox(width: 12),
-                        FilledButton(
-                          onPressed: isSaving ? null : _submit,
-                          child: isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(_isEditing ? 'Guardar' : 'Registrar'),
-                        ),
-                      ],
-                    ),
-                  ],
+    return FormPageLayout(
+      title: _isEditing ? 'Editar pedido' : 'Nuevo pedido',
+      description: 'Define el destino, la carga y la ventana de entrega.',
+      icon: Icons.inventory_2_outlined,
+      backPath: '/orders',
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _clienteIdController,
+                  readOnly:
+                      context.read<AuthBloc>().state.user?.rol == 'CLIENTE',
+                  decoration: const InputDecoration(
+                    labelText: 'ID de cliente',
+                    prefixIcon: Icon(Icons.store_outlined),
+                  ),
+                  validator: (value) =>
+                      Validators.required(value, 'El ID de cliente'),
                 ),
-              ),
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  initialValue: _prioridad,
+                  decoration: const InputDecoration(labelText: 'Prioridad'),
+                  items: _prioridades
+                      .map(
+                        (prioridad) => DropdownMenuItem(
+                          value: prioridad,
+                          child: Text(switch (prioridad) {
+                            'EXPRESS' => 'Express',
+                            'ESTANDAR' => 'Estándar',
+                            'ECONOMICO' => 'Económico',
+                            _ => prioridad,
+                          }),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _prioridad = value);
+                    }
+                  },
+                ),
+              ],
             ),
-          ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _direccionController,
+              decoration: const InputDecoration(
+                labelText: 'Dirección o punto de referencia',
+                helperText:
+                    'Ej. "frente a la bodega El Ahorro" si no hay direccion formal',
+                prefixIcon: Icon(Icons.place_outlined),
+              ),
+              maxLines: 2,
+              validator: (value) => Validators.required(value, 'La direccion'),
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _gpsLatController,
+                  decoration: InputDecoration(
+                    labelText: 'Latitud GPS',
+                    suffixIcon: IconButton(
+                      tooltip: 'Seleccionar destino en mapa',
+                      onPressed: _pickDestination,
+                      icon: const Icon(Icons.map_outlined),
+                    ),
+                    prefixIcon: const Icon(Icons.explore_outlined),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  validator: (value) =>
+                      Validators.range(value, -90, 90, 'La latitud'),
+                ),
+                TextFormField(
+                  controller: _gpsLonController,
+                  decoration: const InputDecoration(
+                    labelText: 'Longitud GPS',
+                    prefixIcon: Icon(Icons.explore_outlined),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  validator: (value) =>
+                      Validators.range(value, -180, 180, 'La longitud'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _pesoController,
+                  decoration: const InputDecoration(labelText: 'Peso (kg)'),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) => Validators.positive(value, 'El peso'),
+                ),
+                TextFormField(
+                  controller: _volumenController,
+                  decoration: const InputDecoration(labelText: 'Volumen (m³)'),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) =>
+                      Validators.positive(value, 'El volumen'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TimeField(
+                  controller: _ventanaInicioController,
+                  labelText: 'Ventana - hora de inicio',
+                  validator: (value) =>
+                      Validators.required(value, 'La hora de inicio'),
+                ),
+                TimeField(
+                  controller: _ventanaFinController,
+                  labelText: 'Ventana - hora de fin',
+                  validator: (value) =>
+                      Validators.required(value, 'La hora de fin'),
+                ),
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  initialValue: _tipoProducto,
+                  decoration: const InputDecoration(
+                    labelText: 'Tipo de producto',
+                  ),
+                  items: _tiposProducto
+                      .map(
+                        (tipo) => DropdownMenuItem(
+                          value: tipo,
+                          child: Text(switch (tipo) {
+                            'PERECEDERO' => 'Perecedero',
+                            'NO_PERECEDERO' => 'No perecedero',
+                            _ => tipo,
+                          }),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _tipoProducto = value);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                OutlinedButton(
+                  onPressed: isSaving
+                      ? null
+                      : () => context.canPop()
+                            ? context.pop()
+                            : context.go('/orders'),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: isSaving ? null : _submit,
+                  child: isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(_isEditing ? 'Guardar' : 'Registrar'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

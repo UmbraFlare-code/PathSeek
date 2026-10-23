@@ -32,6 +32,7 @@ class RouteOrder extends Equatable {
   const RouteOrder({
     required this.pedidoId,
     required this.orden,
+    this.clienteId,
     this.horaEstimada,
     this.direccion,
     this.gpsLat,
@@ -45,6 +46,7 @@ class RouteOrder extends Equatable {
 
   final String pedidoId;
   final int orden;
+  final String? clienteId;
   final String? horaEstimada;
   final String? direccion;
   final double? gpsLat;
@@ -58,6 +60,7 @@ class RouteOrder extends Equatable {
   @override
   List<Object?> get props => [
         pedidoId,
+        clienteId,
         orden,
         horaEstimada,
         direccion,

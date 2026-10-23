@@ -37,7 +37,8 @@ class RouteBloc extends Bloc<RouteEvent, RouteState> {
     RoutesGenerated event,
     Emitter<RouteState> emit,
   ) async {
-    emit(state.copyWith(isGenerating: true, generateErrorMessage: null));
+    if (state.isGenerating) return;
+    emit(state.copyWith(isGenerating: true, generateSuccess: false, generateErrorMessage: null));
     try {
       final result = await _repository.generateRoutes();
       emit(
@@ -46,7 +47,10 @@ class RouteBloc extends Bloc<RouteEvent, RouteState> {
           generateSuccess: true,
           generatedRoutes: result.rutas.length,
           unassignedOrders: result.pedidosNoAsignados.length,
-          routes: [...result.rutas, ...state.routes],
+          routes: {
+            for (final route in state.routes) route.id: route,
+            for (final route in result.rutas) route.id: route,
+          }.values.toList(),
         ),
       );
     } on Failure catch (failure) {

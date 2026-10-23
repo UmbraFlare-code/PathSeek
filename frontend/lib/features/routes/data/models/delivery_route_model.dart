@@ -5,6 +5,7 @@ class RouteOrderModel extends Equatable {
   const RouteOrderModel({
     required this.pedidoId,
     required this.orden,
+    this.clienteId,
     this.horaEstimada,
     this.direccion,
     this.gpsLat,
@@ -21,6 +22,7 @@ class RouteOrderModel extends Equatable {
 
   final String pedidoId;
   final int orden;
+  final String? clienteId;
   final String? horaEstimada;
   final String? direccion;
   final double? gpsLat;
@@ -41,6 +43,7 @@ class RouteOrderModel extends Equatable {
     return RouteOrderModel(
       pedidoId: (json['pedido_id'] ?? json['pedidoId'] ?? '').toString(),
       orden: _toInt(json['orden']),
+      clienteId: _toStringOrNull(json['cliente_id']),
       horaEstimada: _toStringOrNull(json['hora_estimada'] ?? json['horaEstimada']),
       direccion: _toStringOrNull(json['direccion']),
       gpsLat: _toDoubleOrNull(json['gps_lat'] ?? json['gpsLat']),
@@ -67,6 +70,7 @@ class RouteOrderModel extends Equatable {
   RouteOrder toEntity() => RouteOrder(
         pedidoId: pedidoId,
         orden: orden,
+        clienteId: clienteId,
         horaEstimada: horaEstimada,
         direccion: direccion,
         gpsLat: gpsLat,
@@ -86,6 +90,7 @@ class RouteOrderModel extends Equatable {
   @override
   List<Object?> get props => [
         pedidoId,
+        clienteId,
         orden,
         horaEstimada,
         direccion,

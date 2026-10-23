@@ -100,6 +100,14 @@ void main() {
       expect(result.pedidosNoAsignados, ['o2']);
     });
 
+    test('reads unassigned orders from the legacy backend contract', () async {
+      when(() => remoteDataSource.generateRoutes()).thenAnswer(
+        (_) async => {'rutas': [], 'pedidosNoAsignados': ['o2']},
+      );
+      final result = await repository.generateRoutes();
+      expect(result.pedidosNoAsignados, ['o2']);
+    });
+
     test('tolerates missing keys in response', () async {
       when(() => remoteDataSource.generateRoutes())
           .thenAnswer((_) async => <String, dynamic>{});

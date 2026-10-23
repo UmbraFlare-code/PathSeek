@@ -1,16 +1,15 @@
 package com.pathseek.backend.route.service;
 
-import com.pathseek.backend.route.dto.RoadContextDto;
 import com.pathseek.backend.route.dto.RoadIncidentRequest;
+import com.pathseek.backend.route.repository.RoadIncidentRepository;
+import com.pathseek.backend.route.repository.DeliveryRouteRepository;
+import com.pathseek.backend.route.entity.RoadIncident;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RoutingContextService {
@@ -19,7 +18,18 @@ public class RoutingContextService {
     public static final double DEPOT_LON = -75.210000;
     public static final int DEPOT_ELEVATION_M = 3260;
 
-    private final Map<UUID, List<RoadIncidentRequest>> incidentesPorRuta = new ConcurrentHashMap<>();
+    private RoadIncidentRepository incidents;
+    private DeliveryRouteRepository routes;
+    private com.pathseek.backend.vehicle.repository.VehicleRepository vehicles;
+
+    /** Geometry-only construction remains available to existing algorithm tests. */
+    public RoutingContextService() {}
+    @Autowired
+    public RoutingContextService(RoadIncidentRepository incidents, DeliveryRouteRepository routes,
+            com.pathseek.backend.vehicle.repository.VehicleRepository vehicles) {
+        this.incidents = incidents; this.routes = routes;
+        this.vehicles = vehicles;
+    }
 
     /**
      * Calcula la distancia vial estimada en kilómetros considerando el factor de serpenteo de calles andinas.
@@ -50,12 +60,22 @@ public class RoutingContextService {
         return 1.0;
     }
 
+    @Transactional
     public void registrarIncidente(UUID rutaId, RoadIncidentRequest incidente) {
-        incidentesPorRuta.computeIfAbsent(rutaId, k -> new ArrayList<>()).add(incidente);
+        if (incidents == null) throw new IllegalStateException("El almacenamiento de incidentes no está configurado");
+        var lockedVehicles = vehicles.lockPlanningSubset(routes.findVehicleIds(List.of(rutaId)));
+        var selected = routes.lockPlanningRoutes(List.of(rutaId));
+        if (selected.isEmpty()) throw new com.pathseek.backend.exception.ResourceNotFoundException("Ruta no encontrada");
+        if (lockedVehicles.stream().noneMatch(vehicle -> vehicle.getId().equals(selected.get(0).getVehiculo().getId()))) {
+            throw new com.pathseek.backend.exception.BusinessConflictException("PLANNING_CHANGED", "La ruta cambió; reintente.");
+        }
+        incidents.save(new RoadIncident(selected.get(0), incidente));
     }
 
+    @Transactional(readOnly = true)
     public List<RoadIncidentRequest> getIncidentes(UUID rutaId) {
-        return incidentesPorRuta.getOrDefault(rutaId, List.of());
+        if (incidents == null) throw new IllegalStateException("El almacenamiento de incidentes no está configurado");
+        return incidents.findByRuta_IdAndActivaTrue(rutaId).stream().map(RoadIncident::toRequest).toList();
     }
 
     /**

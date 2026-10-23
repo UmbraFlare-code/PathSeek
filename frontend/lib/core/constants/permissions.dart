@@ -30,7 +30,7 @@ class AppPermissions {
         ]);
       case AppModule.routes:
         return user.hasAnyRole(
-            [AppRoles.admin, AppRoles.operador, AppRoles.auditor]);
+            [AppRoles.admin, AppRoles.operador, AppRoles.auditor, AppRoles.conductor]);
       case AppModule.dashboard:
         // DOC-008: ADMIN/OPERADOR/AUDITOR lectura; CONDUCTOR lectura basica;
         // CLIENTE sin acceso.

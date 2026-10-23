@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/responsive_field_row.dart';
+import '../../../../core/widgets/form_page_layout.dart';
 import '../../domain/entities/vehicle.dart';
 import '../bloc/fleet_bloc.dart';
 
@@ -31,7 +32,7 @@ class VehicleFormPage extends StatelessWidget {
                 ),
               ),
             );
-            context.pop();
+            context.canPop() ? context.pop() : context.go('/fleet');
           } else if (state.hasSaveError) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -69,11 +70,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
   late final TextEditingController _anioController;
   String _tipo = 'CAMIONETA';
 
-  static const List<String> _tipos = [
-    'CAMIONETA',
-    'FURGON',
-    'MOTO',
-  ];
+  static const List<String> _tipos = ['CAMIONETA', 'FURGON', 'MOTO'];
 
   bool get _isEditing => widget.vehicle != null;
 
@@ -95,7 +92,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
       text: vehicle?.factorEmision.toString() ?? '',
     );
     _anioController = TextEditingController(
-      text: vehicle?.anio.toString() ?? '',
+      text: vehicle?.anio?.toString() ?? '',
     );
     if (vehicle != null) _tipo = vehicle.tipo;
   }
@@ -121,7 +118,7 @@ class _VehicleFormViewState extends State<VehicleFormView> {
         capacidadM3: double.parse(_capacidadM3Controller.text.trim()),
         consumoKmL: double.parse(_consumoController.text.trim()),
         factorEmision: double.parse(_factorEmisionController.text.trim()),
-        anio: int.parse(_anioController.text.trim()),
+        anio: int.tryParse(_anioController.text.trim()),
       );
 
       final bloc = context.read<FleetBloc>();
@@ -137,147 +134,144 @@ class _VehicleFormViewState extends State<VehicleFormView> {
   Widget build(BuildContext context) {
     final isSaving = context.watch<FleetBloc>().state.isSaving;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Editar vehiculo' : 'Nuevo vehiculo'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      controller: _placaController,
-                      decoration: const InputDecoration(
-                        labelText: 'Placa',
-                        prefixIcon: Icon(Icons.confirmation_number_outlined),
-                      ),
-                      textCapitalization: TextCapitalization.characters,
-                      validator: Validators.plate,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _tipo,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de vehiculo',
-                        prefixIcon: Icon(Icons.local_shipping_outlined),
-                      ),
-                      items: _tipos
-                          .map(
-                            (tipo) => DropdownMenuItem(
-                              value: tipo,
-                              child: Text(tipo),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) setState(() => _tipo = value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _capacidadKgController,
-                          decoration: const InputDecoration(
-                            labelText: 'Capacidad (kg)',
-                          ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) =>
-                              Validators.positive(value, 'La capacidad en kg'),
-                        ),
-                        TextFormField(
-                          controller: _capacidadM3Controller,
-                          decoration: const InputDecoration(
-                            labelText: 'Capacidad (m3)',
-                          ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) =>
-                              Validators.positive(value, 'La capacidad en m3'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ResponsiveFieldRow(
-                      children: [
-                        TextFormField(
-                          controller: _consumoController,
-                          decoration: const InputDecoration(
-                            labelText: 'Consumo (km/L)',
-                          ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) =>
-                              Validators.positive(value, 'El consumo'),
-                        ),
-                        TextFormField(
-                          controller: _factorEmisionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Factor de emision (kg CO2/km)',
-                          ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) => Validators.decimal(
-                              value, 'El factor de emision'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _anioController,
-                      decoration: const InputDecoration(
-                        labelText: 'Anio de fabricacion',
-                        prefixIcon: Icon(Icons.calendar_today_outlined),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) =>
-                          Validators.year(value, 'El anio'),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        OutlinedButton(
-                          onPressed: isSaving ? null : () => context.pop(),
-                          child: const Text('Cancelar'),
-                        ),
-                        const SizedBox(width: 12),
-                        FilledButton(
-                          onPressed: isSaving ? null : _submit,
-                          child: isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(_isEditing ? 'Guardar' : 'Registrar'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+    return FormPageLayout(
+      title: _isEditing ? 'Editar vehículo' : 'Nuevo vehículo',
+      description:
+          'Registra la identificación, capacidad y parámetros de sostenibilidad.',
+      icon: Icons.local_shipping_outlined,
+      backPath: '/fleet',
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _placaController,
+              decoration: const InputDecoration(
+                labelText: 'Placa',
+                prefixIcon: Icon(Icons.confirmation_number_outlined),
               ),
+              textCapitalization: TextCapitalization.characters,
+              validator: Validators.plate,
             ),
-          ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              initialValue: _tipo,
+              decoration: const InputDecoration(
+                labelText: 'Tipo de vehículo',
+                prefixIcon: Icon(Icons.local_shipping_outlined),
+              ),
+              items: _tipos
+                  .map(
+                    (tipo) => DropdownMenuItem(
+                      value: tipo,
+                      child: Text(switch (tipo) {
+                        'CAMIONETA' => 'Camioneta',
+                        'FURGON' => 'Furgón',
+                        'MOTO' => 'Moto',
+                        _ => tipo,
+                      }),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) setState(() => _tipo = value);
+              },
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _capacidadKgController,
+                  decoration: const InputDecoration(
+                    labelText: 'Capacidad (kg)',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) =>
+                      Validators.positive(value, 'La capacidad en kg'),
+                ),
+                TextFormField(
+                  controller: _capacidadM3Controller,
+                  decoration: const InputDecoration(
+                    labelText: 'Capacidad (m³)',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) =>
+                      Validators.positive(value, 'La capacidad en m3'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ResponsiveFieldRow(
+              children: [
+                TextFormField(
+                  controller: _consumoController,
+                  decoration: const InputDecoration(
+                    labelText: 'Consumo (km/L)',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) =>
+                      Validators.positive(value, 'El consumo'),
+                ),
+                TextFormField(
+                  controller: _factorEmisionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Factor de emisión (kg CO2/km)',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) =>
+                      Validators.decimal(value, 'El factor de emision'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _anioController,
+              decoration: const InputDecoration(
+                labelText: 'Año de fabricación',
+                prefixIcon: Icon(Icons.calendar_today_outlined),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? null
+                  : Validators.year(value, 'El anio'),
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                OutlinedButton(
+                  onPressed: isSaving
+                      ? null
+                      : () => context.canPop()
+                            ? context.pop()
+                            : context.go('/fleet'),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: isSaving ? null : _submit,
+                  child: isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(_isEditing ? 'Guardar' : 'Registrar'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -17,6 +17,11 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  reoptimization:
+    budget-ms: ${REOPTIMIZATION_BUDGET_MS:25000}
+    max-routes: 15
+    max-orders: 300
+    iterations: 200
   security:
     jwt-secret: ${JWT_SECRET}
     access-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:15}

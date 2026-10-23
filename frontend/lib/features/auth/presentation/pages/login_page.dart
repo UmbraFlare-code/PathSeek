@@ -1,606 +1,309 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/loading_indicator.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.hasError) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage!),
-                  backgroundColor: Theme.of(context).colorScheme.error,
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) => LayoutBuilder(
+          builder: (context, constraints) {
+            final wide =
+                constraints.maxWidth >= 1000 &&
+                constraints.maxHeight >= 600 &&
+                MediaQuery.textScalerOf(context).scale(16) < 23;
+            final form = ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(constraints.maxWidth < 600 ? 24 : 40),
+                  child: _LoginForm(state: state),
                 ),
+              ),
+            );
+            if (wide) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(48),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryDark,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Center(
+                        child: SingleChildScrollView(child: _BrandPanel()),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(40),
+                        child: form,
+                      ),
+                    ),
+                  ),
+                ],
               );
-          }
-        },
-        builder: (context, state) {
-          return Stack(
-            children: [
-              // Fondo ambiental degradado con orbes de luz
-              const _AmbientBackground(),
-              // Layout Split-Screen Responsivo
-              SafeArea(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isDesktop = constraints.maxWidth >= 840;
-                    if (isDesktop) {
-                      return Row(
-                        children: [
-                          // Panel Izquierdo: Branding + Cut-Out Headlines + Dramatic Whitespace
-                          const Expanded(
-                            flex: 5,
-                            child: SingleChildScrollView(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 64,
-                                vertical: 48,
-                              ),
-                              child: _BrandingSection(),
-                            ),
-                          ),
-                          // Panel Derecho: Tarjeta Glassmorphic de Login
-                          Expanded(
-                            flex: 5,
-                            child: Center(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(40),
-                                child: ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 440),
-                                  child: _GlassCard(
-                                    child: _LoginCardContent(state: state),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      // Layout Móvil: Columna centrada con encabezado y tarjeta Glassmorphism
-                      return Center(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 36,
-                          ),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 420),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const _MobileHeader(),
-                                const SizedBox(height: 32),
-                                _GlassCard(
-                                  child: _LoginCardContent(state: state),
-                                ),
-                              ],
-                            ),
-                          ),
+            }
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.route_outlined,
+                          color: AppTheme.primary,
+                          size: 28,
                         ),
-                      );
-                    }
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _AmbientBackground extends StatelessWidget {
-  const _AmbientBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F1713),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Container(
-              width: 380,
-              height: 380,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppTheme.accent.withValues(alpha: 0.35),
-                    AppTheme.primary.withValues(alpha: 0.1),
-                    Colors.transparent,
+                        const SizedBox(width: 12),
+                        Text(
+                          'PathSeek',
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Distribución sostenible',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 24),
+                    form,
                   ],
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            bottom: -120,
-            right: -100,
-            child: Container(
-              width: 450,
-              height: 450,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppTheme.primaryDark.withValues(alpha: 0.4),
-                    AppTheme.primary.withValues(alpha: 0.15),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
-    );
-  }
+    ),
+  );
 }
 
-class _BrandingSection extends StatelessWidget {
-  const _BrandingSection();
-
+class _BrandPanel extends StatelessWidget {
+  const _BrandPanel();
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: const Text(
-            'PATHSEEK // PLATAFORMA INTELIGENTE',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1.5,
-            ),
-          ),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Icon(Icons.route_outlined, color: Colors.white, size: 40),
+      const SizedBox(height: 24),
+      Text(
+        'PathSeek',
+        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
         ),
-        const SizedBox(height: 36),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            'OPTIMIZADOR DE RUTAS',
-            style: TextStyle(
-              color: Color(0xFF0F1713),
-              fontWeight: FontWeight.w900,
-              fontSize: 28,
-              letterSpacing: 0.5,
-            ),
-          ),
+      ),
+      const SizedBox(height: 32),
+      Text(
+        'Cada entrega,\nmejor planificada.',
+        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
         ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppTheme.accent,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            'SOSTENIBLES Y EFICIENTES',
-            style: TextStyle(
-              color: Color(0xFF0F1713),
-              fontWeight: FontWeight.w900,
-              fontSize: 28,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 48),
-        const Text(
-          'Reduce costos operativos, minimiza la huella de carbono y gestiona tus flotas con algoritmos de última generación.',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            height: 1.6,
-          ),
-        ),
-        const SizedBox(height: 48),
-        const _FeatureBadge(
-          number: '01 /',
-          title: 'ALGORITMOS DE ENRUTAMIENTO',
-          subtitle: 'Optimización de caminos en tiempo real.',
-        ),
-        const SizedBox(height: 20),
-        const _FeatureBadge(
-          number: '02 /',
-          title: 'REDUCCIÓN DE EMISIONES',
-          subtitle: 'Monitoreo de ahorro de combustible y CO₂.',
-        ),
-        const SizedBox(height: 20),
-        const _FeatureBadge(
-          number: '03 /',
-          title: 'GESTIÓN DE FLOTAS',
-          subtitle: 'Control total de vehículos y conductores.',
-        ),
-      ],
-    );
-  }
-}
-
-class _FeatureBadge extends StatelessWidget {
-  final String number;
-  final String title;
-  final String subtitle;
-
-  const _FeatureBadge({
-    required this.number,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-          ),
-          child: Text(
-            number,
-            style: const TextStyle(
-              color: AppTheme.accent,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                letterSpacing: 0.5,
+      ),
+      const SizedBox(height: 24),
+      Text(
+        'Gestión de la distribución para UGEL Huancayo.',
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(color: Colors.white),
+      ),
+      const SizedBox(height: 32),
+      for (final entry in const [
+        (Icons.inventory_2_outlined, 'Pedidos y ventanas de entrega'),
+        (Icons.map_outlined, 'Rutas y destinos en el mapa'),
+        (Icons.eco_outlined, 'Indicadores de sostenibilidad'),
+      ])
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ExcludeSemantics(
+                child: Icon(entry.$1, color: Colors.white, size: 24),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.85),
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _MobileHeader extends StatelessWidget {
-  const _MobileHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.3),
-            shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.accent.withValues(alpha: 0.6)),
-          ),
-          child: const Icon(
-            Icons.route,
-            size: 40,
-            color: AppTheme.accent,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            'PATHSEEK',
-            style: TextStyle(
-              color: Color(0xFF0F1713),
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Optimizador de Rutas Sostenibles',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-
-  const _GlassCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
-                blurRadius: 32,
-                spreadRadius: 4,
-                offset: const Offset(0, 12),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  entry.$2,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                ),
               ),
             ],
           ),
-          padding: const EdgeInsets.all(36),
-          child: child,
         ),
-      ),
-    );
-  }
-}
-
-class _LoginCardContent extends StatelessWidget {
-  final AuthState state;
-
-  const _LoginCardContent({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.accent.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppTheme.accent.withValues(alpha: 0.6)),
-            ),
-            child: const Text(
-              '// INICIO DE SESIÓN',
-              style: TextStyle(
-                color: AppTheme.accent,
-                fontWeight: FontWeight.bold,
-                fontSize: 11,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Bienvenido de nuevo',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Ingresa tus credenciales para acceder a la plataforma',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.85),
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 32),
-        if (state.isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: LoadingIndicator(
-              message: 'Iniciando sesion...',
-            ),
-          )
-        else
-          const _LoginForm(),
-      ],
-    );
-  }
+    ],
+  );
 }
 
 class _LoginForm extends StatefulWidget {
-  const _LoginForm();
-
+  const _LoginForm({required this.state});
+  final AuthState state;
   @override
   State<_LoginForm> createState() => _LoginFormState();
 }
 
 class _LoginFormState extends State<_LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  bool _obscure = true;
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _email.dispose();
+    _password.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
   void _submit() {
+    if (widget.state.isLoading) return;
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
-            AuthLoginRequested(
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-            ),
-          );
+        AuthLoginRequested(email: _email.text.trim(), password: _password.text),
+      );
+    } else {
+      (Validators.email(_email.text) != null ? _emailFocus : _passwordFocus)
+          .requestFocus();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            controller: _emailController,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              labelText: 'Correo electrónico',
-              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
-              prefixIcon:
-                  const Icon(Icons.email_outlined, color: Colors.white),
-              filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.12),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 2.0),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.error),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.error, width: 2.0),
-              ),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
-            validator: Validators.email,
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _passwordController,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              labelText: 'Contraseña',
-              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
-              prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-              filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.12),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 2.0),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.error),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.error, width: 2.0),
-              ),
-            ),
-            obscureText: _obscurePassword,
-            autofillHints: const [AutofillHints.password],
-            validator: Validators.password,
-            onFieldSubmitted: (_) => _submit(),
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            height: 52,
-            child: ElevatedButton(
-              onPressed: _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.white,
-                elevation: 4,
-                shadowColor: AppTheme.primary.withValues(alpha: 0.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Iniciar sesión',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+    final state = widget.state;
+    final theme = Theme.of(context);
+    return AutofillGroup(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(
+                'Inicia sesión',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              'Accede a tu espacio de trabajo con tu cuenta de PathSeek.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppTheme.mutedText,
+              ),
+            ),
+            const SizedBox(height: 32),
+            TextFormField(
+              controller: _email,
+              focusNode: _emailFocus,
+              enabled: !state.isLoading,
+              decoration: const InputDecoration(
+                labelText: 'Correo electrónico',
+                prefixIcon: Icon(Icons.email_outlined),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [
+                AutofillHints.username,
+                AutofillHints.email,
+              ],
+              validator: Validators.email,
+              autocorrect: false,
+              onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
+            ),
+            const SizedBox(height: 24),
+            TextFormField(
+              controller: _password,
+              focusNode: _passwordFocus,
+              enabled: !state.isLoading,
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  tooltip: _obscure
+                      ? 'Mostrar contraseña'
+                      : 'Ocultar contraseña',
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                  icon: Icon(
+                    _obscure
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                ),
+              ),
+              obscureText: _obscure,
+              autocorrect: false,
+              enableSuggestions: false,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [AutofillHints.password],
+              validator: Validators.password,
+              onFieldSubmitted: (_) => _submit(),
+            ),
+            if (state.hasError) ...[
+              const SizedBox(height: 20),
+              Semantics(
+                liveRegion: true,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.dangerSurface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    state.errorMessage!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.danger,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: state.isLoading ? null : _submit,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (state.isLoading) ...[
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Flexible(
+                    child: Text(
+                      state.isLoading ? 'Iniciando sesión…' : 'Iniciar sesión',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
