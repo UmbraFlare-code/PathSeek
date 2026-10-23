@@ -7,6 +7,11 @@ import java.util.UUID;
 
 public interface DriverRepository extends JpaRepository<Driver, UUID> {
 
+    boolean existsByUsuarioId(UUID usuarioId);
+
+    boolean existsByUsuarioIdAndIdNot(UUID usuarioId, UUID id);
+
+    java.util.Optional<Driver> findByDni(String dni);
     boolean existsByDni(String dni);
 
     boolean existsByDniAndIdNot(String dni, UUID id);

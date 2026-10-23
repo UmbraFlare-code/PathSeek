@@ -17,8 +17,12 @@ class HomeShell extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     final largeText = MediaQuery.textScalerOf(context).scale(16) > 22;
     final sidebar = size.width >= 1100 && size.height >= 560 && !largeText;
-    final bottom = size.width < 600 && size.height >= 500 && !largeText;
     final destinations = _destinationsFor(user);
+    final bottom =
+        size.width < 600 &&
+        size.height >= 500 &&
+        !largeText &&
+        destinations.length <= 5;
     final location = GoRouterState.of(context).uri.path;
     final selected = destinations.indexWhere(
       (d) => d.path == '/'
@@ -296,4 +300,11 @@ List<_Destination> _destinationsFor(AppUser? user) => [
     ),
   if (AppPermissions.canView(user, AppModule.routes))
     const _Destination('/routes', 'Rutas', Icons.route_outlined, Icons.route),
+  if (AppPermissions.canView(user, AppModule.settings))
+    const _Destination(
+      '/settings',
+      'Configuración',
+      Icons.settings_outlined,
+      Icons.settings,
+    ),
 ];

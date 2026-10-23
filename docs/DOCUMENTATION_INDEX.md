@@ -196,3 +196,7 @@ Contrato de eventos, idempotencia, progreso de rutas, avisos, migración, presup
 
 Geometría por calles, estados de fallback, configuración Docker, pruebas y límites de las métricas viales.
 
+## [11 Configuracion usuarios y roles V_1_0_0](03%20Implementación/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md)
+
+Acceso a Configuración, gestión de cuentas, catálogo de roles, revocación de sesiones, migración 06 y resultados de validación.
+

@@ -43,7 +43,11 @@ Abre [la aplicación](http://localhost) e inicia sesión con el email y la contr
 - Documentación interactiva: [Swagger](http://localhost:8080/swagger-ui.html).
 - Detener conservando la base de datos: `docker compose down`.
 
-PostgreSQL ejecuta los cuatro scripts de `database/` **solo cuando el volumen de datos está vacío**. Si ya tienes un volumen, conserva sus datos y revisa su esquema; reiniciar el contenedor no vuelve a ejecutar los scripts. El bootstrap crea el usuario únicamente si el email no existe: cambiar su contraseña en `.env` no modifica una cuenta ya creada.
+**Las migraciones son automáticas.** Al arrancar el backend, Flyway crea las tablas que falten o actualiza una base existente antes de que JPA valide el esquema. Basta con `docker compose up --build -d`, tanto en otra PC como al actualizar esta instalación. No necesitas ejecutar manualmente los scripts 05, 06 o 07 ni borrar volúmenes. Flyway registra las versiones en `flyway_schema_history` y no repite migraciones ya aplicadas.
+
+En volúmenes locales nuevos, PostgreSQL conserva la carga inicial 01–04 con los datos demo; las ampliaciones y futuras actualizaciones las administra Flyway desde el backend. El bootstrap crea el usuario únicamente si el email no existe: cambiar su contraseña en `.env` no modifica una cuenta ya creada.
+
+Si una migración falla, el backend no inicia: consulta `docker compose logs backend`, corrige la causa y vuelve a levantarlo. No borres el volumen ni uses `flyway clean` como solución. Los comandos manuales de migraciones de guías anteriores quedan sustituidos por este flujo.
 
 ## Opción 2: backend y Flutter con recarga durante desarrollo
 
@@ -56,7 +60,7 @@ Requiere Java 17 o superior compatible con el proyecto, Flutter con soporte web,
    docker compose up -d postgres
    ```
 
-   Si instalaste PostgreSQL directamente, crea el usuario y la base `pathseek` y ejecuta con `psql` los archivos `database/01_schema_tablas.sql`, `02_triggers.sql`, `03_stored_procedures.sql` y `04_seed_data.sql`, en ese orden y con `-v ON_ERROR_STOP=1`. Flyway está desactivado; arrancar Java no crea el esquema.
+   Si instalaste PostgreSQL directamente, crea únicamente el usuario y la base `pathseek`, con permisos para crear tablas. Al arrancar Java, Flyway inicializa o actualiza automáticamente el esquema. La carga de datos demo es opcional; el usuario local puede crearse con el bootstrap del paso siguiente.
 
 2. Prepara y arranca el backend:
 

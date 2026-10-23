@@ -20,41 +20,41 @@ class _StubAdapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
-  ) =>
-      handler(options);
+  ) => handler(options);
 
   @override
   void close({bool force = false}) {}
 }
 
 ResponseBody _json(String body, int statusCode) => ResponseBody.fromString(
-      body,
-      statusCode,
-      headers: {
-        Headers.contentTypeHeader: [Headers.jsonContentType],
-      },
-    );
+  body,
+  statusCode,
+  headers: {
+    Headers.contentTypeHeader: [Headers.jsonContentType],
+  },
+);
 
 void main() {
   late MockTokenStorage tokenStorage;
 
   setUp(() {
     tokenStorage = MockTokenStorage();
-    when(() => tokenStorage.readAccessToken())
-        .thenAnswer((_) async => null);
-    when(() => tokenStorage.readRefreshToken())
-        .thenAnswer((_) async => null);
-    when(() => tokenStorage.saveTokens(
-          accessToken: any(named: 'accessToken'),
-          refreshToken: any(named: 'refreshToken'),
-        )).thenAnswer((_) async {});
+    when(() => tokenStorage.readAccessToken()).thenAnswer((_) async => null);
+    when(() => tokenStorage.readRefreshToken()).thenAnswer((_) async => null);
+    when(
+      () => tokenStorage.saveTokens(
+        accessToken: any(named: 'accessToken'),
+        refreshToken: any(named: 'refreshToken'),
+      ),
+    ).thenAnswer((_) async {});
     when(() => tokenStorage.clear()).thenAnswer((_) async {});
   });
 
   group('ApiClient auth interceptor', () {
     test('attaches Bearer token when present', () async {
-      when(() => tokenStorage.readAccessToken())
-          .thenAnswer((_) async => 'access-123');
+      when(
+        () => tokenStorage.readAccessToken(),
+      ).thenAnswer((_) async => 'access-123');
 
       RequestOptions? captured;
       final adapter = _StubAdapter((options) async {
@@ -85,30 +85,73 @@ void main() {
   });
 
   group('ApiClient refresh interceptor', () {
+    for (final status in [401, 500]) {
+      test(
+        'revoked refresh ends session; transient error does not: $status',
+        () async {
+          when(
+            () => tokenStorage.readAccessToken(),
+          ).thenAnswer((_) async => 'old');
+          when(
+            () => tokenStorage.readRefreshToken(),
+          ).thenAnswer((_) async => 'refresh');
+          var expired = 0;
+          final dio = Dio()
+            ..httpClientAdapter = _StubAdapter(
+              (options) async => _json(
+                '{}',
+                options.path == '/api/v1/auth/refresh' ? status : 401,
+              ),
+            );
+          final client = ApiClient(
+            tokenStorage: tokenStorage,
+            dio: dio,
+            onSessionExpired: () async {
+              expired++;
+            },
+          );
+          await expectLater(
+            client.dio.get('/api/v1/usuarios'),
+            throwsA(isA<DioException>()),
+          );
+          expect(expired, status == 401 ? 1 : 0);
+        },
+      );
+    }
     test('late 401 reuses the token renewed by a parallel request', () async {
       String accessToken = 'expired';
-      when(() => tokenStorage.readAccessToken()).thenAnswer((_) async => accessToken);
-      when(() => tokenStorage.readRefreshToken()).thenAnswer((_) async => 'refresh');
-      when(() => tokenStorage.saveTokens(
-        accessToken: any(named: 'accessToken'), refreshToken: any(named: 'refreshToken'),
-      )).thenAnswer((call) async { accessToken = call.namedArguments[#accessToken] as String; });
+      when(
+        () => tokenStorage.readAccessToken(),
+      ).thenAnswer((_) async => accessToken);
+      when(
+        () => tokenStorage.readRefreshToken(),
+      ).thenAnswer((_) async => 'refresh');
+      when(
+        () => tokenStorage.saveTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken'),
+        ),
+      ).thenAnswer((call) async {
+        accessToken = call.namedArguments[#accessToken] as String;
+      });
       final lateRequestStarted = Completer<void>();
       final releaseLateResponse = Completer<void>();
       int refreshCount = 0;
-      final dio = Dio()..httpClientAdapter = _StubAdapter((options) async {
-        if (options.path == '/api/v1/auth/refresh') {
-          refreshCount++;
-          return _json('{"token":"renewed","refreshToken":"rotated"}', 200);
-        }
-        if (options.headers['Authorization'] == 'Bearer expired') {
-          if (options.path == '/late') {
-            lateRequestStarted.complete();
-            await releaseLateResponse.future;
+      final dio = Dio()
+        ..httpClientAdapter = _StubAdapter((options) async {
+          if (options.path == '/api/v1/auth/refresh') {
+            refreshCount++;
+            return _json('{"token":"renewed","refreshToken":"rotated"}', 200);
           }
-          return _json('{"message":"expired"}', 401);
-        }
-        return _json('[]', 200);
-      });
+          if (options.headers['Authorization'] == 'Bearer expired') {
+            if (options.path == '/late') {
+              lateRequestStarted.complete();
+              await releaseLateResponse.future;
+            }
+            return _json('{"message":"expired"}', 401);
+          }
+          return _json('[]', 200);
+        });
       final client = ApiClient(tokenStorage: tokenStorage, dio: dio);
       final late = client.dio.get('/late');
       await lateRequestStarted.future;
@@ -120,14 +163,18 @@ void main() {
 
     test('refreshes token and retries request on 401', () async {
       String accessToken = 'old-token';
-      when(() => tokenStorage.readAccessToken())
-          .thenAnswer((_) async => accessToken);
-      when(() => tokenStorage.readRefreshToken())
-          .thenAnswer((_) async => 'refresh-123');
-      when(() => tokenStorage.saveTokens(
-            accessToken: any(named: 'accessToken'),
-            refreshToken: any(named: 'refreshToken'),
-          )).thenAnswer((invocation) async {
+      when(
+        () => tokenStorage.readAccessToken(),
+      ).thenAnswer((_) async => accessToken);
+      when(
+        () => tokenStorage.readRefreshToken(),
+      ).thenAnswer((_) async => 'refresh-123');
+      when(
+        () => tokenStorage.saveTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken'),
+        ),
+      ).thenAnswer((invocation) async {
         accessToken = invocation.namedArguments[#accessToken] as String;
       });
 
@@ -135,7 +182,10 @@ void main() {
       RequestOptions? retriedRequest;
       final adapter = _StubAdapter((options) async {
         if (options.path == '/api/v1/auth/refresh') {
-          return _json('{"token":"new-token","refreshToken":"new-refresh"}', 200);
+          return _json(
+            '{"token":"new-token","refreshToken":"new-refresh"}',
+            200,
+          );
         }
         callCount++;
         if (callCount == 1) {
@@ -164,10 +214,12 @@ void main() {
     });
 
     test('does not refresh on auth endpoints', () async {
-      when(() => tokenStorage.readAccessToken())
-          .thenAnswer((_) async => 'token');
-      when(() => tokenStorage.readRefreshToken())
-          .thenAnswer((_) async => 'refresh-123');
+      when(
+        () => tokenStorage.readAccessToken(),
+      ).thenAnswer((_) async => 'token');
+      when(
+        () => tokenStorage.readRefreshToken(),
+      ).thenAnswer((_) async => 'refresh-123');
 
       var callCount = 0;
       final adapter = _StubAdapter((options) async {
@@ -190,10 +242,10 @@ void main() {
     });
 
     test('does not refresh when no refresh token stored', () async {
-      when(() => tokenStorage.readAccessToken())
-          .thenAnswer((_) async => 'token');
-      when(() => tokenStorage.readRefreshToken())
-          .thenAnswer((_) async => null);
+      when(
+        () => tokenStorage.readAccessToken(),
+      ).thenAnswer((_) async => 'token');
+      when(() => tokenStorage.readRefreshToken()).thenAnswer((_) async => null);
 
       var callCount = 0;
       final adapter = _StubAdapter((options) async {
@@ -230,8 +282,11 @@ void main() {
       await expectLater(
         client.dio.get('/api/v1/vehiculos'),
         throwsA(
-          isA<DioException>()
-              .having((e) => e.error, 'error', isA<NoConnectionException>()),
+          isA<DioException>().having(
+            (e) => e.error,
+            'error',
+            isA<NoConnectionException>(),
+          ),
         ),
       );
     });

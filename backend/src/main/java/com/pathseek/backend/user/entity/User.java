@@ -28,6 +28,11 @@ public class User {
     @Column(nullable = false, length = 120)
     private String nombre;
 
+    @Column(length = 8, unique = true)
+    private String dni;
+    public String getDni() { return dni; }
+    public void setDni(String value) { dni = value; }
+
     @Column(nullable = false, unique = true, length = 254)
     private String email;
 
@@ -41,6 +46,10 @@ public class User {
 
     @Column(nullable = false)
     private boolean activo = true;
+
+    @JsonIgnore
+    @Column(name = "token_version", nullable = false)
+    private long tokenVersion;
 
     @Column(name = "intentos_fallidos", nullable = false)
     private int intentosFallidos;
@@ -75,6 +84,10 @@ public class User {
     public UUID getId() {
         return id;
     }
+
+    public long getTokenVersion() { return tokenVersion; }
+
+    public void invalidateSessions() { tokenVersion++; }
 
     public String getNombre() {
         return nombre;

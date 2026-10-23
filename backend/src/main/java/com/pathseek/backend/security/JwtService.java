@@ -33,6 +33,7 @@ public class JwtService {
                 .subject(user.getId().toString())
                 .claim("rol", user.getRol().name())
                 .claim("email", user.getEmail())
+                .claim("ver", user.getTokenVersion())
                 .claim("jti", UUID.randomUUID().toString())
                 .issuedAt(issuedAt)
                 .expiresAt(expiresAt)

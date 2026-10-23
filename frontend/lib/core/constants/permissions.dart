@@ -2,7 +2,7 @@ import '../../features/auth/domain/entities/app_user.dart';
 import 'app_roles.dart';
 
 /// Modulos del sistema con control de acceso por rol.
-enum AppModule { fleet, drivers, orders, routes, dashboard }
+enum AppModule { fleet, drivers, orders, routes, dashboard, settings }
 
 /// Matriz de permisos alineada con DOC-008 (RBAC) y el backend.
 ///
@@ -10,17 +10,27 @@ enum AppModule { fleet, drivers, orders, routes, dashboard }
 /// - Pedidos: ADMIN y OPERADOR escriben; CLIENTE crea y lee; AUDITOR lee.
 /// - Rutas: ADMIN y OPERADOR generan/gestionan; AUDITOR solo lee.
 /// - Dashboard: ADMIN, OPERADOR y AUDITOR ven metricas.
-/// - CONDUCTOR: sin modulos hasta EP-03 (modo conductor).
+/// - CONDUCTOR: rutas propias e indicadores básicos.
+/// - Configuración: ADMIN administra cuentas; OPERADOR/AUDITOR consultan roles.
 class AppPermissions {
   AppPermissions._();
 
   static bool canView(AppUser? user, AppModule module) {
     if (user == null) return false;
     switch (module) {
+      case AppModule.settings:
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.auditor,
+        ]);
       case AppModule.fleet:
       case AppModule.drivers:
-        return user.hasAnyRole(
-            [AppRoles.admin, AppRoles.operador, AppRoles.auditor]);
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.auditor,
+        ]);
       case AppModule.orders:
         return user.hasAnyRole([
           AppRoles.admin,
@@ -29,8 +39,12 @@ class AppPermissions {
           AppRoles.auditor,
         ]);
       case AppModule.routes:
-        return user.hasAnyRole(
-            [AppRoles.admin, AppRoles.operador, AppRoles.auditor, AppRoles.conductor]);
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.auditor,
+          AppRoles.conductor,
+        ]);
       case AppModule.dashboard:
         // DOC-008: ADMIN/OPERADOR/AUDITOR lectura; CONDUCTOR lectura basica;
         // CLIENTE sin acceso.
@@ -46,11 +60,17 @@ class AppPermissions {
   static bool canCreate(AppUser? user, AppModule module) {
     if (user == null) return false;
     switch (module) {
+      case AppModule.settings:
+        return canManageUsers(user);
       case AppModule.fleet:
       case AppModule.drivers:
         return user.hasAnyRole([AppRoles.admin, AppRoles.operador]);
       case AppModule.orders:
-        return user.hasAnyRole([AppRoles.admin, AppRoles.operador, AppRoles.cliente]);
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.cliente,
+        ]);
       case AppModule.routes:
         return user.hasAnyRole([AppRoles.admin, AppRoles.operador]);
       case AppModule.dashboard:
@@ -61,6 +81,8 @@ class AppPermissions {
   static bool canUpdate(AppUser? user, AppModule module) {
     if (user == null) return false;
     switch (module) {
+      case AppModule.settings:
+        return canManageUsers(user);
       case AppModule.fleet:
       case AppModule.drivers:
       case AppModule.orders:
@@ -71,5 +93,8 @@ class AppPermissions {
     }
   }
 
-  static bool canDelete(AppUser? user, AppModule module) => canUpdate(user, module);
+  static bool canManageUsers(AppUser? user) => user?.rol == AppRoles.admin;
+
+  static bool canDelete(AppUser? user, AppModule module) =>
+      module != AppModule.settings && canUpdate(user, module);
 }

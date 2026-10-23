@@ -105,7 +105,7 @@ class _DriverFormViewState extends State<DriverFormView> {
     if (_formKey.currentState!.validate()) {
       final driver = Driver(
         id: widget.driver?.id ?? '',
-        usuarioId: widget.driver?.usuarioId ?? '',
+        usuarioId: '',
         dni: _dniController.text.trim(),
         nombre: _nombreController.text.trim(),
         licencia: _licenciaController.text.trim().toUpperCase(),
@@ -145,6 +145,9 @@ class _DriverFormViewState extends State<DriverFormView> {
               controller: _dniController,
               decoration: const InputDecoration(
                 labelText: 'DNI',
+                helperText:
+                    'Se vincula con la cuenta CONDUCTOR que tenga este DNI.',
+                helperMaxLines: 3,
                 prefixIcon: Icon(Icons.badge_outlined),
               ),
               keyboardType: TextInputType.number,

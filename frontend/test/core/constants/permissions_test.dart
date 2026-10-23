@@ -4,14 +4,53 @@ import 'package:pathseek/features/auth/domain/entities/app_user.dart';
 
 void main() {
   const admin = AppUser(id: '1', nombre: 'A', email: 'a@x.pe', rol: 'ADMIN');
-  const operador =
-      AppUser(id: '2', nombre: 'O', email: 'o@x.pe', rol: 'OPERADOR');
-  const auditor =
-      AppUser(id: '3', nombre: 'Au', email: 'au@x.pe', rol: 'AUDITOR');
-  const cliente =
-      AppUser(id: '4', nombre: 'C', email: 'c@x.pe', rol: 'CLIENTE');
-  const conductor =
-      AppUser(id: '5', nombre: 'Co', email: 'co@x.pe', rol: 'CONDUCTOR');
+  const operador = AppUser(
+    id: '2',
+    nombre: 'O',
+    email: 'o@x.pe',
+    rol: 'OPERADOR',
+  );
+  const auditor = AppUser(
+    id: '3',
+    nombre: 'Au',
+    email: 'au@x.pe',
+    rol: 'AUDITOR',
+  );
+  const cliente = AppUser(
+    id: '4',
+    nombre: 'C',
+    email: 'c@x.pe',
+    rol: 'CLIENTE',
+  );
+  const conductor = AppUser(
+    id: '5',
+    nombre: 'Co',
+    email: 'co@x.pe',
+    rol: 'CONDUCTOR',
+  );
+
+  test(
+    'settings: configuration readers do not acquire user administration',
+    () {
+      for (final user in [admin, operador, auditor]) {
+        expect(AppPermissions.canView(user, AppModule.settings), isTrue);
+        expect(AppPermissions.canManageUsers(user), user == admin);
+        expect(
+          AppPermissions.canCreate(user, AppModule.settings),
+          user == admin,
+        );
+        expect(
+          AppPermissions.canUpdate(user, AppModule.settings),
+          user == admin,
+        );
+        expect(AppPermissions.canDelete(user, AppModule.settings), isFalse);
+      }
+      for (final user in [cliente, conductor, null]) {
+        expect(AppPermissions.canView(user, AppModule.settings), isFalse);
+        expect(AppPermissions.canManageUsers(user), isFalse);
+      }
+    },
+  );
 
   group('AppPermissions.canView', () {
     test('fleet/drivers: admin, operador y auditor ven', () {

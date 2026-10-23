@@ -10,11 +10,14 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required AuthRepository repository})
-      : _repository = repository,
-        super(const AuthState.unknown()) {
+    : _repository = repository,
+      super(const AuthState.unknown()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
+    on<AuthSessionExpired>(
+      (event, emit) => emit(const AuthState.unauthenticated()),
+    );
   }
 
   final AuthRepository _repository;
@@ -45,9 +48,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on Failure catch (failure) {
       emit(AuthState.failure(failure.message));
     } catch (_) {
-      emit(AuthState.failure(
-        'Error inesperado al iniciar sesion. Intente nuevamente.',
-      ));
+      emit(
+        AuthState.failure(
+          'Error inesperado al iniciar sesion. Intente nuevamente.',
+        ),
+      );
     }
   }
 

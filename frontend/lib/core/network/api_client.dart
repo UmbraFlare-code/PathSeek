@@ -14,19 +14,21 @@ class ApiClient {
     required TokenStorage tokenStorage,
     Dio? dio,
     HttpClient? httpClient,
-  })  : _tokenStorage = tokenStorage,
-        _dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: Environment.current.apiBaseUrl,
-                connectTimeout: const Duration(seconds: 10),
-                receiveTimeout: const Duration(seconds: 30),
-                contentType: Headers.jsonContentType,
-              ),
-            ) {
+    Future<void> Function()? onSessionExpired,
+  }) : _tokenStorage = tokenStorage,
+       _dio =
+           dio ??
+           Dio(
+             BaseOptions(
+               baseUrl: Environment.current.apiBaseUrl,
+               connectTimeout: const Duration(seconds: 10),
+               receiveTimeout: const Duration(seconds: 30),
+               contentType: Headers.jsonContentType,
+             ),
+           ) {
     _dio.interceptors.addAll([
       _AuthInterceptor(_tokenStorage),
-      _RefreshInterceptor(_tokenStorage, _dio),
+      _RefreshInterceptor(_tokenStorage, _dio, onSessionExpired),
       _ErrorInterceptor(),
     ]);
 
@@ -65,10 +67,11 @@ class _AuthInterceptor extends Interceptor {
 }
 
 class _RefreshInterceptor extends Interceptor {
-  _RefreshInterceptor(this._tokenStorage, this._dio);
+  _RefreshInterceptor(this._tokenStorage, this._dio, this._onSessionExpired);
 
   final TokenStorage _tokenStorage;
   final Dio _dio;
+  final Future<void> Function()? _onSessionExpired;
 
   Future<void>? _refreshInProgress;
 
@@ -77,8 +80,8 @@ class _RefreshInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     final isAuthEndpoint =
         err.requestOptions.path.contains(ApiPaths.authLogin) ||
-            err.requestOptions.path.contains(ApiPaths.authRefresh) ||
-            err.requestOptions.path.contains(ApiPaths.authLogout);
+        err.requestOptions.path.contains(ApiPaths.authRefresh) ||
+        err.requestOptions.path.contains(ApiPaths.authLogout);
 
     if (statusCode != 401 || isAuthEndpoint || _isRetry(err)) {
       handler.next(err);
@@ -88,7 +91,8 @@ class _RefreshInterceptor extends Interceptor {
     try {
       final token = await _tokenStorage.readAccessToken();
       // A parallel request may already have renewed the expired token.
-      if (token == null || err.requestOptions.headers['Authorization'] == 'Bearer $token') {
+      if (token == null ||
+          err.requestOptions.headers['Authorization'] == 'Bearer $token') {
         _refreshInProgress ??= _performRefresh().whenComplete(() {
           _refreshInProgress = null;
         });
@@ -97,8 +101,13 @@ class _RefreshInterceptor extends Interceptor {
       final retryResponse = await _retry(err.requestOptions);
       handler.resolve(retryResponse);
     } on DioException catch (refreshError) {
+      if (refreshError.response?.statusCode == 401 ||
+          refreshError.response?.statusCode == 403) {
+        await _onSessionExpired?.call();
+      }
       handler.next(refreshError);
-    } catch (_) {
+    } catch (error) {
+      if (error is UnauthorizedFailure) await _onSessionExpired?.call();
       handler.next(err);
     }
   }
@@ -134,10 +143,7 @@ class _RefreshInterceptor extends Interceptor {
   Future<Response<dynamic>> _retry(RequestOptions options) async {
     final token = await _tokenStorage.readAccessToken();
     final requestOptions = options.copyWith(
-      headers: {
-        ...options.headers,
-        'Authorization': 'Bearer $token',
-      },
+      headers: {...options.headers, 'Authorization': 'Bearer $token'},
       extra: {...options.extra, '__retry__': true},
     );
 

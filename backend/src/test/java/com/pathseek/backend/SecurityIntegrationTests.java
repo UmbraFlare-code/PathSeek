@@ -306,6 +306,18 @@ class SecurityIntegrationTests {
     }
 
     @Test
+    void signedJwtWithoutSubjectIsUnauthorizedInsteadOfServerError() throws Exception {
+        Instant now = Instant.now();
+        var claims = JwtClaimsSet.builder().claim("rol", "ADMIN")
+                .issuedAt(now).expiresAt(now.plusSeconds(60)).build();
+        var header = JwsHeader.with(MacAlgorithm.HS256).build();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+        mockMvc.perform(get("/api/v1/usuarios").headers(bearer(token)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+    }
+
+    @Test
     void expiredJwtIsRejected() throws Exception {
         String expiredToken = expiredToken();
 

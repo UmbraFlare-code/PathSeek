@@ -25,9 +25,11 @@ public class DriverService {
     private static final String LICENSE_CONFLICT_MESSAGE = "Ya existe un conductor registrado con esa licencia";
 
     private final DriverRepository driverRepository;
+    private final com.pathseek.backend.user.repository.UserRepository users;
 
-    public DriverService(DriverRepository driverRepository) {
+    public DriverService(DriverRepository driverRepository, com.pathseek.backend.user.repository.UserRepository users) {
         this.driverRepository = driverRepository;
+        this.users = users;
     }
 
     @Transactional(readOnly = true)
@@ -44,6 +46,7 @@ public class DriverService {
 
     @Transactional
     public DriverResponse create(DriverRequest request) {
+        users.lockAdministrators();
         String dni = normalizeDni(request.dni());
         String licencia = normalizeLicense(request.licencia());
         assertUnique(dni, licencia, null);
@@ -55,6 +58,7 @@ public class DriverService {
 
     @Transactional
     public DriverResponse update(UUID id, DriverRequest request) {
+        users.lockAdministrators();
         Driver driver = getDriver(id);
         String dni = normalizeDni(request.dni());
         String licencia = normalizeLicense(request.licencia());
@@ -66,6 +70,7 @@ public class DriverService {
 
     @Transactional
     public void delete(UUID id) {
+        users.lockAdministrators();
         Driver driver = getDriver(id);
         driverRepository.delete(driver);
     }
@@ -100,7 +105,24 @@ public class DriverService {
     }
 
     private void apply(Driver driver, DriverRequest request, String dni, String licencia, boolean creating) {
-        driver.setUsuarioId(parseUsuarioId(request.usuarioId()));
+        var matching = users.findByDni(dni);
+        UUID userId = matching.map(com.pathseek.backend.user.entity.User::getId).orElse(null);
+        UUID supplied = parseUsuarioId(request.usuarioId());
+        if (supplied != null && !supplied.equals(userId))
+            throw new BusinessRuleException("DRIVER_DNI_MISMATCH", "La cuenta debe tener el mismo DNI que el conductor");
+        if (driver.getUsuarioId() != null && !driver.getUsuarioId().equals(userId))
+            throw new BusinessConflictException("DRIVER_DNI_LINKED", "No se puede cambiar el DNI de un conductor vinculado");
+        if (userId != null) {
+            var user = users.findByIdForUpdate(userId).orElseThrow(() -> new BusinessRuleException(
+                    "INVALID_DRIVER_USER", "La cuenta vinculada no existe"));
+            if (!user.isActivo() || user.getRol() != com.pathseek.backend.user.entity.UserRole.CONDUCTOR) {
+                throw new BusinessRuleException("INVALID_DRIVER_USER", "Selecciona una cuenta de conductor activa");
+            }
+            boolean linked = creating ? driverRepository.existsByUsuarioId(userId)
+                    : driverRepository.existsByUsuarioIdAndIdNot(userId, driver.getId());
+            if (linked) throw new BusinessConflictException("DRIVER_USER_CONFLICT", "La cuenta ya está vinculada a otro conductor");
+        }
+        driver.setUsuarioId(userId);
         driver.setDni(dni);
         driver.setNombre(request.nombre().trim());
         driver.setLicencia(licencia);
