@@ -21,7 +21,7 @@ class VehicleModel extends Equatable {
   final double capacidadM3;
   final double consumoKmL;
   final double factorEmision;
-  final int anio;
+  final int? anio;
   final int? restriccionPlacaDigito;
 
   factory VehicleModel.fromJson(Map<String, dynamic> json) {
@@ -33,7 +33,7 @@ class VehicleModel extends Equatable {
       capacidadM3: _toDouble(json['capacidad_m3']),
       consumoKmL: _toDouble(json['consumo_km_l']),
       factorEmision: _toDouble(json['factor_emision']),
-      anio: _toInt(json['anio']),
+      anio: json['anio'] == null ? null : _toInt(json['anio']),
       restriccionPlacaDigito: json['restriccion_placa_digito'] == null
           ? null
           : _toInt(json['restriccion_placa_digito']),

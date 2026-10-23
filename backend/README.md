@@ -83,7 +83,7 @@ $env:DB_PASSWORD="tu_clave_local"
 $env:JWT_SECRET="reemplaza-esto-por-un-secreto-aleatorio-de-al-menos-32-caracteres"
 ```
 
-Flyway crea y versiona el esquema al iniciar la aplicación. Hibernate únicamente valida que las entidades coincidan con ese esquema.
+Flyway está desactivado en la configuración actual. Inicializa PostgreSQL ejecutando los scripts de `database/` en orden (o con `docker compose up -d postgres` desde la raíz, que los carga en un volumen nuevo). Hibernate únicamente valida que las entidades coincidan con ese esquema. Consulta la [guía local](../LOCAL.md).
 
 ## Ejecución
 
@@ -112,7 +112,15 @@ La URL base es `http://localhost:8080/api/v1`.
 .\mvnw.cmd clean package
 ```
 
-Las pruebas usan H2 en memoria con compatibilidad PostgreSQL y ejecutan las migraciones de Flyway. Esto mantiene la suite rápida y sin servicios externos. Antes de desplegar, se recomienda ejecutar una prueba de integración contra PostgreSQL real para detectar diferencias específicas del motor.
+Las pruebas usan H2 en memoria con compatibilidad PostgreSQL; Hibernate crea el esquema de pruebas y Flyway permanece desactivado. Antes de desplegar, verifica también contra PostgreSQL real para detectar diferencias específicas del motor.
+
+## Reoptimización incremental
+
+Para la visualización por calles, consulta la [integración OSRM y configuración Docker](../docs/03%20Implementación/10%20Trazado%20vial%20OSRM%20V_1_0_0.md). La geometría vial conserva la secuencia operativa y expone métricas separadas de las estimaciones del optimizador.
+
+`POST /api/v1/rutas/reoptimizar` permite a ADMIN/OPERADOR procesar nuevos pedidos, cancelaciones, incidentes y averías sin regenerar todas las rutas. Incluye idempotencia por `evento_id`, presupuesto de cálculo, preservación de entregas realizadas y bandeja persistente de avisos.
+
+Antes de arrancar esta versión sobre una base existente, aplica `database/05_incremental_reoptimization.sql`. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/03%20Implementación/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
 
 ## Arquitectura
 

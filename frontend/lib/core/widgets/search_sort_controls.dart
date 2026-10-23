@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../utils/responsive.dart';
-
 /// Campo de busqueda + selector de ordenamiento (responsive).
 class SearchSortControls<T> extends StatelessWidget {
   const SearchSortControls({
@@ -27,6 +25,7 @@ class SearchSortControls<T> extends StatelessWidget {
       controller: queryController,
       onChanged: (_) => onQueryChanged(),
       decoration: InputDecoration(
+        labelText: 'Buscar',
         hintText: hint,
         prefixIcon: const Icon(Icons.search),
         suffixIcon: ValueListenableBuilder<TextEditingValue>(
@@ -34,17 +33,25 @@ class SearchSortControls<T> extends StatelessWidget {
           builder: (context, value, _) => value.text.isEmpty
               ? const SizedBox.shrink()
               : IconButton(
-                  tooltip: 'Limpiar busqueda',
+                  tooltip: 'Limpiar búsqueda',
                   icon: const Icon(Icons.clear),
-                  onPressed: queryController.clear,
+                  onPressed: () {
+                    queryController.clear();
+                    onQueryChanged();
+                  },
                 ),
         ),
         isDense: true,
       ),
     );
 
-    final sort = DropdownButton<T>(
-      value: sortValue,
+    final sort = DropdownButtonFormField<T>(
+      initialValue: sortValue,
+      isExpanded: true,
+      decoration: const InputDecoration(
+        labelText: 'Ordenar por',
+        prefixIcon: Icon(Icons.sort),
+      ),
       items: sortItems.entries
           .map(
             (entry) =>
@@ -56,19 +63,24 @@ class SearchSortControls<T> extends StatelessWidget {
       },
     );
 
-    if (isNarrow(context)) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [search, const SizedBox(height: 8), sort],
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 650 ||
+            MediaQuery.textScalerOf(context).scale(16) > 22) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [search, const SizedBox(height: 8), sort],
+          );
+        }
 
-    return Row(
-      children: [
-        Expanded(child: search),
-        const SizedBox(width: 16),
-        sort,
-      ],
+        return Row(
+          children: [
+            Expanded(child: search),
+            const SizedBox(width: 16),
+            SizedBox(width: 260, child: sort),
+          ],
+        );
+      },
     );
   }
 }

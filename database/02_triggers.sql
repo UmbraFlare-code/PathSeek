@@ -84,8 +84,8 @@ BEGIN
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
         INSERT INTO auditoria (usuario_id, accion, entidad, detalles)
-        VALUES (OLD.usuario_id, 'ELIMINAR_USUARIO', 'usuarios', 
-                format('Usuario con email %s fue eliminado', OLD.email));
+        VALUES (NULL, 'ELIMINAR_USUARIO', 'usuarios',
+                format('Usuario %s con email %s fue eliminado', OLD.usuario_id, OLD.email));
     END IF;
     RETURN NEW;
 END;
@@ -127,16 +127,20 @@ CREATE TRIGGER trg_audit_pedidos_estado
 
 -- -----------------------------------------------------------------------------
 -- 4. FUNCION DISPARADORA: Validación de Regla de Negocio RN-012
--- Regla: Evitar duplicado de pedido activo (mismo cliente_id + direccion + ventana_inicio)
+-- Regla: Evitar duplicados PENDIENTE/EN_RUTA con cliente, dirección y ventana completa iguales.
 -- -----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION fn_validar_pedido_duplicado()
 RETURNS TRIGGER AS $$
 BEGIN
+    IF NEW.estado NOT IN ('PENDIENTE', 'EN_RUTA') THEN
+        RETURN NEW;
+    END IF;
     IF EXISTS (
         SELECT 1 FROM pedidos 
         WHERE cliente_id = NEW.cliente_id 
           AND direccion = NEW.direccion 
           AND ventana_inicio = NEW.ventana_inicio
+          AND ventana_fin = NEW.ventana_fin
           AND estado IN ('PENDIENTE', 'EN_RUTA')
           AND (TG_OP = 'INSERT' OR pedido_id <> NEW.pedido_id)
     ) THEN
@@ -153,3 +157,8 @@ CREATE TRIGGER trg_validar_pedido_duplicado
     BEFORE INSERT OR UPDATE ON pedidos
     FOR EACH ROW
     EXECUTE FUNCTION fn_validar_pedido_duplicado();
+
+-- La restricción única también evita carreras entre INSERT concurrentes.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pedidos_activos_ventana
+    ON pedidos (cliente_id, direccion, ventana_inicio, ventana_fin)
+    WHERE estado IN ('PENDIENTE', 'EN_RUTA');

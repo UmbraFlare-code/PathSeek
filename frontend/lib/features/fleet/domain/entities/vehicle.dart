@@ -20,7 +20,7 @@ class Vehicle extends Equatable {
   final double capacidadM3;
   final double consumoKmL;
   final double factorEmision;
-  final int anio;
+  final int? anio;
   final int? restriccionPlacaDigito;
 
   bool capacidadSuficiente({required double peso, required double volumen}) {

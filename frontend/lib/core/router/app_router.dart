@@ -51,6 +51,10 @@ class AppRouter {
               ),
               GoRoute(
                 path: ':id/edit',
+                redirect: (context, state) => state.extra is Vehicle &&
+                        (state.extra as Vehicle).id == state.pathParameters['id']
+                    ? null
+                    : '/fleet',
                 builder: (context, state) =>
                     VehicleFormPage(vehicle: state.extra as Vehicle?),
               ),
@@ -66,6 +70,10 @@ class AppRouter {
               ),
               GoRoute(
                 path: ':id/edit',
+                redirect: (context, state) => state.extra is Driver &&
+                        (state.extra as Driver).id == state.pathParameters['id']
+                    ? null
+                    : '/drivers',
                 builder: (context, state) =>
                     DriverFormPage(driver: state.extra as Driver?),
               ),
@@ -81,6 +89,10 @@ class AppRouter {
               ),
               GoRoute(
                 path: ':id/edit',
+                redirect: (context, state) => state.extra is Order &&
+                        (state.extra as Order).id == state.pathParameters['id']
+                    ? null
+                    : '/orders',
                 builder: (context, state) =>
                     OrderFormPage(order: state.extra as Order?),
               ),
@@ -161,7 +173,7 @@ class AppRouter {
     }
 
     if (location.startsWith('/routes')) {
-      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor];
+      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor, AppRoles.conductor];
     }
 
     return null;

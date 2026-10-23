@@ -8,9 +8,9 @@
 -- 1. USUARIOS INICIALES (Contraseña por defecto: Admin123! hashed en BCrypt)
 -- -----------------------------------------------------------------------------
 INSERT INTO usuarios (usuario_id, nombre, email, password_hash, rol, activo) VALUES
-('11111111-1111-1111-1111-111111111111', 'Administrador Principal', 'admin@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'ADMIN', TRUE),
-('22222222-2222-2222-2222-222222222222', 'Operador Logístico UGEL', 'operador@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'OPERADOR', TRUE),
-('33333333-3333-3333-3333-333333333333', 'Conductor Juan Pérez', 'juan.perez@pathseek.pe', '$2a$10$76dYqQdF/8lHkF1aV.X72O1.A2m/o.1yN/Zp4Z.sQ7v.4vN/Zp4Z.', 'CONDUCTOR', TRUE)
+('11111111-1111-1111-1111-111111111111', 'Administrador Principal', 'admin@pathseek.pe', '$2a$10$5m7lxJwYnjj8NJY.KYpYlu7GUF8WcKx1jx.nzz0QwTZLxBBhBStxy', 'ADMIN', TRUE),
+('22222222-2222-2222-2222-222222222222', 'Operador Logístico UGEL', 'operador@pathseek.pe', '$2a$10$5m7lxJwYnjj8NJY.KYpYlu7GUF8WcKx1jx.nzz0QwTZLxBBhBStxy', 'OPERADOR', TRUE),
+('33333333-3333-3333-3333-333333333333', 'Conductor Juan Pérez', 'juan.perez@pathseek.pe', '$2a$10$5m7lxJwYnjj8NJY.KYpYlu7GUF8WcKx1jx.nzz0QwTZLxBBhBStxy', 'CONDUCTOR', TRUE)
 ON CONFLICT (email) DO NOTHING;
 
 -- -----------------------------------------------------------------------------

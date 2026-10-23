@@ -11,7 +11,11 @@ public record RouteGeometryResponse(
         List<ElevationPointDto> perfilElevacion,
         String nivelTraficoGeneral,
         BigDecimal distanciaTotalKm,
-        Integer duracionEstimadaMinutos
+        Integer duracionEstimadaMinutos,
+        String geometrySource,
+        String geometryStatus,
+        Double roadDistanceKm,
+        Double roadTravelMinutes
 ) {
     public record WaypointDto(
             Integer orden,

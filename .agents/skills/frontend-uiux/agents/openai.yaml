@@ -1,0 +1,4 @@
+interface:
+  display_name: "PathSeek Frontend UI/UX"
+  short_description: "UI/UX Flutter, mapas y permisos para PathSeek"
+  default_prompt: "Usa $frontend-uiux para mejorar la interfaz de PathSeek respetando su arquitectura, permisos y planificación por sprints."

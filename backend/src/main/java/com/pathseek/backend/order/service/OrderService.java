@@ -8,6 +8,8 @@ import com.pathseek.backend.order.dto.OrderResponse;
 import com.pathseek.backend.order.entity.Order;
 import com.pathseek.backend.order.entity.OrderStatus;
 import com.pathseek.backend.order.repository.OrderRepository;
+import com.pathseek.backend.security.CurrentActor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> findAll() {
         return orderRepository.findAll(Sort.by("ventanaInicio").and(Sort.by("prioridad"))).stream()
+                .filter(order -> !CurrentActor.hasRole("CLIENTE") || order.getClienteId().equals(CurrentActor.subject()))
                 .map(this::toResponse)
                 .toList();
     }
@@ -38,6 +41,11 @@ public class OrderService {
 
     @Transactional
     public OrderResponse create(OrderRequest request) {
+        if (CurrentActor.hasRole("CLIENTE")) {
+            request = new OrderRequest(CurrentActor.subject(), request.direccion(), request.gpsLat(), request.gpsLon(),
+                    request.peso(), request.volumen(), request.ventanaInicio(), request.ventanaFin(),
+                    request.prioridad(), request.tipoProducto(), OrderStatus.PENDIENTE);
+        }
         validateWindow(request.ventanaInicio(), request.ventanaFin());
         assertNoDuplicate(request, UUID.randomUUID());
 
@@ -50,7 +58,7 @@ public class OrderService {
     public OrderResponse update(UUID id, OrderRequest request) {
         validateWindow(request.ventanaInicio(), request.ventanaFin());
 
-        Order order = getOrder(id);
+        Order order = getOrderForUpdate(id);
         assertNoDuplicate(request, id);
         apply(order, request, false);
         return toResponse(orderRepository.saveAndFlush(order));
@@ -58,13 +66,26 @@ public class OrderService {
 
     @Transactional
     public void delete(UUID id) {
-        Order order = getOrder(id);
+        Order order = getOrderForUpdate(id);
         orderRepository.delete(order);
     }
 
     private Order getOrder(UUID id) {
-        return orderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el pedido solicitado"));
+        if (CurrentActor.hasRole("CLIENTE") && !order.getClienteId().equals(CurrentActor.subject())) {
+            throw new AccessDeniedException("El pedido pertenece a otro cliente");
+        }
+        return order;
+    }
+
+    private Order getOrderForUpdate(UUID id) {
+        Order order = orderRepository.lockForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el pedido solicitado"));
+        if (CurrentActor.hasRole("CLIENTE") && !order.getClienteId().equals(CurrentActor.subject())) {
+            throw new AccessDeniedException("El pedido pertenece a otro cliente");
+        }
+        return order;
     }
 
     private void apply(Order order, OrderRequest request, boolean creating) {
@@ -110,13 +131,14 @@ public class OrderService {
     }
 
     private void assertNoDuplicate(OrderRequest request, UUID excludedId) {
+        if (request.estado() == OrderStatus.CANCELADO || request.estado() == OrderStatus.ENTREGADO) return;
         boolean duplicated = orderRepository
-                .existsByClienteIdAndDireccionAndVentanaInicioAndVentanaFinAndEstadoNotAndIdNot(
+                .existsByClienteIdAndDireccionAndVentanaInicioAndVentanaFinAndEstadoInAndIdNot(
                         request.clienteId().trim(),
                         request.direccion().trim(),
                         request.ventanaInicio(),
                         request.ventanaFin(),
-                        OrderStatus.CANCELADO,
+                        List.of(OrderStatus.PENDIENTE, OrderStatus.EN_RUTA),
                         excludedId);
         if (duplicated) {
             throw new BusinessConflictException(

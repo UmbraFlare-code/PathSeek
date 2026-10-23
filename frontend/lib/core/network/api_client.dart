@@ -85,17 +85,21 @@ class _RefreshInterceptor extends Interceptor {
       return;
     }
 
-    _refreshInProgress ??= _performRefresh();
     try {
-      await _refreshInProgress;
+      final token = await _tokenStorage.readAccessToken();
+      // A parallel request may already have renewed the expired token.
+      if (token == null || err.requestOptions.headers['Authorization'] == 'Bearer $token') {
+        _refreshInProgress ??= _performRefresh().whenComplete(() {
+          _refreshInProgress = null;
+        });
+        await _refreshInProgress;
+      }
       final retryResponse = await _retry(err.requestOptions);
       handler.resolve(retryResponse);
     } on DioException catch (refreshError) {
       handler.next(refreshError);
     } catch (_) {
       handler.next(err);
-    } finally {
-      _refreshInProgress = null;
     }
   }
 
@@ -129,8 +133,7 @@ class _RefreshInterceptor extends Interceptor {
 
   Future<Response<dynamic>> _retry(RequestOptions options) async {
     final token = await _tokenStorage.readAccessToken();
-    final requestOptions = Options(
-      method: options.method,
+    final requestOptions = options.copyWith(
       headers: {
         ...options.headers,
         'Authorization': 'Bearer $token',
@@ -138,12 +141,7 @@ class _RefreshInterceptor extends Interceptor {
       extra: {...options.extra, '__retry__': true},
     );
 
-    return _dio.request<dynamic>(
-      options.path,
-      data: options.data,
-      queryParameters: options.queryParameters,
-      options: requestOptions,
-    );
+    return _dio.fetch<dynamic>(requestOptions);
   }
 }
 

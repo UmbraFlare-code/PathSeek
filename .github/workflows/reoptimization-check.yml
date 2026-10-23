@@ -1,0 +1,66 @@
+name: Backend reoptimization checks
+
+on:
+  pull_request:
+    paths: ['backend/**', 'database/**', '.github/workflows/reoptimization-check.yml']
+  push:
+    paths: ['backend/**', 'database/**', '.github/workflows/reoptimization-check.yml']
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [h2, postgres]
+    services:
+      postgres:
+        image: ${{ matrix.database == 'postgres' && 'postgres:16-alpine' || '' }}
+        env:
+          POSTGRES_USER: pathseek_test
+          POSTGRES_PASSWORD: isolated_ci_only
+          POSTGRES_DB: pathseek_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pathseek_test -d pathseek_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Full backend regression on H2
+        if: matrix.database == 'h2'
+        working-directory: backend
+        run: bash ./mvnw -B test
+      - name: Create real PostgreSQL schema and verify additive migration twice
+        if: matrix.database == 'postgres'
+        env:
+          CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          for file in database/01_schema_tablas.sql database/02_triggers.sql database/03_stored_procedures.sql database/04_seed_data.sql database/05_incremental_reoptimization.sql database/05_incremental_reoptimization.sql; do
+            docker exec -i "$CONTAINER" psql -U pathseek_test -d pathseek_test -v ON_ERROR_STOP=1 < "$file"
+          done
+      - name: Reoptimization, concurrency and peak-hour SLA on PostgreSQL
+        if: matrix.database == 'postgres'
+        working-directory: backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/pathseek_test
+          SPRING_DATASOURCE_USERNAME: pathseek_test
+          SPRING_DATASOURCE_PASSWORD: isolated_ci_only
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+        run: bash ./mvnw -B -Dtest=ReoptimizationIntegrationTests,IncrementalPlannerTests test
+      - name: Check staging measurement tool
+        if: matrix.database == 'h2'
+        run: python3 -m unittest discover -s backend/tools -p 'test_*.py'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reoptimization-${{ matrix.database }}
+          path: |
+            backend/target/surefire-reports/
+            backend/target/reoptimization-benchmark-*.json

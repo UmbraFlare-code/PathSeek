@@ -47,7 +47,8 @@ class RouteRepositoryImpl implements RouteRepository {
               .toList()
           : <DeliveryRoute>[];
 
-      final noAsignadosJson = data['pedidos_no_asignados'];
+      final noAsignadosJson =
+          data['pedidos_no_asignados'] ?? data['pedidosNoAsignados'];
       final noAsignados = noAsignadosJson is List
           ? noAsignadosJson.map((id) => id.toString()).toList()
           : <String>[];

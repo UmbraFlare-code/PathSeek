@@ -8,6 +8,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/empty_view.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../auth/domain/entities/app_user.dart';
@@ -51,15 +52,19 @@ class DashboardView extends StatelessWidget {
                 else if (state.hasError)
                   ErrorView(
                     message: state.errorMessage!,
-                    onRetry: () => context
-                        .read<DashboardBloc>()
-                        .add(const DashboardLoaded()),
+                    onRetry: () => context.read<DashboardBloc>().add(
+                      const DashboardLoaded(),
+                    ),
                   )
                 else if (state.summary == null || !state.summary!.hasData)
-                  const EmptyView(
+                  EmptyView(
                     message:
-                        'Aun no hay datos de operacion. Genera rutas para ver '
-                        'los indicadores de sostenibilidad del dashboard.',
+                        AppPermissions.canCreate(
+                          context.watch<AuthBloc>().state.user,
+                          AppModule.routes,
+                        )
+                        ? 'Aún no hay datos de operación. Genera rutas para consultar los indicadores de sostenibilidad.'
+                        : 'Aún no hay datos de operación disponibles para consultar.',
                     icon: Icons.insert_chart_outlined,
                   )
                 else ...[
@@ -78,24 +83,21 @@ class DashboardView extends StatelessWidget {
 
 class _HeaderBadge extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(4),
+  Widget build(BuildContext context) => PageHeader(
+    title: 'Resumen operativo',
+    description:
+        'Consulta la actividad de distribución y sus indicadores de sostenibilidad.',
+    icon: Icons.dashboard_outlined,
+    actions: [
+      OutlinedButton.icon(
+        onPressed: context.watch<DashboardBloc>().state.isLoading
+            ? null
+            : () => context.read<DashboardBloc>().add(const DashboardLoaded()),
+        icon: const Icon(Icons.refresh),
+        label: const Text('Actualizar'),
       ),
-      child: const Text(
-        '// PANEL DE CONTROL GENERAL',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-          letterSpacing: 1.5,
-        ),
-      ),
-    );
-  }
+    ],
+  );
 }
 
 class _KpiGrid extends StatelessWidget {
@@ -108,50 +110,50 @@ class _KpiGrid extends StatelessWidget {
     final narrow = isNarrow(context);
     final cards = <Widget>[
       KpiCard(
-        label: 'Vehiculos registrados',
+        label: 'Vehículos registrados',
         value: Formatters.integer.format(summary.totalVehiculos),
-        icon: Icons.local_shipping,
+        icon: Icons.local_shipping_outlined,
       ),
       KpiCard(
         label: 'Conductores disponibles',
         value: Formatters.integer.format(summary.conductoresDisponibles),
-        icon: Icons.badge,
+        icon: Icons.badge_outlined,
         accent: AppTheme.primaryDark,
       ),
       KpiCard(
         label: 'Pedidos pendientes',
         value: Formatters.integer.format(summary.pedidosPendientes),
         icon: Icons.schedule,
-        accent: const Color(0xFFE67E22),
+        accent: AppTheme.warning,
       ),
       KpiCard(
         label: 'Pedidos en ruta',
         value: Formatters.integer.format(summary.pedidosEnRuta),
         icon: Icons.local_shipping_outlined,
-        accent: const Color(0xFF1565C0),
+        accent: AppTheme.info,
       ),
       KpiCard(
         label: 'Pedidos entregados',
         value: Formatters.integer.format(summary.pedidosEntregados),
         icon: Icons.check_circle_outline,
-        accent: const Color(0xFF2E7D32),
+        accent: AppTheme.success,
       ),
       KpiCard(
         label: 'Pedidos cancelados',
         value: Formatters.integer.format(summary.pedidosCancelados),
         icon: Icons.cancel_outlined,
-        accent: const Color(0xFFBA1A1A),
+        accent: AppTheme.danger,
       ),
       KpiCard(
         label: 'Rutas planificadas',
         value: Formatters.integer.format(summary.rutasPlanificadas),
-        icon: Icons.route,
+        icon: Icons.route_outlined,
       ),
       KpiCard(
         label: 'CO2 total emitido',
         value: Formatters.co2(summary.co2TotalKg),
-        icon: Icons.eco,
-        accent: AppTheme.accent,
+        icon: Icons.eco_outlined,
+        accent: AppTheme.primary,
       ),
       KpiCard(
         label: 'Combustible consumido',
@@ -161,14 +163,45 @@ class _KpiGrid extends StatelessWidget {
       ),
     ];
 
-    return GridView.count(
-      crossAxisCount: narrow ? 2 : 3,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: narrow ? 1.35 : 1.9,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: cards,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns =
+            constraints.maxWidth < 480 ||
+                MediaQuery.textScalerOf(context).scale(16) > 22
+            ? 1
+            : narrow
+            ? 2
+            : 3;
+        final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
+        final groups = [
+          ('Recursos de distribución', cards.sublist(0, 2)),
+          ('Estado de los pedidos', cards.sublist(2, 6)),
+          ('Rutas y sostenibilidad', cards.sublist(6)),
+        ];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final group in groups) ...[
+              Semantics(
+                header: true,
+                child: Text(
+                  group.$1,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: group.$2
+                    .map((card) => SizedBox(width: width, child: card))
+                    .toList(),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -187,31 +220,31 @@ class _QuickAccess extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Text(
-            '// ACCESO RAPIDO',
-            style: TextStyle(
-              color: AppTheme.primaryDark,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1.0,
-            ),
+        Semantics(
+          header: true,
+          child: Text(
+            'Accesos rápidos',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
         const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: narrow ? 1 : 3,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: narrow ? 3.2 : 1.8,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: entries,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns =
+                narrow || MediaQuery.textScalerOf(context).scale(16) > 22
+                ? 1
+                : constraints.maxWidth < 900
+                ? 2
+                : 3;
+            final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: entries
+                  .map((entry) => SizedBox(width: width, child: entry))
+                  .toList(),
+            );
+          },
         ),
       ],
     );
@@ -221,30 +254,32 @@ class _QuickAccess extends StatelessWidget {
     return [
       if (AppPermissions.canView(user, AppModule.fleet))
         _QuickCard(
-          title: 'Gestion de Vehiculos',
+          title: 'Gestión de vehículos',
           description: 'Control de capacidades, consumo y emisiones.',
-          icon: Icons.local_shipping,
+          icon: Icons.local_shipping_outlined,
           onTap: (context) => context.go('/fleet'),
         ),
       if (AppPermissions.canView(user, AppModule.drivers))
         _QuickCard(
-          title: 'Conductores Registrados',
+          title: 'Conductores',
           description: 'Licencias, disponibilidad y asignaciones.',
-          icon: Icons.badge,
+          icon: Icons.badge_outlined,
           onTap: (context) => context.go('/drivers'),
         ),
       if (AppPermissions.canView(user, AppModule.orders))
         _QuickCard(
-          title: 'Despacho de Pedidos',
+          title: 'Pedidos de distribución',
           description: 'Estado de entrega y ventanas de tiempo.',
-          icon: Icons.inventory_2,
+          icon: Icons.inventory_2_outlined,
           onTap: (context) => context.go('/orders'),
         ),
       if (AppPermissions.canView(user, AppModule.routes))
         _QuickCard(
-          title: 'Rutas Optimizadas',
-          description: 'Generacion y seguimiento de rutas sostenibles.',
-          icon: Icons.route,
+          title: 'Rutas de distribución',
+          description: AppPermissions.canCreate(user, AppModule.routes)
+              ? 'Generación y consulta de rutas sostenibles.'
+              : 'Consulta las entregas y el mapa de los recorridos disponibles.',
+          icon: Icons.route_outlined,
           onTap: (context) => context.go('/routes'),
         ),
     ];
@@ -286,16 +321,13 @@ class _QuickCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Expanded(
-                child: Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black54,
-                    height: 1.4,
-                  ),
-                ),
+              Text(
+                description,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText),
               ),
+              const SizedBox(height: 16),
               const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

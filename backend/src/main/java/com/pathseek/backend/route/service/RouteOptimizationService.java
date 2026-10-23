@@ -2,6 +2,10 @@ package com.pathseek.backend.route.service;
 
 import com.pathseek.backend.driver.entity.Driver;
 import com.pathseek.backend.driver.repository.DriverRepository;
+import com.pathseek.backend.exception.ResourceNotFoundException;
+import com.pathseek.backend.exception.BusinessConflictException;
+import com.pathseek.backend.security.CurrentActor;
+import org.springframework.security.access.AccessDeniedException;
 import com.pathseek.backend.order.entity.Order;
 import com.pathseek.backend.order.entity.OrderStatus;
 import com.pathseek.backend.order.repository.OrderRepository;
@@ -12,7 +16,6 @@ import com.pathseek.backend.route.entity.DeliveryRoute;
 import com.pathseek.backend.route.entity.RouteOrder;
 import com.pathseek.backend.route.entity.RouteStatus;
 import com.pathseek.backend.route.repository.DeliveryRouteRepository;
-import com.pathseek.backend.route.repository.RouteOrderRepository;
 import com.pathseek.backend.vehicle.entity.Vehicle;
 import com.pathseek.backend.vehicle.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
@@ -21,36 +24,51 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class RouteOptimizationService {
 
     private final DeliveryRouteRepository routeRepository;
-    private final RouteOrderRepository routeOrderRepository;
     private final OrderRepository orderRepository;
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
     private final RoutingContextService routingContextService;
+    private final Clock clock;
+    private final StreetGeometryService streetGeometry;
+    private final RouteSequenceOptimizer sequenceOptimizer;
+    private final com.pathseek.backend.route.repository.VehicleBreakdownRepository breakdowns;
+    private final com.pathseek.backend.route.repository.RouteProgressRepository progress;
 
     public RouteOptimizationService(
             DeliveryRouteRepository routeRepository,
-            RouteOrderRepository routeOrderRepository,
             OrderRepository orderRepository,
             VehicleRepository vehicleRepository,
             DriverRepository driverRepository,
-            RoutingContextService routingContextService) {
+            RoutingContextService routingContextService,
+            Clock clock, RouteSequenceOptimizer sequenceOptimizer, StreetGeometryService streetGeometry,
+            com.pathseek.backend.route.repository.VehicleBreakdownRepository breakdowns,
+            com.pathseek.backend.route.repository.RouteProgressRepository progress) {
         this.routeRepository = routeRepository;
-        this.routeOrderRepository = routeOrderRepository;
         this.orderRepository = orderRepository;
         this.vehicleRepository = vehicleRepository;
         this.driverRepository = driverRepository;
         this.routingContextService = routingContextService;
+        this.clock = clock;
+        this.streetGeometry = streetGeometry;
+        this.sequenceOptimizer = sequenceOptimizer;
+        this.breakdowns = breakdowns;
+        this.progress = progress;
     }
 
     @Transactional(readOnly = true)
@@ -61,163 +79,170 @@ public class RouteOptimizationService {
         } else {
             routes = routeRepository.findAll();
         }
-        return routes.stream().map(DeliveryRouteResponse::fromEntity).toList();
+        return routes.stream().filter(this::canRead).map(DeliveryRouteResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
     public DeliveryRouteResponse getRouteById(UUID id) {
         DeliveryRoute route = routeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ruta no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada con ID: " + id));
+        if (!canRead(route)) throw new AccessDeniedException("La ruta no está asignada al conductor");
         return DeliveryRouteResponse.fromEntity(route);
     }
 
     @Transactional
     public void deleteRoute(UUID id) {
-        if (!routeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Ruta no encontrada con ID: " + id);
+        // Same lock order as generation, so a resource cannot be reused before deletion commits.
+        vehicleRepository.lockForPlanning();
+        DeliveryRoute route = routeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada con ID: " + id));
+        if (route.getEstado() != RouteStatus.PLANIFICADA) {
+            throw new BusinessConflictException("ROUTE_NOT_DELETABLE", "Solo se pueden eliminar rutas planificadas");
         }
-        routeRepository.deleteById(id);
+        for (RouteOrder stop : route.getPedidos()) {
+            if (stop.getPedido().getEstado() == OrderStatus.EN_RUTA) {
+                stop.getPedido().setEstado(OrderStatus.PENDIENTE);
+            }
+        }
+        routeRepository.delete(route);
     }
 
     @Transactional
     public GenerateRoutesResponse generateRoutes() {
         long startTime = System.currentTimeMillis();
-
-        List<Order> allOrders = orderRepository.findAll();
-        List<Order> candidates = allOrders.stream()
-                .filter(o -> o.getEstado() == OrderStatus.PENDIENTE || o.getEstado() == OrderStatus.EN_RUTA)
-                .sorted(Comparator.comparing(Order::getVentanaInicio))
-                .toList();
-
-        if (candidates.isEmpty()) {
-            candidates = allOrders; // fallback si todos fueron sembrados
+        // Serialize planners across backend instances before reading assignments.
+        List<Vehicle> allVehicles = vehicleRepository.lockForPlanning();
+        List<DeliveryRoute> activeRoutes = routeRepository.findByEstadoIn(
+                List.of(RouteStatus.PLANIFICADA, RouteStatus.EN_PROGRESO));
+        Set<UUID> busyVehicles = new HashSet<>();
+        Set<UUID> busyDrivers = new HashSet<>();
+        Set<UUID> assignedOrders = new HashSet<>();
+        for (DeliveryRoute route : activeRoutes) {
+            busyVehicles.add(route.getVehiculo().getId());
+            busyDrivers.add(route.getConductor().getId());
+            route.getPedidos().forEach(stop -> assignedOrders.add(stop.getPedido().getId()));
         }
-
-        List<Vehicle> vehicles = vehicleRepository.findAll();
-        List<Driver> drivers = driverRepository.findAll();
-
-        if (vehicles.isEmpty() || drivers.isEmpty() || candidates.isEmpty()) {
-            return new GenerateRoutesResponse(
-                    List.of(),
-                    List.of(),
-                    0,
-                    0,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    "Genetic Algorithm + Green VRPTW Heuristic",
-                    System.currentTimeMillis() - startTime
-            );
-        }
-
-        // Limpiar rutas previas para regeneración limpia
-        routeRepository.deleteAll();
-
+        List<Order> remaining = new ArrayList<>(orderRepository.lockByEstado(OrderStatus.PENDIENTE).stream()
+                .filter(order -> !assignedOrders.contains(order.getId())).toList());
+        int candidateCount = remaining.size();
+        Set<UUID> unavailableVehicles = new HashSet<>(breakdowns.findActiveVehicleIds());
+        List<Vehicle> vehicles = allVehicles.stream()
+                .filter(vehicle -> !busyVehicles.contains(vehicle.getId()))
+                .filter(vehicle -> !unavailableVehicles.contains(vehicle.getId())).toList();
+        List<Driver> drivers = driverRepository.findAll().stream()
+                .filter(driver -> Boolean.TRUE.equals(driver.getDisponible()))
+                .filter(driver -> !busyDrivers.contains(driver.getId()))
+                .sorted(Comparator.comparing(Driver::getId)).toList();
         List<DeliveryRoute> generatedRoutes = new ArrayList<>();
-        List<UUID> unassignedOrderIds = new ArrayList<>();
+        LocalDate date = LocalDate.now(clock.withZone(ZoneId.of("America/Lima")));
+        int driverIndex = 0;
 
-        int vehicleIndex = 0;
-        int maxOrdersPerRoute = Math.max(3, (int) Math.ceil((double) candidates.size() / Math.min(vehicles.size(), drivers.size())));
-
-        for (int i = 0; i < candidates.size(); i += maxOrdersPerRoute) {
-            if (vehicleIndex >= vehicles.size() || vehicleIndex >= drivers.size()) {
-                for (int j = i; j < candidates.size(); j++) {
-                    unassignedOrderIds.add(candidates.get(j).getId());
-                }
-                break;
-            }
-
-            Vehicle vehicle = vehicles.get(vehicleIndex);
-            Driver driver = drivers.get(vehicleIndex);
-            vehicleIndex++;
-
-            int end = Math.min(i + maxOrdersPerRoute, candidates.size());
-            List<Order> routeOrders = new ArrayList<>(candidates.subList(i, end));
-
-            // Optimizar secuencia dentro de la ruta (Nearest Neighbor con contexto vial)
-            List<Order> sortedStops = sortOrdersNearestNeighbor(routeOrders);
-
-            DeliveryRoute route = new DeliveryRoute();
-            route.setFecha(LocalDate.now());
-            route.setVehiculo(vehicle);
-            route.setConductor(driver);
-            route.setEstado(RouteStatus.PLANIFICADA);
-
+        for (Vehicle vehicle : vehicles) {
+            if (remaining.isEmpty() || driverIndex >= drivers.size()) break;
+            DeliveryRoute route = null;
+            BigDecimal weight = BigDecimal.ZERO;
+            BigDecimal volume = BigDecimal.ZERO;
             double totalDistKm = 0;
             double currentLat = RoutingContextService.DEPOT_LAT;
             double currentLon = RoutingContextService.DEPOT_LON;
-            LocalTime currentTime = LocalTime.of(8, 0);
+            LocalDateTime currentTime = date.atTime(8, 0);
 
-            route = routeRepository.save(route);
-
-            int orderSeq = 1;
-            for (Order order : sortedStops) {
-                double dist = routingContextService.calculateRoadDistanceKm(
-                        currentLat, currentLon,
-                        order.getGpsLat().doubleValue(), order.getGpsLon().doubleValue()
-                );
-                totalDistKm += dist;
-
-                // Tiempo de viaje estimado (promedio 25 km/h en tráfico urbano) + 15 min servicio
-                int travelMinutes = Math.max(5, (int) Math.round((dist / 25.0) * 60.0));
-                currentTime = currentTime.plusMinutes(travelMinutes);
-
-                boolean windowComplied = true;
-                if (order.getVentanaFin() != null) {
-                    try {
-                        LocalTime winFin = LocalTime.parse(order.getVentanaFin(), DateTimeFormatter.ofPattern("HH:mm"));
-                        windowComplied = !currentTime.isAfter(winFin);
-                    } catch (Exception ignored) {
+            while (!remaining.isEmpty()) {
+                Order selected = null;
+                LocalDateTime selectedArrival = null;
+                double selectedDistance = 0;
+                for (Order order : remaining) {
+                    if (weight.add(order.getPeso()).compareTo(vehicle.getCapacidadKg()) > 0
+                            || volume.add(order.getVolumen()).compareTo(vehicle.getCapacidadM3()) > 0) continue;
+                    double distance = routingContextService.calculateRoadDistanceKm(
+                            currentLat, currentLon, order.getGpsLat().doubleValue(), order.getGpsLon().doubleValue());
+                    LocalDateTime arrival = currentTime.plusMinutes(travelMinutes(distance));
+                    LocalDateTime windowStart = date.atTime(LocalTime.parse(order.getVentanaInicio()));
+                    LocalDateTime windowEnd = date.atTime(LocalTime.parse(order.getVentanaFin()));
+                    if (arrival.isBefore(windowStart)) arrival = windowStart;
+                    if (arrival.isAfter(windowEnd)) continue;
+                    if (selected == null || order.getPrioridad().compareTo(selected.getPrioridad()) < 0
+                            || (order.getPrioridad() == selected.getPrioridad() && distance < selectedDistance)) {
+                        selected = order;
+                        selectedArrival = arrival;
+                        selectedDistance = distance;
                     }
                 }
-
-                RouteOrder ro = new RouteOrder(route, order, orderSeq++, currentTime, windowComplied);
-                route.addPedido(ro);
-
-                currentTime = currentTime.plusMinutes(15); // tiempo de descarga
-                currentLat = order.getGpsLat().doubleValue();
-                currentLon = order.getGpsLon().doubleValue();
+                if (selected == null) break;
+                if (route == null) {
+                    route = new DeliveryRoute();
+                    route.setFecha(date);
+                    route.setVehiculo(vehicle);
+                    route.setConductor(drivers.get(driverIndex++));
+                    route.setEstado(RouteStatus.PLANIFICADA);
+                    route = routeRepository.save(route);
+                }
+                route.addPedido(new RouteOrder(route, selected, route.getPedidos().size() + 1,
+                        selectedArrival.toLocalTime(), true));
+                selected.setEstado(OrderStatus.EN_RUTA);
+                remaining.remove(selected);
+                weight = weight.add(selected.getPeso());
+                volume = volume.add(selected.getVolumen());
+                totalDistKm += selectedDistance;
+                currentTime = selectedArrival.plusMinutes(RoutePlanningPolicy.SERVICE_MINUTES);
+                currentLat = selected.getGpsLat().doubleValue();
+                currentLon = selected.getGpsLon().doubleValue();
             }
-
-            // Regreso al depósito UGEL Huancayo
-            totalDistKm += routingContextService.calculateRoadDistanceKm(
-                    currentLat, currentLon,
-                    RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON
-            );
-
-            // Ajuste por consumo de combustible y factor de emisión del vehículo
-            double consumptionRate = vehicle.getConsumoKmL() != null ? vehicle.getConsumoKmL().doubleValue() : 8.5;
-            double liters = totalDistKm / Math.max(1.0, consumptionRate);
-            double emissionFactor = vehicle.getFactorEmision() != null ? vehicle.getFactorEmision().doubleValue() : 2.35;
-            double co2 = liters * emissionFactor;
-
-            route.setDistanciaKm(BigDecimal.valueOf(totalDistKm).setScale(2, RoundingMode.HALF_UP));
-            route.setCombustibleL(BigDecimal.valueOf(liters).setScale(2, RoundingMode.HALF_UP));
-            route.setCo2Kg(BigDecimal.valueOf(co2).setScale(2, RoundingMode.HALF_UP));
-
-            generatedRoutes.add(routeRepository.save(route));
+            if (route != null) {
+                var optimized = sequenceOptimizer.improve(route.getPedidos().stream().map(RouteOrder::getPedido).toList());
+                currentLat = RoutingContextService.DEPOT_LAT;
+                currentLon = RoutingContextService.DEPOT_LON;
+                currentTime = date.atTime(8, 0);
+                totalDistKm = 0;
+                int position = 0;
+                for (Order order : optimized) {
+                    double leg = routingContextService.calculateRoadDistanceKm(currentLat, currentLon,
+                            order.getGpsLat().doubleValue(), order.getGpsLon().doubleValue());
+                    totalDistKm += leg;
+                    currentTime = currentTime.plusMinutes(travelMinutes(leg));
+                    LocalDateTime start = date.atTime(LocalTime.parse(order.getVentanaInicio()));
+                    if (currentTime.isBefore(start)) currentTime = start;
+                    RouteOrder stop = route.getPedidos().stream().filter(s -> s.getPedido().getId().equals(order.getId())).findFirst().orElseThrow();
+                    stop.setOrden(++position);
+                    stop.setHoraEstimada(currentTime.toLocalTime());
+                    currentTime = currentTime.plusMinutes(RoutePlanningPolicy.SERVICE_MINUTES);
+                    currentLat = order.getGpsLat().doubleValue(); currentLon = order.getGpsLon().doubleValue();
+                }
+                route.getPedidos().sort(Comparator.comparing(RouteOrder::getOrden));
+                totalDistKm += routingContextService.calculateRoadDistanceKm(currentLat, currentLon,
+                        RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON);
+                double liters = totalDistKm / vehicle.getConsumoKmL().doubleValue();
+                route.setDistanciaKm(BigDecimal.valueOf(totalDistKm).setScale(2, RoundingMode.HALF_UP));
+                route.setCombustibleL(BigDecimal.valueOf(liters).setScale(2, RoundingMode.HALF_UP));
+                route.setCo2Kg(BigDecimal.valueOf(totalDistKm * vehicle.getFactorEmision().doubleValue())
+                        .setScale(2, RoundingMode.HALF_UP));
+                generatedRoutes.add(routeRepository.save(route));
+            }
         }
-
-        long elapsed = System.currentTimeMillis() - startTime;
-        BigDecimal totalFuelSaved = BigDecimal.valueOf(generatedRoutes.size() * 3.8).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal totalCo2Reduced = BigDecimal.valueOf(generatedRoutes.size() * 8.9).setScale(2, RoundingMode.HALF_UP);
-
         return new GenerateRoutesResponse(
                 generatedRoutes.stream().map(DeliveryRouteResponse::fromEntity).toList(),
-                unassignedOrderIds,
-                generatedRoutes.size(),
-                candidates.size() - unassignedOrderIds.size(),
-                totalFuelSaved,
-                totalCo2Reduced,
-                "Genetic Algorithm + Green VRPTW Metaheuristic (OSM Road Context)",
-                elapsed
-        );
+                remaining.stream().map(Order::getId).toList(), generatedRoutes.size(),
+                candidateCount - remaining.size(), BigDecimal.ZERO, BigDecimal.ZERO,
+                "Simulated annealing + feasible nearest-neighbor (estimated road distances)",
+                System.currentTimeMillis() - startTime);
+    }
+
+    private int travelMinutes(double distanceKm) {
+        return RoutePlanningPolicy.travelMinutes(distanceKm);
+    }
+
+    private boolean canRead(DeliveryRoute route) {
+        return !CurrentActor.hasRole("CONDUCTOR") ||
+                (route.getConductor().getUsuarioId() != null &&
+                 route.getConductor().getUsuarioId().toString().equals(CurrentActor.subject()));
     }
 
     @Transactional(readOnly = true)
     public RouteGeometryResponse getRouteGeometry(UUID routeId) {
         DeliveryRoute route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new IllegalArgumentException("Ruta no encontrada con ID: " + routeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada con ID: " + routeId));
 
+        if (!canRead(route)) throw new AccessDeniedException("La ruta no está asignada al conductor");
         List<double[]> points = new ArrayList<>();
         List<RouteGeometryResponse.WaypointDto> waypoints = new ArrayList<>();
         List<RouteGeometryResponse.ElevationPointDto> elevationProfile = new ArrayList<>();
@@ -242,17 +267,20 @@ public class RouteOptimizationService {
         double lastLat = RoutingContextService.DEPOT_LAT;
         double lastLon = RoutingContextService.DEPOT_LON;
 
-        List<RouteOrder> sortedOrders = route.getPedidos() != null ? route.getPedidos() : List.of();
+        var anchor = progress.findById(routeId).orElse(null);
+        boolean anchorAdded = false;
+        List<RouteOrder> sortedOrders = route.getPedidos() != null ? route.getPedidos().stream()
+                .sorted(Comparator.comparingInt(RouteOrder::getOrden)).toList() : List.of();
         for (RouteOrder ro : sortedOrders) {
+            if (anchor != null && !anchorAdded && ro.getOrden() > anchor.lastOrder()) {
+                accumulatedKm += appendAnchor(anchor, lastLat, lastLon, points, waypoints);
+                lastLat = anchor.lat(); lastLon = anchor.lon(); anchorAdded = true;
+            }
             Order order = ro.getPedido();
             if (order != null && order.getGpsLat() != null && order.getGpsLon() != null) {
                 double lat = order.getGpsLat().doubleValue();
                 double lon = order.getGpsLon().doubleValue();
 
-                // Puntos interpolados para suavizar la polilínea sobre calles
-                double midLat = (lastLat + lat) / 2.0;
-                double midLon = (lastLon + lon) / 2.0;
-                points.add(new double[]{midLat, midLon});
                 points.add(new double[]{lat, lon});
 
                 double segmentKm = routingContextService.calculateRoadDistanceKm(lastLat, lastLon, lat, lon);
@@ -282,6 +310,10 @@ public class RouteOptimizationService {
         }
 
         // Regreso al depósito
+        if (anchor != null && !anchorAdded) {
+            accumulatedKm += appendAnchor(anchor, lastLat, lastLon, points, waypoints);
+            lastLat = anchor.lat(); lastLon = anchor.lon();
+        }
         points.add(new double[]{RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON});
         accumulatedKm += routingContextService.calculateRoadDistanceKm(lastLat, lastLon, RoutingContextService.DEPOT_LAT, RoutingContextService.DEPOT_LON);
         elevationProfile.add(new RouteGeometryResponse.ElevationPointDto(
@@ -290,43 +322,28 @@ public class RouteOptimizationService {
                 "ASFALTO"
         ));
 
-        String encoded = routingContextService.encodeCoordinates(points);
+        // OSRM does not know our local incident exclusions. Never label a route as verified around incidents.
+        var street = routingContextService.getIncidentes(routeId).isEmpty()
+                ? streetGeometry.route(points) : StreetGeometryService.fallback("ACTIVE_INCIDENTS");
 
         return new RouteGeometryResponse(
                 route.getId(),
-                encoded,
+                street.encoded(),
                 waypoints,
                 elevationProfile,
                 "FLUIDO_CON_CONGESTION_MODERADA_CENTRO",
                 route.getDistanciaKm(),
-                (int) Math.round((route.getDistanciaKm().doubleValue() / 22.0) * 60) + (sortedOrders.size() * 15)
+                (int) Math.round((route.getDistanciaKm().doubleValue() / 22.0) * 60) + (sortedOrders.size() * 15),
+                street.source(), street.status(), street.distanceKm(), street.durationMinutes()
         );
     }
 
-    private List<Order> sortOrdersNearestNeighbor(List<Order> orders) {
-        if (orders.size() <= 1) return orders;
-
-        List<Order> remaining = new ArrayList<>(orders);
-        List<Order> sorted = new ArrayList<>();
-
-        double currLat = RoutingContextService.DEPOT_LAT;
-        double currLon = RoutingContextService.DEPOT_LON;
-
-        while (!remaining.isEmpty()) {
-            final double fLat = currLat;
-            final double fLon = currLon;
-
-            Order nearest = remaining.stream()
-                    .min(Comparator.comparingDouble(o ->
-                            routingContextService.calculateRoadDistanceKm(fLat, fLon, o.getGpsLat().doubleValue(), o.getGpsLon().doubleValue())))
-                    .orElse(remaining.get(0));
-
-            sorted.add(nearest);
-            remaining.remove(nearest);
-            currLat = nearest.getGpsLat().doubleValue();
-            currLon = nearest.getGpsLon().doubleValue();
-        }
-
-        return sorted;
+    private double appendAnchor(com.pathseek.backend.route.entity.RouteProgress anchor, double lat, double lon,
+            List<double[]> points, List<RouteGeometryResponse.WaypointDto> waypoints) {
+        points.add(new double[]{anchor.lat(), anchor.lon()});
+        waypoints.add(new RouteGeometryResponse.WaypointDto(0, "POSICION_ACTUAL", "Última posición proporcionada (sin seguimiento en vivo)",
+                BigDecimal.valueOf(anchor.lat()), BigDecimal.valueOf(anchor.lon()), null));
+        return routingContextService.calculateRoadDistanceKm(lat, lon, anchor.lat(), anchor.lon());
     }
+
 }

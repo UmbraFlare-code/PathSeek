@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,6 +85,39 @@ void main() {
   });
 
   group('ApiClient refresh interceptor', () {
+    test('late 401 reuses the token renewed by a parallel request', () async {
+      String accessToken = 'expired';
+      when(() => tokenStorage.readAccessToken()).thenAnswer((_) async => accessToken);
+      when(() => tokenStorage.readRefreshToken()).thenAnswer((_) async => 'refresh');
+      when(() => tokenStorage.saveTokens(
+        accessToken: any(named: 'accessToken'), refreshToken: any(named: 'refreshToken'),
+      )).thenAnswer((call) async { accessToken = call.namedArguments[#accessToken] as String; });
+      final lateRequestStarted = Completer<void>();
+      final releaseLateResponse = Completer<void>();
+      int refreshCount = 0;
+      final dio = Dio()..httpClientAdapter = _StubAdapter((options) async {
+        if (options.path == '/api/v1/auth/refresh') {
+          refreshCount++;
+          return _json('{"token":"renewed","refreshToken":"rotated"}', 200);
+        }
+        if (options.headers['Authorization'] == 'Bearer expired') {
+          if (options.path == '/late') {
+            lateRequestStarted.complete();
+            await releaseLateResponse.future;
+          }
+          return _json('{"message":"expired"}', 401);
+        }
+        return _json('[]', 200);
+      });
+      final client = ApiClient(tokenStorage: tokenStorage, dio: dio);
+      final late = client.dio.get('/late');
+      await lateRequestStarted.future;
+      await client.dio.get('/first');
+      releaseLateResponse.complete();
+      expect((await late).statusCode, 200);
+      expect(refreshCount, 1);
+    });
+
     test('refreshes token and retries request on 401', () async {
       String accessToken = 'old-token';
       when(() => tokenStorage.readAccessToken())
@@ -116,11 +150,17 @@ void main() {
       final dio = Dio()..httpClientAdapter = adapter;
       final client = ApiClient(tokenStorage: tokenStorage, dio: dio);
 
-      final response = await client.dio.get('/api/v1/vehiculos');
+      final response = await client.dio.get(
+        '/api/v1/vehiculos',
+        queryParameters: {'fecha': '2026-10-21'},
+        options: Options(receiveTimeout: const Duration(seconds: 90)),
+      );
 
       expect(response.statusCode, 200);
       expect(callCount, 2);
       expect(retriedRequest!.headers['Authorization'], 'Bearer new-token');
+      expect(retriedRequest!.receiveTimeout, const Duration(seconds: 90));
+      expect(retriedRequest!.queryParameters['fecha'], '2026-10-21');
     });
 
     test('does not refresh on auth endpoints', () async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:pathseek/features/routes/domain/entities/delivery_route.dart';
 import 'package:pathseek/features/routes/presentation/widgets/elevation_profile_widget.dart';
 import 'package:pathseek/features/routes/presentation/widgets/interactive_route_map.dart';
@@ -48,38 +49,106 @@ void main() {
       ],
     );
 
-    testWidgets('InteractiveRouteMap renders stops and simulation button',
-        (tester) async {
+    testWidgets('Geographic map selects deliveries and supports recentering', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: InteractiveRouteMap(route: route),
+            body: SingleChildScrollView(
+              child: InteractiveRouteMap(route: route, showBaseMap: false),
+            ),
           ),
         ),
       );
 
-      expect(find.textContaining('MAPA // UGEL HUANCAYO'), findsOneWidget);
-      expect(find.text('Simular GPS'), findsOneWidget);
+      expect(
+        find.textContaining('Recorrido vial no disponible'),
+        findsOneWidget,
+      );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
+      expect(find.byType(PolylineLayer), findsNothing);
 
-      // Tocar botón de simulación
-      await tester.tap(find.text('Simular GPS'));
+      await tester.tap(find.byKey(const ValueKey('stop-p-1')));
       await tester.pump();
-      expect(find.text('Detener'), findsOneWidget);
+      expect(
+        find.textContaining('Parada #1: I.E. Santa Isabel'),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.text('Ver ruta completa'));
+      await tester.tap(find.text('Ver ruta completa'));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('ElevationProfileWidget renders altitude metrics for stops',
-        (tester) async {
+    testWidgets('street geometry is distinguished from schematic fallback', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: ElevationProfileWidget(route: route),
+            body: SingleChildScrollView(
+              child: InteractiveRouteMap(
+                showBaseMap: false,
+                route: DeliveryRoute(
+                  id: 'street',
+                  fecha: '2026-10-22',
+                  geometrySource: 'OSRM',
+                  encodedPolyline: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+                  roadDistanceKm: 1.25,
+                  roadTravelMinutes: 3,
+                ),
+              ),
+            ),
           ),
         ),
       );
+      expect(find.textContaining('Por calles (OSRM)'), findsOneWidget);
+      expect(find.textContaining('1.25 km por calles'), findsOneWidget);
+      expect(find.byType(PolylineLayer), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
 
-      expect(find.textContaining('PERFIL ALTIMÉTRICO'), findsOneWidget);
+    testWidgets('legacy straight geometry is hidden and retry is accessible', (
+      tester,
+    ) async {
+      var retries = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: InteractiveRouteMap(
+                showBaseMap: false,
+                onRetryGeometry: () => retries++,
+                route: const DeliveryRoute(
+                  id: 'legacy',
+                  fecha: '2026-10-22',
+                  geometrySource: 'SCHEMATIC',
+                  encodedPolyline: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(PolylineLayer), findsNothing);
+      await tester.ensureVisible(find.text('Reintentar recorrido por calles'));
+      await tester.tap(find.text('Reintentar recorrido por calles'));
+      expect(retries, 1);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ElevationProfileWidget renders altitude metrics for stops', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: ElevationProfileWidget(route: route)),
+        ),
+      );
+
+      expect(find.text('Altitud y calzada estimadas'), findsOneWidget);
       expect(find.text('Parada #1'), findsOneWidget);
       expect(find.text('3260 m'), findsOneWidget);
       expect(find.text('Parada #2'), findsOneWidget);

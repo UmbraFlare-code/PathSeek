@@ -45,6 +45,22 @@ void main() {
   tearDown(() => bloc.close());
 
   group('RouteBloc', () {
+    blocTest<RouteBloc, RouteState>(
+      'generation replaces repeated route IDs instead of duplicating rows',
+      build: () {
+        when(() => repository.generateRoutes()).thenAnswer(
+          (_) async => const GenerateRoutesResult(rutas: [route], pedidosNoAsignados: []),
+        );
+        return bloc;
+      },
+      seed: () => const RouteState(routes: [route], generateSuccess: true),
+      act: (bloc) => bloc.add(const RoutesGenerated()),
+      expect: () => [
+        isA<RouteState>().having((s) => s.generateSuccess, 'reset success', false),
+        isA<RouteState>().having((s) => s.routes.length, 'route count', 1),
+      ],
+    );
+
     test('initial state is initial', () {
       expect(bloc.state, const RouteState.initial());
     });

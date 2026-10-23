@@ -19,19 +19,20 @@ class RoadContext extends Equatable {
 
   @override
   List<Object?> get props => [
-        tipoSuperficie,
-        factorCalzada,
-        elevacionMetros,
-        pendientePorcentaje,
-        nivelCongestion,
-        incidentes,
-      ];
+    tipoSuperficie,
+    factorCalzada,
+    elevacionMetros,
+    pendientePorcentaje,
+    nivelCongestion,
+    incidentes,
+  ];
 }
 
 class RouteOrder extends Equatable {
   const RouteOrder({
     required this.pedidoId,
     required this.orden,
+    this.clienteId,
     this.horaEstimada,
     this.direccion,
     this.gpsLat,
@@ -45,6 +46,7 @@ class RouteOrder extends Equatable {
 
   final String pedidoId;
   final int orden;
+  final String? clienteId;
   final String? horaEstimada;
   final String? direccion;
   final double? gpsLat;
@@ -57,18 +59,19 @@ class RouteOrder extends Equatable {
 
   @override
   List<Object?> get props => [
-        pedidoId,
-        orden,
-        horaEstimada,
-        direccion,
-        gpsLat,
-        gpsLon,
-        peso,
-        ventanaInicio,
-        ventanaFin,
-        cumplioVentana,
-        contextoVial,
-      ];
+    pedidoId,
+    clienteId,
+    orden,
+    horaEstimada,
+    direccion,
+    gpsLat,
+    gpsLon,
+    peso,
+    ventanaInicio,
+    ventanaFin,
+    cumplioVentana,
+    contextoVial,
+  ];
 }
 
 class DeliveryRoute extends Equatable {
@@ -85,6 +88,10 @@ class DeliveryRoute extends Equatable {
     this.estado = 'PLANIFICADA',
     this.pedidos = const [],
     this.encodedPolyline,
+    this.geometrySource = 'SCHEMATIC',
+    this.geometryStatus,
+    this.roadDistanceKm,
+    this.roadTravelMinutes,
   });
 
   final String id;
@@ -99,20 +106,28 @@ class DeliveryRoute extends Equatable {
   final String estado;
   final List<RouteOrder> pedidos;
   final String? encodedPolyline;
+  final String geometrySource;
+  final String? geometryStatus;
+  final double? roadDistanceKm;
+  final double? roadTravelMinutes;
 
   @override
   List<Object?> get props => [
-        id,
-        fecha,
-        conductorId,
-        conductorNombre,
-        vehiculoId,
-        placa,
-        distanciaKm,
-        co2Kg,
-        combustibleL,
-        estado,
-        pedidos,
-        encodedPolyline,
-      ];
+    id,
+    fecha,
+    conductorId,
+    conductorNombre,
+    vehiculoId,
+    placa,
+    distanciaKm,
+    co2Kg,
+    combustibleL,
+    estado,
+    pedidos,
+    encodedPolyline,
+    geometrySource,
+    geometryStatus,
+    roadDistanceKm,
+    roadTravelMinutes,
+  ];
 }
