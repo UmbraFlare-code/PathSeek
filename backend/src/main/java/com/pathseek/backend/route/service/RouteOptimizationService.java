@@ -45,6 +45,7 @@ public class RouteOptimizationService {
     private final DriverRepository driverRepository;
     private final RoutingContextService routingContextService;
     private final Clock clock;
+    private final StreetGeometryService streetGeometry;
     private final RouteSequenceOptimizer sequenceOptimizer;
     private final com.pathseek.backend.route.repository.VehicleBreakdownRepository breakdowns;
     private final com.pathseek.backend.route.repository.RouteProgressRepository progress;
@@ -55,7 +56,7 @@ public class RouteOptimizationService {
             VehicleRepository vehicleRepository,
             DriverRepository driverRepository,
             RoutingContextService routingContextService,
-            Clock clock, RouteSequenceOptimizer sequenceOptimizer,
+            Clock clock, RouteSequenceOptimizer sequenceOptimizer, StreetGeometryService streetGeometry,
             com.pathseek.backend.route.repository.VehicleBreakdownRepository breakdowns,
             com.pathseek.backend.route.repository.RouteProgressRepository progress) {
         this.routeRepository = routeRepository;
@@ -64,6 +65,7 @@ public class RouteOptimizationService {
         this.driverRepository = driverRepository;
         this.routingContextService = routingContextService;
         this.clock = clock;
+        this.streetGeometry = streetGeometry;
         this.sequenceOptimizer = sequenceOptimizer;
         this.breakdowns = breakdowns;
         this.progress = progress;
@@ -267,7 +269,8 @@ public class RouteOptimizationService {
 
         var anchor = progress.findById(routeId).orElse(null);
         boolean anchorAdded = false;
-        List<RouteOrder> sortedOrders = route.getPedidos() != null ? route.getPedidos() : List.of();
+        List<RouteOrder> sortedOrders = route.getPedidos() != null ? route.getPedidos().stream()
+                .sorted(Comparator.comparingInt(RouteOrder::getOrden)).toList() : List.of();
         for (RouteOrder ro : sortedOrders) {
             if (anchor != null && !anchorAdded && ro.getOrden() > anchor.lastOrder()) {
                 accumulatedKm += appendAnchor(anchor, lastLat, lastLon, points, waypoints);
@@ -278,10 +281,6 @@ public class RouteOptimizationService {
                 double lat = order.getGpsLat().doubleValue();
                 double lon = order.getGpsLon().doubleValue();
 
-                // Puntos interpolados para suavizar la polilínea sobre calles
-                double midLat = (lastLat + lat) / 2.0;
-                double midLon = (lastLon + lon) / 2.0;
-                points.add(new double[]{midLat, midLon});
                 points.add(new double[]{lat, lon});
 
                 double segmentKm = routingContextService.calculateRoadDistanceKm(lastLat, lastLon, lat, lon);
@@ -323,16 +322,19 @@ public class RouteOptimizationService {
                 "ASFALTO"
         ));
 
-        String encoded = routingContextService.encodeCoordinates(points);
+        // OSRM does not know our local incident exclusions. Never label a route as verified around incidents.
+        var street = routingContextService.getIncidentes(routeId).isEmpty()
+                ? streetGeometry.route(points) : StreetGeometryService.fallback("ACTIVE_INCIDENTS");
 
         return new RouteGeometryResponse(
                 route.getId(),
-                encoded,
+                street.encoded(),
                 waypoints,
                 elevationProfile,
                 "FLUIDO_CON_CONGESTION_MODERADA_CENTRO",
                 route.getDistanciaKm(),
-                (int) Math.round((route.getDistanciaKm().doubleValue() / 22.0) * 60) + (sortedOrders.size() * 15)
+                (int) Math.round((route.getDistanciaKm().doubleValue() / 22.0) * 60) + (sortedOrders.size() * 15),
+                street.source(), street.status(), street.distanceKm(), street.durationMinutes()
         );
     }
 

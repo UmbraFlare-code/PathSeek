@@ -2,6 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pathseek/features/routes/presentation/widgets/route_coordinates.dart';
 
 void main() {
+  test('southern and western coordinates decode as negative numbers', () {
+    final point = decodeRoutePolyline('~hbE~hbE').single;
+    expect(point.latitude, -1);
+    expect(point.longitude, -1);
+  });
   test('API polyline decodes standard GPS coordinates', () {
     final points = decodeRoutePolyline('_p~iF~ps|U_ulLnnqC_mqNvxq`@');
     expect(points.length, 3);

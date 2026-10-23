@@ -44,67 +44,85 @@ class RouteOrderModel extends Equatable {
       pedidoId: (json['pedido_id'] ?? json['pedidoId'] ?? '').toString(),
       orden: _toInt(json['orden']),
       clienteId: _toStringOrNull(json['cliente_id']),
-      horaEstimada: _toStringOrNull(json['hora_estimada'] ?? json['horaEstimada']),
+      horaEstimada: _toStringOrNull(
+        json['hora_estimada'] ?? json['horaEstimada'],
+      ),
       direccion: _toStringOrNull(json['direccion']),
       gpsLat: _toDoubleOrNull(json['gps_lat'] ?? json['gpsLat']),
       gpsLon: _toDoubleOrNull(json['gps_lon'] ?? json['gpsLon']),
       peso: _toDoubleOrNull(json['peso']),
-      ventanaInicio: _toStringOrNull(json['ventana_inicio'] ?? json['ventanaInicio']),
+      ventanaInicio: _toStringOrNull(
+        json['ventana_inicio'] ?? json['ventanaInicio'],
+      ),
       ventanaFin: _toStringOrNull(json['ventana_fin'] ?? json['ventanaFin']),
       cumplioVentana: json['cumplio_ventana'] ?? json['cumplioVentana'] ?? true,
       tipoSuperficie: ctxMap != null
-          ? _toString(ctxMap['tipo_superficie'] ?? ctxMap['tipoSuperficie'] ?? 'ASFALTO')
+          ? _toString(
+              ctxMap['tipo_superficie'] ??
+                  ctxMap['tipoSuperficie'] ??
+                  'ASFALTO',
+            )
           : 'ASFALTO',
       elevacionMetros: ctxMap != null
-          ? _toInt(ctxMap['elevacion_metros'] ?? ctxMap['elevacionMetros'] ?? 3260)
+          ? _toInt(
+              ctxMap['elevacion_metros'] ?? ctxMap['elevacionMetros'] ?? 3260,
+            )
           : 3260,
       pendientePorcentaje: ctxMap != null
-          ? _toDouble(ctxMap['pendiente_media_porcentaje'] ?? ctxMap['pendienteMediaPorcentaje'] ?? 2.5)
+          ? _toDouble(
+              ctxMap['pendiente_media_porcentaje'] ??
+                  ctxMap['pendienteMediaPorcentaje'] ??
+                  2.5,
+            )
           : 2.5,
       nivelCongestion: ctxMap != null
-          ? _toString(ctxMap['nivel_congestion'] ?? ctxMap['nivelCongestion'] ?? 'FLUIDO')
+          ? _toString(
+              ctxMap['nivel_congestion'] ??
+                  ctxMap['nivelCongestion'] ??
+                  'FLUIDO',
+            )
           : 'FLUIDO',
     );
   }
 
   RouteOrder toEntity() => RouteOrder(
-        pedidoId: pedidoId,
-        orden: orden,
-        clienteId: clienteId,
-        horaEstimada: horaEstimada,
-        direccion: direccion,
-        gpsLat: gpsLat,
-        gpsLon: gpsLon,
-        peso: peso,
-        ventanaInicio: ventanaInicio,
-        ventanaFin: ventanaFin,
-        cumplioVentana: cumplioVentana,
-        contextoVial: RoadContext(
-          tipoSuperficie: tipoSuperficie,
-          elevacionMetros: elevacionMetros,
-          pendientePorcentaje: pendientePorcentaje,
-          nivelCongestion: nivelCongestion,
-        ),
-      );
+    pedidoId: pedidoId,
+    orden: orden,
+    clienteId: clienteId,
+    horaEstimada: horaEstimada,
+    direccion: direccion,
+    gpsLat: gpsLat,
+    gpsLon: gpsLon,
+    peso: peso,
+    ventanaInicio: ventanaInicio,
+    ventanaFin: ventanaFin,
+    cumplioVentana: cumplioVentana,
+    contextoVial: RoadContext(
+      tipoSuperficie: tipoSuperficie,
+      elevacionMetros: elevacionMetros,
+      pendientePorcentaje: pendientePorcentaje,
+      nivelCongestion: nivelCongestion,
+    ),
+  );
 
   @override
   List<Object?> get props => [
-        pedidoId,
-        clienteId,
-        orden,
-        horaEstimada,
-        direccion,
-        gpsLat,
-        gpsLon,
-        peso,
-        ventanaInicio,
-        ventanaFin,
-        cumplioVentana,
-        tipoSuperficie,
-        elevacionMetros,
-        pendientePorcentaje,
-        nivelCongestion,
-      ];
+    pedidoId,
+    clienteId,
+    orden,
+    horaEstimada,
+    direccion,
+    gpsLat,
+    gpsLon,
+    peso,
+    ventanaInicio,
+    ventanaFin,
+    cumplioVentana,
+    tipoSuperficie,
+    elevacionMetros,
+    pendientePorcentaje,
+    nivelCongestion,
+  ];
 }
 
 class DeliveryRouteModel extends Equatable {
@@ -121,6 +139,10 @@ class DeliveryRouteModel extends Equatable {
     this.estado = 'PLANIFICADA',
     this.pedidos = const [],
     this.encodedPolyline,
+    this.geometrySource = 'SCHEMATIC',
+    this.geometryStatus,
+    this.roadDistanceKm,
+    this.roadTravelMinutes,
   });
 
   final String id;
@@ -135,20 +157,26 @@ class DeliveryRouteModel extends Equatable {
   final String estado;
   final List<RouteOrderModel> pedidos;
   final String? encodedPolyline;
+  final String geometrySource;
+  final String? geometryStatus;
+  final double? roadDistanceKm;
+  final double? roadTravelMinutes;
 
   factory DeliveryRouteModel.fromJson(Map<String, dynamic> json) {
     final pedidosJson = json['pedidos'];
     final pedidos = pedidosJson is List
         ? pedidosJson
-            .map((p) => RouteOrderModel.fromJson(p as Map<String, dynamic>))
-            .toList()
+              .map((p) => RouteOrderModel.fromJson(p as Map<String, dynamic>))
+              .toList()
         : <RouteOrderModel>[];
 
     return DeliveryRouteModel(
       id: (json['ruta_id'] ?? json['id'] ?? '').toString(),
       fecha: _toString(json['fecha']),
       conductorId: _toStringOrNull(json['conductor_id'] ?? json['conductorId']),
-      conductorNombre: _toStringOrNull(json['conductor_nombre'] ?? json['conductorNombre']),
+      conductorNombre: _toStringOrNull(
+        json['conductor_nombre'] ?? json['conductorNombre'],
+      ),
       vehiculoId: _toStringOrNull(json['vehiculo_id'] ?? json['vehiculoId']),
       placa: _toStringOrNull(json['placa']),
       distanciaKm: _toDouble(json['distancia_km'] ?? json['distanciaKm']),
@@ -156,43 +184,58 @@ class DeliveryRouteModel extends Equatable {
       combustibleL: _toDouble(json['combustible_l'] ?? json['combustibleL']),
       estado: (json['estado'] ?? 'PLANIFICADA').toString(),
       pedidos: pedidos,
-      encodedPolyline: _toStringOrNull(json['encoded_polyline'] ?? json['encodedPolyline']),
+      encodedPolyline: _toStringOrNull(
+        json['encoded_polyline'] ?? json['encodedPolyline'],
+      ),
+      geometrySource: (json['geometrySource'] ?? 'SCHEMATIC').toString(),
+      geometryStatus: _toStringOrNull(json['geometryStatus']),
+      roadDistanceKm: _toDoubleOrNull(json['roadDistanceKm']),
+      roadTravelMinutes: _toDoubleOrNull(json['roadTravelMinutes']),
     );
   }
 
   DeliveryRoute toEntity() => DeliveryRoute(
-        id: id,
-        fecha: fecha,
-        conductorId: conductorId,
-        conductorNombre: conductorNombre,
-        vehiculoId: vehiculoId,
-        placa: placa,
-        distanciaKm: distanciaKm,
-        co2Kg: co2Kg,
-        combustibleL: combustibleL,
-        estado: estado,
-        pedidos: pedidos.map((p) => p.toEntity()).toList(),
-        encodedPolyline: encodedPolyline,
-      );
+    id: id,
+    fecha: fecha,
+    conductorId: conductorId,
+    conductorNombre: conductorNombre,
+    vehiculoId: vehiculoId,
+    placa: placa,
+    distanciaKm: distanciaKm,
+    co2Kg: co2Kg,
+    combustibleL: combustibleL,
+    estado: estado,
+    pedidos: pedidos.map((p) => p.toEntity()).toList(),
+    encodedPolyline: encodedPolyline,
+    geometrySource: geometrySource,
+    geometryStatus: geometryStatus,
+    roadDistanceKm: roadDistanceKm,
+    roadTravelMinutes: roadTravelMinutes,
+  );
 
   @override
   List<Object?> get props => [
-        id,
-        fecha,
-        conductorId,
-        conductorNombre,
-        vehiculoId,
-        placa,
-        distanciaKm,
-        co2Kg,
-        combustibleL,
-        estado,
-        pedidos,
-        encodedPolyline,
-      ];
+    id,
+    fecha,
+    conductorId,
+    conductorNombre,
+    vehiculoId,
+    placa,
+    distanciaKm,
+    co2Kg,
+    combustibleL,
+    estado,
+    pedidos,
+    encodedPolyline,
+    geometrySource,
+    geometryStatus,
+    roadDistanceKm,
+    roadTravelMinutes,
+  ];
 }
 
-int _toInt(dynamic value) => value is num ? value.toInt() : int.tryParse('$value') ?? 0;
+int _toInt(dynamic value) =>
+    value is num ? value.toInt() : int.tryParse('$value') ?? 0;
 
 double _toDouble(dynamic value) =>
     value is num ? value.toDouble() : double.tryParse('$value') ?? 0;

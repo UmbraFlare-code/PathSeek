@@ -13,6 +13,7 @@ class InteractiveRouteMap extends StatefulWidget {
     this.height = 400,
     this.onStopSelected,
     this.showBaseMap = true,
+    this.onRetryGeometry,
   });
   final DeliveryRoute route;
 
@@ -20,6 +21,7 @@ class InteractiveRouteMap extends StatefulWidget {
   final double height;
   final ValueChanged<RouteOrder>? onStopSelected;
   final bool showBaseMap;
+  final VoidCallback? onRetryGeometry;
   @override
   State<InteractiveRouteMap> createState() => _InteractiveRouteMapState();
 }
@@ -46,6 +48,10 @@ class _InteractiveRouteMapState extends State<InteractiveRouteMap> {
         ? decoded
         : [depot, ...stops.map((p) => LatLng(p.gpsLat!, p.gpsLon!)), depot];
   }
+
+  bool get followsStreets =>
+      widget.route.geometrySource == 'OSRM' &&
+      decodeRoutePolyline(widget.route.encodedPolyline).length >= 2;
 
   void fit() => controller.fitCamera(
     CameraFit.bounds(
@@ -95,11 +101,30 @@ class _InteractiveRouteMapState extends State<InteractiveRouteMap> {
             Text('Mapa de entregas', style: theme.textTheme.titleLarge),
             const SizedBox(height: 4),
             Text(
-              '${deliveries.length} paradas · Trazado estimado · Sin tráfico en vivo',
+              '${deliveries.length} paradas · ${followsStreets ? 'Por calles (OSRM)' : 'Recorrido vial no disponible'} · Sin tráfico en vivo',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
             ),
+            if (followsStreets && widget.route.roadDistanceKm != null)
+              Text(
+                '${widget.route.roadDistanceKm!.toStringAsFixed(2)} km por calles · '
+                '${widget.route.roadTravelMinutes?.ceil() ?? '—'} min de conducción estimada, sin entregas',
+                style: theme.textTheme.bodySmall,
+              ),
+            if (!followsStreets)
+              const Text(
+                'No se pudo obtener un recorrido por calles. Se muestran las paradas sin unirlas con líneas rectas.',
+              ),
+            if (!followsStreets && widget.onRetryGeometry != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: widget.onRetryGeometry,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reintentar recorrido por calles'),
+                ),
+              ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -252,15 +277,17 @@ class _InteractiveRouteMapState extends State<InteractiveRouteMap> {
                           }
                         },
                       ),
-                    PolylineLayer(
-                      polylines: [
-                        Polyline(
-                          points: points,
-                          strokeWidth: 5,
-                          color: colors.primary,
-                        ),
-                      ],
-                    ),
+                    if (followsStreets)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: points,
+                            strokeWidth: 5,
+                            pattern: const StrokePattern.solid(),
+                            color: colors.primary,
+                          ),
+                        ],
+                      ),
                     MarkerLayer(
                       markers: [
                         Marker(

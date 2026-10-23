@@ -29,17 +29,32 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
     final data = response.data;
     final list = data is List ? data : (data['data'] as List? ?? []);
     return list
-        .map((item) => DeliveryRouteModel.fromJson(item as Map<String, dynamic>))
+        .map(
+          (item) => DeliveryRouteModel.fromJson(item as Map<String, dynamic>),
+        )
         .toList();
   }
 
   @override
   Future<DeliveryRouteModel> getRouteById(String id) async {
     final response = await _client.dio.get('${ApiPaths.rutas}/$id');
-    final geometry = await _client.dio.get('${ApiPaths.rutas}/$id/geometria');
-    final data = _unwrap(geometry.data);
-    return DeliveryRouteModel.fromJson({..._unwrap(response.data),
-      'encoded_polyline': data['encodedPolyline'] ?? data['encoded_polyline']});
+    var geometry = await _client.dio.get('${ApiPaths.rutas}/$id/geometria');
+    var data = _unwrap(geometry.data);
+    if (data['geometryStatus'] == 'PROVIDER_UNAVAILABLE' ||
+        data['geometryStatus'] == 'RATE_LIMITED') {
+      // One bounded retry; respect the provider's one request/second limit.
+      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      geometry = await _client.dio.get('${ApiPaths.rutas}/$id/geometria');
+      data = _unwrap(geometry.data);
+    }
+    return DeliveryRouteModel.fromJson({
+      ..._unwrap(response.data),
+      'encoded_polyline': data['encodedPolyline'] ?? data['encoded_polyline'],
+      'geometrySource': data['geometrySource'],
+      'geometryStatus': data['geometryStatus'],
+      'roadDistanceKm': data['roadDistanceKm'],
+      'roadTravelMinutes': data['roadTravelMinutes'],
+    });
   }
 
   @override

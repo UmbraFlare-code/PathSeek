@@ -299,7 +299,8 @@ class RouteIntegrationTests {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.rutaId").value(routeId))
-                .andExpect(jsonPath("$.encodedPolyline").isNotEmpty())
+                .andExpect(jsonPath("$.encodedPolyline").doesNotExist())
+                .andExpect(jsonPath("$.geometrySource").value("SCHEMATIC"))
                 .andExpect(jsonPath("$.waypoints").isArray())
                 .andExpect(jsonPath("$.perfilElevacion").isArray());
 

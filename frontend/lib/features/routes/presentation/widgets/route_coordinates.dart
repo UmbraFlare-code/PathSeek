@@ -13,7 +13,9 @@ List<LatLng> decodeRoutePolyline(String? encoded) {
       result |= (value & 31) << shift;
       shift += 5;
     } while (value >= 32);
-    return (result & 1) != 0 ? ~(result >> 1) : result >> 1;
+    // Dart's JavaScript bitwise operations are unsigned 32-bit. Using ~ here
+    // turns negative coordinate deltas into large positives in the web build.
+    return (result & 1) != 0 ? -(result >> 1) - 1 : result >> 1;
   }
   final points = <LatLng>[];
   try {

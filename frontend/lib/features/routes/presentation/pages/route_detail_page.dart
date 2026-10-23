@@ -57,6 +57,9 @@ class RouteDetailView extends StatelessWidget {
                 route: route,
                 height: constraints.maxWidth < 600 ? 300 : 420,
                 showBaseMap: showBaseMap,
+                onRetryGeometry: () => context.read<RouteBloc>().add(
+                  RouteDetailRequested(route.id),
+                ),
               ),
               const SizedBox(height: 16),
               ElevationProfileWidget(route: route),

@@ -192,3 +192,7 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 
 Contrato de eventos, idempotencia, progreso de rutas, avisos, migración, presupuesto de ejecución y validación de EN-002 / US-006.
 
+## [10 Trazado vial OSRM V_1_0_0](03%20Implementación/10%20Trazado%20vial%20OSRM%20V_1_0_0.md)
+
+Geometría por calles, estados de fallback, configuración Docker, pruebas y límites de las métricas viales.
+
