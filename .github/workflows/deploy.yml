@@ -28,8 +28,15 @@ jobs:
       - name: Build & Deploy with Docker Compose
         run: |
           echo "🔄 Desplegando PathSeek..."
-          docker compose -f docker-compose.prod.yml --env-file .env down --remove-orphans
-          docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+          # Asegurar que postgres esté arriba para migración previa
+          docker compose -f docker-compose.prod.yml --env-file .env up -d postgres
+          sleep 3
+          # Aplicar migración aditiva de Sprint 3 de forma idempotente
+          if [ -f database/05_incremental_reoptimization.sql ]; then
+            set -a; source .env; set +a
+            docker exec -i pathseek-postgres psql -U "${DB_USER:-pathseek_prod}" -d "${DB_NAME:-pathseek_prod}" < database/05_incremental_reoptimization.sql || true
+          fi
+          docker compose -f docker-compose.prod.yml --env-file .env up -d --build --remove-orphans
           echo "✅ Contenedores levantados"
 
       - name: Wait for backend to be healthy
@@ -43,17 +50,17 @@ jobs:
           '
           echo "✅ Backend healthy"
 
-      - name: Health Check Frontend (HTTP 200)
+      - name: Health Check Frontend (HTTPS 200)
         run: |
           sleep 3
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/)
+          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://localhost/)
           echo "Frontend HTTP status: $STATUS"
           [ "$STATUS" = "200" ] || exit 1
           echo "✅ Frontend respondiendo con HTTP 200"
 
       - name: Health Check Backend API via Nginx proxy
         run: |
-          HEALTH=$(curl -s http://localhost/api/actuator/health)
+          HEALTH=$(curl -k -s https://localhost/api/v1/health)
           echo "Backend health response: $HEALTH"
           echo "$HEALTH" | grep -q '"status":"UP"'
           echo "✅ Backend API UP"

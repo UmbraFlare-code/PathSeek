@@ -11,6 +11,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/01_schema_tablas.sql:/docker-entrypoint-initdb.d/01_schema_tablas.sql:ro
+      - ./database/02_triggers.sql:/docker-entrypoint-initdb.d/02_triggers.sql:ro
+      - ./database/03_stored_procedures.sql:/docker-entrypoint-initdb.d/03_stored_procedures.sql:ro
+      - ./database/04_seed_data.sql:/docker-entrypoint-initdb.d/04_seed_data.sql:ro
+      - ./database/05_incremental_reoptimization.sql:/docker-entrypoint-initdb.d/05_incremental_reoptimization.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
@@ -43,6 +48,9 @@ services:
       - JWT_ACCESS_EXPIRATION_MINUTES=${JWT_ACCESS_EXPIRATION_MINUTES:-15}
       - JWT_REFRESH_EXPIRATION_DAYS=${JWT_REFRESH_EXPIRATION_DAYS:-7}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - REOPTIMIZATION_BUDGET_MS=${REOPTIMIZATION_BUDGET_MS:-25000}
+      - ROUTING_ENABLED=${ROUTING_ENABLED:-true}
+      - ROUTING_BASE_URL=${ROUTING_BASE_URL:-https://router.project-osrm.org}
       - APP_BOOTSTRAP_USER_ENABLED=${APP_BOOTSTRAP_USER_ENABLED:-false}
       - APP_BOOTSTRAP_USER_NAME=${APP_BOOTSTRAP_USER_NAME:-}
       - APP_BOOTSTRAP_USER_EMAIL=${APP_BOOTSTRAP_USER_EMAIL:-}
@@ -65,6 +73,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        APP_ENV: prod
+        API_BASE_URL: ${API_BASE_URL:-https://169.58.74.99}
     image: pathseek-frontend:latest
     container_name: pathseek-frontend
     restart: unless-stopped

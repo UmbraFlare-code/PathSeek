@@ -183,20 +183,29 @@ Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gic
 
 ## Despliegue y Actualización en Producción (VPS)
 
-Para actualizar el sistema completo (Frontend Web + APK Móvil, Backend Java y Base de Datos PostgreSQL) en la VPS (`169.58.74.99`), ejecuta los siguientes comandos en el servidor desde la carpeta del proyecto (`~/pathseek`):
+Para actualizar el sistema completo (Frontend Web + APK Móvil, Backend Java y Base de Datos PostgreSQL) en la VPS (`169.58.74.99`), podés ejecutar la actualización directamente vía SSH o paso a paso en el servidor.
 
+### Opción 1: Ejecución remota directa vía SSH (Recomendada)
+Desde tu terminal local:
 ```bash
-# 1. Obtener la última versión del código fuente desde Git
+ssh <usuario>@169.58.74.99 "cd ~/pathseek && git pull origin main && chmod +x scripts/deploy-vps.sh && ./scripts/deploy-vps.sh"
+```
+
+### Opción 2: Ejecución manual paso a paso en la VPS (`~/pathseek`)
+```bash
+# 1. Obtener la última versión del código fuente
 git pull origin main
 
-# 2. Reconstruir la imagen de Frontend (compila la web y genera el APK de Android)
-docker compose -f docker-compose.prod.yml build frontend
+# 2. Asegurar que PostgreSQL esté activo y aplicar migración aditiva de Sprint 3
+docker compose -f docker-compose.prod.yml up -d postgres
+docker exec -i pathseek-postgres psql -U pathseek_prod -d pathseek_prod < database/05_incremental_reoptimization.sql
 
-# 3. (Opcional) Actualizar/Sembrar datos en la base de datos PostgreSQL
-docker exec -i pathseek-postgres psql -U pathseek_prod -d pathseek_prod < database/05_seed_demo_data.sql
+# 3. Reconstruir imágenes y reiniciar servicios en segundo plano
+docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
-# 4. Levantar / Reiniciar los servicios en segundo plano
-docker compose -f docker-compose.prod.yml up -d
+# 4. Validar salud de la plataforma
+curl -k https://localhost/api/v1/health
+curl -k -I https://localhost/
 ```
 
 ### URLs de Producción y Recursos
