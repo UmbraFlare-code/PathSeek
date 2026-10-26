@@ -43,9 +43,9 @@ Abre [la aplicación](http://localhost) e inicia sesión con el email y la contr
 - Documentación interactiva: [Swagger](http://localhost:8080/swagger-ui.html).
 - Detener conservando la base de datos: `docker compose down`.
 
-**Las migraciones son automáticas.** Al arrancar el backend, Flyway crea las tablas que falten o actualiza una base existente antes de que JPA valide el esquema. Basta con `docker compose up --build -d`, tanto en otra PC como al actualizar esta instalación. No necesitas ejecutar manualmente los scripts 05, 06 o 07 ni borrar volúmenes. Flyway registra las versiones en `flyway_schema_history` y no repite migraciones ya aplicadas.
+**Las migraciones son automáticas.** Al arrancar el backend, Flyway crea las tablas que falten o actualiza una base existente antes de que JPA valide el esquema. Basta con `docker compose up --build -d`, tanto en otra PC como al actualizar esta instalación. No necesitas ejecutar manualmente los scripts 05 a 09 ni borrar volúmenes. Flyway registra las versiones en `flyway_schema_history` y no repite migraciones ya aplicadas.
 
-En volúmenes locales nuevos, PostgreSQL conserva la carga inicial 01–04 con los datos demo; las ampliaciones y futuras actualizaciones las administra Flyway desde el backend. El bootstrap crea el usuario únicamente si el email no existe: cambiar su contraseña en `.env` no modifica una cuenta ya creada.
+En volúmenes locales nuevos, PostgreSQL conserva la carga inicial 01–09 (esquema, triggers, procedimientos, datos demo y ampliaciones del Sprint 3); las ampliaciones y futuras actualizaciones las administra Flyway desde el backend. El bootstrap crea el usuario únicamente si el email no existe: cambiar su contraseña en `.env` no modifica una cuenta ya creada.
 
 Si una migración falla, el backend no inicia: consulta `docker compose logs backend`, corrige la causa y vuelve a levantarlo. No borres el volumen ni uses `flyway clean` como solución. Los comandos manuales de migraciones de guías anteriores quedan sustituidos por este flujo.
 
