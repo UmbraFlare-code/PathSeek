@@ -16,6 +16,8 @@ services:
       - ./database/05_incremental_reoptimization.sql:/docker-entrypoint-initdb.d/05_incremental_reoptimization.sql:ro
       - ./database/06_user_administration.sql:/docker-entrypoint-initdb.d/06_user_administration.sql:ro
       - ./database/07_driver_dni_link.sql:/docker-entrypoint-initdb.d/07_driver_dni_link.sql:ro
+      - ./database/08_carbon_offset.sql:/docker-entrypoint-initdb.d/08_carbon_offset.sql:ro
+      - ./database/09_client_preferences.sql:/docker-entrypoint-initdb.d/09_client_preferences.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pathseek_prod} -d ${DB_NAME:-pathseek_prod}"]
       interval: 10s
@@ -57,7 +59,7 @@ services:
     expose:
       - "8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/api/v1/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/health || wget -q -O /dev/null http://localhost:8080/api/v1/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10

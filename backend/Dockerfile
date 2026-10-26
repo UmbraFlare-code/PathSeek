@@ -15,7 +15,8 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-RUN addgroup -S pathseek && adduser -S pathseek -G pathseek
+RUN apk add --no-cache curl \
+    && addgroup -S pathseek && adduser -S pathseek -G pathseek
 USER pathseek
 
 COPY --from=builder /app/target/*.jar app.jar
