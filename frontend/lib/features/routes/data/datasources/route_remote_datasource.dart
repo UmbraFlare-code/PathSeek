@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/constants/api_paths.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/offline_route_cache.dart';
 import '../models/delivery_route_model.dart';
 
 abstract class RouteRemoteDataSource {
@@ -13,12 +14,26 @@ abstract class RouteRemoteDataSource {
   Future<Map<String, dynamic>> generateRoutes();
 
   Future<void> deleteRoute(String id);
+
+  Future<Map<String, dynamic>> completeDelivery(String rutaId, String pedidoId);
+
+  Future<Map<String, dynamic>> reportPosition(
+    String rutaId,
+    double lat,
+    double lon,
+  );
+
+  Future<void> reportIncident(String rutaId, Map<String, dynamic> payload);
+
+  Future<Map<String, dynamic>> reoptimize(Map<String, dynamic> payload);
 }
 
 class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
-  RouteRemoteDataSourceImpl(this._client);
+  RouteRemoteDataSourceImpl(this._client, {OfflineRouteCache? cache})
+      : _cache = cache ?? OfflineRouteCache();
 
   final ApiClient _client;
+  final OfflineRouteCache _cache;
 
   @override
   Future<List<DeliveryRouteModel>> getRoutes({String? fecha}) async {
@@ -28,6 +43,10 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
     );
     final data = response.data;
     final list = data is List ? data : (data['data'] as List? ?? []);
+    final raw = list.whereType<Map>().map((item) {
+      return Map<String, dynamic>.from(item);
+    }).toList();
+    await _saveSilently(() => _cache.saveRoutes(raw));
     return list
         .map(
           (item) => DeliveryRouteModel.fromJson(item as Map<String, dynamic>),
@@ -47,14 +66,16 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
       geometry = await _client.dio.get('${ApiPaths.rutas}/$id/geometria');
       data = _unwrap(geometry.data);
     }
-    return DeliveryRouteModel.fromJson({
+    final merged = <String, dynamic>{
       ..._unwrap(response.data),
       'encoded_polyline': data['encodedPolyline'] ?? data['encoded_polyline'],
       'geometrySource': data['geometrySource'],
       'geometryStatus': data['geometryStatus'],
       'roadDistanceKm': data['roadDistanceKm'],
       'roadTravelMinutes': data['roadTravelMinutes'],
-    });
+    };
+    await _saveSilently(() => _cache.saveRouteDetail(id, merged));
+    return DeliveryRouteModel.fromJson(merged);
   }
 
   @override
@@ -76,10 +97,66 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
     await _client.dio.delete('${ApiPaths.rutas}/$id');
   }
 
+  @override
+  Future<Map<String, dynamic>> completeDelivery(
+    String rutaId,
+    String pedidoId,
+  ) async {
+    final response = await _client.dio.post(
+      '${ApiPaths.rutas}/$rutaId/entregas/$pedidoId/completar',
+    );
+    return _unwrap(response.data);
+  }
+
+  @override
+  Future<Map<String, dynamic>> reportPosition(
+    String rutaId,
+    double lat,
+    double lon,
+  ) async {
+    final response = await _client.dio.post(
+      '${ApiPaths.rutas}/$rutaId/posicion',
+      data: {'lat': lat, 'lon': lon},
+    );
+    return _unwrap(response.data);
+  }
+
+  @override
+  Future<void> reportIncident(
+    String rutaId,
+    Map<String, dynamic> payload,
+  ) async {
+    await _client.dio.post(
+      '${ApiPaths.rutas}/$rutaId/incidentes',
+      data: payload,
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>> reoptimize(Map<String, dynamic> payload) async {
+    final response = await _client.dio.post(
+      ApiPaths.rutasReoptimizar,
+      data: payload,
+      options: Options(
+        receiveTimeout: const Duration(seconds: 60),
+        sendTimeout: const Duration(seconds: 30),
+      ),
+    );
+    return _unwrap(response.data);
+  }
+
   Map<String, dynamic> _unwrap(dynamic data) {
     if (data is Map<String, dynamic> && data.containsKey('data')) {
       return data['data'] as Map<String, dynamic>;
     }
     return data as Map<String, dynamic>;
+  }
+
+  Future<void> _saveSilently(Future<void> Function() operation) async {
+    try {
+      await operation();
+    } catch (_) {
+      // La caché offline es best-effort: nunca debe romper el flujo en línea.
+    }
   }
 }

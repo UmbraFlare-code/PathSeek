@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../features/auth/domain/entities/app_user.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
+import '../../features/routes/domain/repositories/route_repository.dart';
 import '../constants/permissions.dart';
+import '../di/injection.dart';
+import '../services/connectivity_service.dart';
 import '../theme/app_theme.dart';
 
 class HomeShell extends StatelessWidget {
@@ -58,6 +64,7 @@ class HomeShell extends StatelessWidget {
           ],
         ),
         actions: [
+          if (user != null) const _NotificationsBell(),
           if (user != null && size.width >= 600)
             Tooltip(
               message: '${user.nombre} · ${_roleLabel(user.rol)}',
@@ -111,37 +118,44 @@ class HomeShell extends StatelessWidget {
                 ),
               ),
             ),
-      body: SafeArea(
-        top: false,
-        bottom: !bottom,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (sidebar) ...[
-              SizedBox(
-                width: 240,
-                child: Material(
-                  color: Colors.white,
-                  child: _NavigationPanel(
-                    user: user,
-                    destinations: destinations,
-                    selected: activeIndex,
+      body: Column(
+        children: [
+          const _ConnectivityBanner(),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              bottom: !bottom,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (sidebar) ...[
+                    SizedBox(
+                      width: 240,
+                      child: Material(
+                        color: Colors.white,
+                        child: _NavigationPanel(
+                          user: user,
+                          destinations: destinations,
+                          selected: activeIndex,
+                        ),
+                      ),
+                    ),
+                    const VerticalDivider(width: 1),
+                  ],
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1520),
+                        child: child,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const VerticalDivider(width: 1),
-            ],
-            Expanded(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1520),
-                  child: child,
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: bottom && destinations.isNotEmpty
           ? destinations.length == 1
@@ -172,6 +186,152 @@ class HomeShell extends StatelessWidget {
                         .toList(),
                   )
           : null,
+    );
+  }
+}
+
+class _NotificationsBell extends StatefulWidget {
+  const _NotificationsBell();
+
+  @override
+  State<_NotificationsBell> createState() => _NotificationsBellState();
+}
+
+class _NotificationsBellState extends State<_NotificationsBell> {
+  NotificationsBloc? _bloc;
+  StreamSubscription<NotificationsState>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!locator.isRegistered<NotificationsBloc>()) return;
+    _bloc = locator<NotificationsBloc>()..add(const NotificationsLoaded());
+    _subscription = _bloc!.stream.listen((state) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    _bloc?.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = _bloc;
+    if (bloc == null) {
+      return IconButton(
+        tooltip: 'Avisos de rutas',
+        onPressed: () => context.go('/notifications'),
+        icon: const Icon(Icons.notifications_outlined),
+      );
+    }
+    final unread = bloc.state.notifications
+        .where((notification) => !notification.leida)
+        .length;
+    return IconButton(
+      tooltip: 'Avisos de rutas',
+      onPressed: () {
+        bloc.add(const NotificationsLoaded());
+        context.go('/notifications');
+      },
+      icon: Badge(
+        isLabelVisible: unread > 0,
+        label: Text('$unread'),
+        child: const Icon(Icons.notifications_outlined),
+      ),
+    );
+  }
+}
+
+class _ConnectivityBanner extends StatefulWidget {
+  const _ConnectivityBanner();
+
+  @override
+  State<_ConnectivityBanner> createState() => _ConnectivityBannerState();
+}
+
+class _ConnectivityBannerState extends State<_ConnectivityBanner> {
+  StreamSubscription<bool>? _subscription;
+  bool _offline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!locator.isRegistered<ConnectivityService>()) return;
+    final service = locator<ConnectivityService>();
+    service.isOnline().then((online) {
+      if (mounted) setState(() => _offline = !online);
+      if (online) {
+        _flushQueue(showFeedback: false);
+      }
+    });
+    _subscription = service.onlineStream.listen((online) {
+      final wasOffline = _offline;
+      if (mounted) setState(() => _offline = !online);
+      if (online && wasOffline) {
+        _flushQueue();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _flushQueue({bool showFeedback = true}) async {
+    try {
+      final synced = await locator<RouteRepository>().flushOfflineQueue();
+      if (synced > 0 && showFeedback && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Conexión recuperada: $synced acción(es) sincronizada(s).',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      // El reintento ocurre en el siguiente cambio de conectividad.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_offline) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.errorContainer,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.cloud_off_outlined,
+                size: 18,
+                color: theme.colorScheme.onErrorContainer,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Sin conexión: se muestran datos guardados y las acciones quedan en cola.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -298,8 +458,31 @@ List<_Destination> _destinationsFor(AppUser? user) => [
       Icons.inventory_2_outlined,
       Icons.inventory_2,
     ),
+  if (AppPermissions.canView(user, AppModule.clients))
+    const _Destination(
+      '/clients',
+      'Clientes',
+      Icons.storefront_outlined,
+      Icons.storefront,
+    ),
   if (AppPermissions.canView(user, AppModule.routes))
     const _Destination('/routes', 'Rutas', Icons.route_outlined, Icons.route),
+  if (user != null &&
+      ['ADMIN', 'OPERADOR', 'AUDITOR'].contains(user.rol))
+    const _Destination(
+      '/reports',
+      'Reportes',
+      Icons.picture_as_pdf_outlined,
+      Icons.picture_as_pdf,
+    ),
+  if (user != null &&
+      ['ADMIN', 'OPERADOR', 'AUDITOR'].contains(user.rol))
+    const _Destination(
+      '/carbon',
+      'Compensación',
+      Icons.forest_outlined,
+      Icons.forest,
+    ),
   if (AppPermissions.canView(user, AppModule.settings))
     const _Destination(
       '/settings',

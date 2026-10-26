@@ -41,7 +41,7 @@ jobs:
         env:
           CONTAINER: ${{ job.services.postgres.id }}
         run: |
-          for file in database/01_schema_tablas.sql database/02_triggers.sql database/03_stored_procedures.sql database/04_seed_data.sql database/05_incremental_reoptimization.sql database/05_incremental_reoptimization.sql database/06_user_administration.sql database/06_user_administration.sql database/07_driver_dni_link.sql; do
+          for file in database/01_schema_tablas.sql database/02_triggers.sql database/03_stored_procedures.sql database/04_seed_data.sql database/05_incremental_reoptimization.sql database/06_user_administration.sql database/07_driver_dni_link.sql database/08_carbon_offset.sql database/09_client_preferences.sql; do
             docker exec -i "$CONTAINER" psql -U pathseek_test -d pathseek_test -v ON_ERROR_STOP=1 < "$file"
           done
       - name: Reoptimization, concurrency and peak-hour SLA on PostgreSQL
@@ -54,7 +54,7 @@ jobs:
           SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
           SPRING_JPA_HIBERNATE_DDL_AUTO: validate
           SPRING_FLYWAY_ENABLED: 'true'
-        run: bash ./mvnw -B -Dtest=FlywayMigrationTests,ReoptimizationIntegrationTests,IncrementalPlannerTests,UserAdministrationIntegrationTests,SecurityIntegrationTests,UserSessionValidatorTests test
+        run: bash ./mvnw -B -Dtest=FlywayMigrationTests,ReoptimizationIntegrationTests,IncrementalPlannerTests,UserAdministrationIntegrationTests,SecurityIntegrationTests,UserSessionValidatorTests,Sprint3ModulesIntegrationTests test
       - name: Check staging measurement tool
         if: matrix.database == 'h2'
         run: python3 -m unittest discover -s backend/tools -p 'test_*.py'

@@ -34,11 +34,11 @@ class FlywayMigrationTests {
                 var flyway = Flyway.configure().dataSource(url, user, password)
                         .schemas(schema).defaultSchema(schema).locations("classpath:db/migration")
                         .baselineOnMigrate(true).baselineVersion("0").cleanDisabled(true).load();
-                assertThat(flyway.migrate().migrationsExecuted).isEqualTo(6);
+                assertThat(flyway.migrate().migrationsExecuted).isEqualTo(8);
                 assertThat(flyway.migrate().migrationsExecuted).isZero();
                 flyway.validate();
                 try (ResultSet result = sql.executeQuery("SELECT count(*) FROM flyway_schema_history WHERE success AND type = 'SQL'")) {
-                    result.next(); assertThat(result.getInt(1)).isEqualTo(6);
+                    result.next(); assertThat(result.getInt(1)).isEqualTo(8);
                 }
                 try (ResultSet result = sql.executeQuery("SELECT count(*) FROM reoptimizacion_eventos")) {
                     result.next(); assertThat(result.getInt(1)).isZero();

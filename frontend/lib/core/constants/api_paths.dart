@@ -10,7 +10,12 @@ class ApiPaths {
   static const String vehiculos = '$base/vehiculos';
   static const String conductores = '$base/conductores';
   static const String pedidos = '$base/pedidos';
+  static const String clientes = '$base/clientes';
   static const String rutas = '$base/rutas';
   static const String rutasGenerar = '$base/rutas/generar';
+  static const String rutasReoptimizar = '$base/rutas/reoptimizar';
+  static const String rutasNotificaciones = '$base/rutas/notificaciones';
   static const String dashboardResumen = '$base/dashboard/resumen';
+  static const String reportesSostenibilidad = '$base/reportes/sostenibilidad';
+  static const String compensacionPlan = '$base/compensacion/plan';
 }

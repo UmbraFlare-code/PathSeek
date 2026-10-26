@@ -1,6 +1,7 @@
 package com.pathseek.backend.route.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.pathseek.backend.order.entity.OrderStatus;
 import com.pathseek.backend.route.entity.RouteOrder;
 
 import java.math.BigDecimal;
@@ -19,7 +20,8 @@ public record RouteOrderResponse(
         @JsonProperty("ventana_fin") String ventanaFin,
         @JsonProperty("cumplio_ventana") Boolean cumplioVentana,
         @JsonProperty("contexto_vial") RoadContextDto contextoVial,
-        @JsonProperty("cliente_id") String clienteId
+        @JsonProperty("cliente_id") String clienteId,
+        @JsonProperty("pedido_estado") OrderStatus pedidoEstado
 ) {
     public static RouteOrderResponse fromEntity(RouteOrder routeOrder) {
         var pedido = routeOrder.getPedido();
@@ -44,7 +46,8 @@ public record RouteOrderResponse(
                 pedido != null ? pedido.getVentanaFin() : null,
                 routeOrder.getCumplioVentana(),
                 contexto,
-                pedido != null ? pedido.getClienteId() : null
+                pedido != null ? pedido.getClienteId() : null,
+                pedido != null ? pedido.getEstado() : null
         );
     }
 }

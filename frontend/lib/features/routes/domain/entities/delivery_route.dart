@@ -42,6 +42,7 @@ class RouteOrder extends Equatable {
     this.ventanaFin,
     this.cumplioVentana = true,
     this.contextoVial = const RoadContext(),
+    this.pedidoEstado,
   });
 
   final String pedidoId;
@@ -56,6 +57,7 @@ class RouteOrder extends Equatable {
   final String? ventanaFin;
   final bool? cumplioVentana;
   final RoadContext contextoVial;
+  final String? pedidoEstado;
 
   @override
   List<Object?> get props => [
@@ -71,6 +73,7 @@ class RouteOrder extends Equatable {
     ventanaFin,
     cumplioVentana,
     contextoVial,
+    pedidoEstado,
   ];
 }
 

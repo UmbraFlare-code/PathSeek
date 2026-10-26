@@ -6,7 +6,7 @@ Para ejecutar el sistema, consulta la [guía de ejecución local](LOCAL.md). La 
 
 La [revisión de código y lógica](CODE_REVIEW.md) recoge las correcciones posteriores, pruebas y pendientes confirmados.
 
-El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) documenta la continuidad del Sprint 3 y los límites de integración pendientes.
+El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/Sprint%203/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) documenta la continuidad del Sprint 3 y los límites de integración pendientes.
 
 ## Presentación
 
@@ -26,11 +26,11 @@ El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/06%20Co
 | **Duración**               | 14 semanas (4 iteraciones)                          |
 | **Enfoque**                | Híbrido con dominancia ágil (iterativo-incremental) |
 | **Presupuesto**            | S/ 500,000 (MVP) + S/ 120,000 anual operativo       |
-| **Versión documento**      | V_1_2_0                                             |
+| **Versión documento**      | V_1_4_0                                             |
 
 ## Índice de documentación
 
-La documentación completa reside en `docs/01 Inicio/` (Fase 01), `docs/02 Planificación/` (Fase 02) y `docs/03 Implementación/` (Fase 03). Cada documento es accesible desde su vínculo relativo.
+La documentación completa reside en `docs/01 Inicio/` (Fase 01), `docs/02 Planificación/` (Fase 02) y las carpetas `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/` (Fase 03, Implementación por sprint). Cada documento es accesible desde su vínculo relativo.
 
 | Doc | Archivo                                                                                                                                   | Descripción                                                    |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -59,17 +59,50 @@ La documentación de la Fase 02 reside en `docs/02 Planificación/`. Cada docume
 | 16  | [03 Registro de riesgos V_1_0_0.md](docs/02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md)           | Matriz de riesgos con severidad P × I y planes de mitigación/contingencia              |
 | 17  | [04 Presupuesto del proyecto V_1_0_0.md](docs/02%20Planificaci%C3%B3n/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md) | CAPEX RRHH, licenciamiento, OPEX Cloud y reserva de contingencia                       |
 
-## Fase 03: Implementación del Proyecto
+## Fase 03: Implementación del Proyecto (por sprint)
 
-La documentación de la Fase 03 reside en `docs/03 Implementación/`. Corresponde a los entregables de gestión del **Sprint 2** (así como los fundamentos arquitecturales de la solución). Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
+La documentación de la Fase 03 se organiza en `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/`. Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
+
+### Sprint 1 (2026-09-14 a 2026-09-25 · 18/18 SP)
 
 | Doc | Archivo | Descripción |
 | --- | --- | --- |
-| 20  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 2: avance 26/26 SP (100%), métricas de calidad, componentes y pendientes |
-| 21  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Obstáculos operativos del Sprint 2 (100% resueltos, sin bloqueos técnicos) y trazabilidad |
-| 22  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas (Dashboard, Rutas, APK móvil, VPS), demostración a UGEL Huancayo y PRs |
-| 23  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, oportunidades de mejora en 4 ejes y plan de acción para el Sprint 3 |
-| 24  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/`, `backend/` y `database/` en la raíz |
+| 18  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 1: núcleo logístico (flota, pedidos, conductores) y EN-003 |
+| 19  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Impedimentos del Sprint 1 y su resolución |
+| 20  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Revisión formal con stakeholders: CRUD logístico, RBAC y OpenAPI |
+| 21  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Retrospectiva del Sprint 1 |
+| 22  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/`, `backend/` y `database/` en la raíz |
+| 23  | [01 Guía de ejecución local V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/01%20Gu%C3%ADa%20de%20ejecuci%C3%B3n%20local%20V_1_0_0.md) | Guía de ejecución local (PostgreSQL, backend, frontend web/móvil) |
+| 24  | [02 Guía para IA V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%201/02%20Gu%C3%ADa%20para%20IA%20V_1_0_0.md) | Guía operativa para IA/desarrolladores: contrato, patrones y prohibiciones |
+
+### Sprint 2 (2026-09-28 a 2026-10-09 · 26/26 SP)
+
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| 25  | [01 Informe de estado del proyecto V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md) | Estado del Sprint 2: avance 26/26 SP (100%), métricas de calidad, componentes y pendientes |
+| 26  | [02 Registro de Impedimentos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/02%20Registro%20de%20Impedimentos%20V_1_0_0.md) | Obstáculos operativos del Sprint 2 (100% resueltos, sin bloqueos técnicos) y trazabilidad |
+| 27  | [03 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas (Dashboard, Rutas, APK móvil, VPS), demostración a UGEL Huancayo y PRs |
+| 28  | [04 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, oportunidades de mejora en 4 ejes y plan de acción para el Sprint 3 |
+| 29  | [05 Justificación de la estructura del código V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%202/05%20Justificaci%C3%B3n%20de%20la%20estructura%20del%20c%C3%B3digo%20V_1_0_0.md) | Fundamento técnico de la organización `frontend/`, `backend/` y `database/` en la raíz |
+
+### Sprint 3 (continuidad y cierre)
+
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| 30  | [06 Continuidad mapa rutas y permisos V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) | Mapa geográfico real (flutter_map/OSM), metaheurística SA y filtros de identidad por rol |
+| 31  | [07 Mejoras UIUX frontend V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/07%20Mejoras%20UIUX%20frontend%20V_1_0_0.md) | Primera mejora UI/UX con la skill frontend-uiux |
+| 32  | [08 Rediseño integral UIUX Pro Max V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/08%20Redise%C3%B1o%20integral%20UIUX%20Pro%20Max%20V_1_0_0.md) | Rediseño integral UI/UX con la skill ui-ux-pro-max |
+| 33  | [09 Reoptimizacion incremental EN002 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md) | Reoptimización incremental (US-006/EN-002): contrato, idempotencia y presupuesto |
+| 34  | [10 Trazado vial OSRM V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/10%20Trazado%20vial%20OSRM%20V_1_0_0.md) | Geometría por calles (OSRM), estados de fallback y límites |
+| 35  | [11 Configuracion usuarios y roles V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md) | Configuración: gestión de usuarios y roles (EN-003) |
+| 36  | [12 Vinculacion conductor por DNI V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/12%20Vinculacion%20conductor%20por%20DNI%20V_1_0_0.md) | Vinculación de cuenta CONDUCTOR y perfil por DNI |
+| 37  | [13 Informe de estado del proyecto Sprint 3 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/13%20Informe%20de%20estado%20del%20proyecto%20Sprint%203%20V_1_0_0.md) | Cierre del Sprint 3: 31/31 SP, módulos nuevos y pendientes externos |
+| 38  | [14 Revisión del Sprint 3 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/14%20Revisi%C3%B3n%20del%20Sprint%203%20V_1_0_0.md) | Revisión formal: reoptimización, offline, reportes, compensación y clientes |
+| 39  | [15 Retrospectiva del Sprint 3 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/15%20Retrospectiva%20del%20Sprint%203%20V_1_0_0.md) | Retrospectiva y plan de acción A-13 a A-16 |
+| 40  | [16 Registro de Impedimentos Sprint 3 V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/16%20Registro%20de%20Impedimentos%20Sprint%203%20V_1_0_0.md) | Impedimentos del Sprint 3 (sin bloqueantes) y limitaciones de alcance |
+| 41  | [17 Manual de usuario V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/17%20Manual%20de%20usuario%20V_1_0_0.md) | Manual de usuario por rol (EN-009) |
+| 42  | [18 Manual de administrador V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/18%20Manual%20de%20administrador%20V_1_0_0.md) | Manual de administrador: variables, migraciones, endpoints y CI (EN-009) |
+| 43  | [19 Análisis del contexto logístico de Huancayo V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/19%20An%C3%A1lisis%20del%20contexto%20log%C3%ADstico%20de%20Huancayo%20V_1_0_0.md) | Contexto operativo de UGEL Huancayo y su modelado en la plataforma (EN-009) |
 
 ## Resumen de objetivos y KPIs
 
@@ -177,7 +210,7 @@ Ver la [lista de justificaciones](docs/01%20Inicio/10.%20Stack%20tecnol%C3%B3gic
 ## Convenciones de archivos
 
 - **Formato:** Markdown (`.md`) nativo con encabezados, tablas, diagramas Mermaid y fragmentos SQL.
-- **Nomenclatura:** `NN. Nombre del documento V_1_0_0.md` en `docs/01 Inicio/`; en `docs/02 Planificación/` y `docs/03 Implementación/` los artefactos usan `NN Nombre del documento V_1_0_0.md`.
+- **Nomenclatura:** `NN. Nombre del documento V_1_0_0.md` en `docs/01 Inicio/`; en `docs/02 Planificación/` y en las carpetas `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/` los artefactos usan `NN Nombre del documento V_1_0_0.md`.
 - **Versionamiento:** La versión inicial es `V_1_0_0.md`; cambios menores `V_1_1_0`; revisiones estructurales `V_2_0_0`. Se preserva el historial en Git.
 - **Calidad de requisitos:** Prohibidos términos ambiguos ("fácil", "eficiente", "adecuado") y diseño técnico prematuro en descripciones atómicas.
 
@@ -224,7 +257,7 @@ La documentación se genera a partir de la consigna del proyecto "PathSeek" – 
 ## Cómo leer
 
 1. Revisa `docs/01 Inicio/` en orden numérico (01 → 13) para una lectura secuencial.
-2. Continúa con `docs/02 Planificación/` (01 → 04) y `docs/03 Implementación/` (01 → 05).
+2. Continúa con `docs/02 Planificación/` (01 → 04) y con la Fase 03 en `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/`.
 3. Cada documento incluye su propio "Control de versiones" y "Referencia" al final.
 
 ## Control de versiones
@@ -234,4 +267,6 @@ La documentación se genera a partir de la consigna del proyecto "PathSeek" – 
 | V_1_0_0 | 2026-09-07 | Creación inicial del README con el índice de las fases 01 y 02. | Equipo PIPRE |
 | V_1_1_0 | 2026-09-29 | Sincronización con el Sprint 1: se agrega la Fase 03 (Implementación) con enlaces a los entregables, se retiran referencias a documentos eliminados y se actualiza el versionamiento. | Equipo PIPRE |
 | V_1_2_0 | 2026-10-06 | Sincronización con los entregables del Sprint 2: actualización de la Fase 03 (Implementación), enlaces relativos de ida y vuelta y despliegue en producción. | Equipo PIPRE |
+| V_1_3_0 | 2026-10-25 | Cierre del Sprint 3: Fase 03 reorganizada por carpetas `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/` (recuperación del Sprint 1, reubicación del Sprint 2 y entregables completos del Sprint 3). | Equipo PIPRE |
+| V_1_4_0 | 2026-10-25 | Cierre del Sprint 3 corregido a 31/31 SP (75/89, 84.3 %) y 124 pruebas backend; Fase 03 consolidada dentro de `docs/03 Implementación/`. | Equipo PIPRE |
 

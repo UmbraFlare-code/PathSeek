@@ -1,6 +1,6 @@
 # Revisión de código y lógica — 22 de octubre de 2026
 
-Actualización posterior: el [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) implementa los filtros por propietario, la vista de rutas del conductor, el mapa geográfico y una metaheurística SA. Los pendientes de este informe describen el estado anterior a esa continuidad.
+Actualización posterior: el [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/Sprint%203/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) implementa los filtros por propietario, la vista de rutas del conductor, el mapa geográfico y una metaheurística SA. Los pendientes de este informe describen el estado anterior a esa continuidad.
 
 ## Resultado
 

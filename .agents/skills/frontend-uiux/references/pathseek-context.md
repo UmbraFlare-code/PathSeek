@@ -12,8 +12,8 @@ Este es un mapa de lectura, no una copia de la especificación. Las rutas siguie
 | Invariantes de negocio | `docs/01 Inicio/09. Reglas de negocio V_1_0_0.md`: capacidad, ventana, prioridad, CO2, modo conductor, duplicados |
 | Arquitectura | `docs/01 Inicio/12. Modelo C4 V_1_1_0.md`: ADR-05 flutter_map/OSM, ADR-06 Cliente-Servidor, ADR-07 Java/Spring Boot |
 | Historias y aceptación | `docs/02 Planificación/01 Transformando a ágil V_1_1_0.md`: US-005, US-007, US-008, EN-003, EN-006 y DoD |
-| Avance por sprint | `docs/02 Planificación/02 Artefactos Jira V_1_1_0.md` y `docs/03 Implementación/01 Informe de estado del proyecto V_1_0_0.md` |
-| Seguimiento posterior de mapa y permisos | `docs/03 Implementación/06 Continuidad mapa rutas y permisos V_1_0_0.md` |
+| Avance por sprint | `docs/02 Planificación/02 Artefactos Jira V_1_1_0.md` y `docs/03 Implementación/Sprint 2/01 Informe de estado del proyecto V_1_0_0.md` |
+| Seguimiento posterior de mapa y permisos | `docs/03 Implementación/Sprint 3/06 Continuidad mapa rutas y permisos V_1_0_0.md` |
 | Otras fuentes | `docs/DOCUMENTATION_INDEX.md` permite localizar documentación adicional |
 
 Los informes de Sprint 2 declaran terminadas tarjetas y gestión base de rutas; el backlog sitúa la visualización geográfica en el siguiente ciclo. El seguimiento de continuidad explica esa diferencia. Conserva la distinción entre objetivo, implementación y validación. El DoD conserva menciones históricas a Jest/Jasmine; en este frontend el stack verificable es Flutter/Dart, no una razón para introducir herramientas JavaScript.
