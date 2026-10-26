@@ -18,6 +18,7 @@ class RouteOrderModel extends Equatable {
     this.elevacionMetros = 3260,
     this.pendientePorcentaje = 2.5,
     this.nivelCongestion = 'FLUIDO',
+    this.pedidoEstado,
   });
 
   final String pedidoId;
@@ -35,6 +36,7 @@ class RouteOrderModel extends Equatable {
   final int elevacionMetros;
   final double pendientePorcentaje;
   final String nivelCongestion;
+  final String? pedidoEstado;
 
   factory RouteOrderModel.fromJson(Map<String, dynamic> json) {
     final ctx = json['contexto_vial'] ?? json['contextoVial'];
@@ -82,6 +84,9 @@ class RouteOrderModel extends Equatable {
                   'FLUIDO',
             )
           : 'FLUIDO',
+      pedidoEstado: _toStringOrNull(
+        json['pedido_estado'] ?? json['pedidoEstado'],
+      ),
     );
   }
 
@@ -103,6 +108,7 @@ class RouteOrderModel extends Equatable {
       pendientePorcentaje: pendientePorcentaje,
       nivelCongestion: nivelCongestion,
     ),
+    pedidoEstado: pedidoEstado,
   );
 
   @override
@@ -122,6 +128,7 @@ class RouteOrderModel extends Equatable {
     elevacionMetros,
     pendientePorcentaje,
     nivelCongestion,
+    pedidoEstado,
   ];
 }
 

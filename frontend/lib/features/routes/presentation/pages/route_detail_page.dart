@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/page_header.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../domain/entities/delivery_route.dart';
 import '../bloc/route_bloc.dart';
 import '../widgets/elevation_profile_widget.dart';
@@ -45,6 +47,9 @@ class RouteDetailView extends StatelessWidget {
       final route = state.selectedRoute;
       if (route == null) return const Center(child: Text('Ruta no disponible'));
       final theme = Theme.of(context);
+      final rol = context.watch<AuthBloc>().state.user?.rol;
+      final isConductor = rol == 'CONDUCTOR';
+      final isOperative = rol == 'ADMIN' || rol == 'OPERADOR';
       return LayoutBuilder(
         builder: (context, constraints) {
           final wide =
@@ -88,7 +93,13 @@ class RouteDetailView extends StatelessWidget {
                     child: Text('Esta ruta no tiene pedidos asignados.'),
                   ),
                 ),
-              ...route.pedidos.map((p) => _DeliveryCard(order: p)),
+              ...route.pedidos.map(
+                (p) => _DeliveryCard(
+                  order: p,
+                  isConductor: isConductor,
+                  isExecuting: state.isExecuting,
+                ),
+              ),
             ],
           );
           return SingleChildScrollView(
@@ -112,8 +123,50 @@ class RouteDetailView extends StatelessWidget {
                   description:
                       '${route.fecha} · ${route.placa ?? 'Sin vehículo'} · ${route.conductorNombre ?? 'Sin conductor'}',
                   icon: Icons.route_outlined,
-                  actions: [RouteStatusBadge(status: route.estado)],
+                  actions: [
+                    RouteStatusBadge(status: route.estado),
+                    if (isConductor)
+                      FilledButton.tonalIcon(
+                        onPressed: state.isExecuting
+                            ? null
+                            : () => _showPositionDialog(context, route),
+                        icon: const Icon(Icons.my_location),
+                        label: const Text('Reportar posición'),
+                      ),
+                    if (isOperative) ...[
+                      OutlinedButton.icon(
+                        onPressed: state.isExecuting
+                            ? null
+                            : () => _showIncidentDialog(context, route),
+                        icon: const Icon(Icons.report_outlined),
+                        label: const Text('Reportar incidente'),
+                      ),
+                      FilledButton.icon(
+                        onPressed: state.isExecuting
+                            ? null
+                            : () => _confirmReoptimize(context, route),
+                        icon: const Icon(Icons.auto_fix_high),
+                        label: const Text('Reoptimizar'),
+                      ),
+                    ],
+                  ],
                 ),
+                if (state.offlineMessage != null) ...[
+                  const SizedBox(height: 12),
+                  _NoticeBanner(
+                    message: state.offlineMessage!,
+                    icon: Icons.cloud_off_outlined,
+                  ),
+                ],
+                if (state.executionMessage != null) ...[
+                  const SizedBox(height: 12),
+                  _NoticeBanner(
+                    message: state.executionMessage!,
+                    icon: state.isExecuting
+                        ? Icons.hourglass_top
+                        : Icons.check_circle_outline,
+                  ),
+                ],
                 const SizedBox(height: 24),
                 Card(
                   margin: EdgeInsets.zero,
@@ -164,6 +217,286 @@ class RouteDetailView extends StatelessWidget {
       );
     },
   );
+
+  Future<void> _showPositionDialog(
+    BuildContext context,
+    DeliveryRoute route,
+  ) async {
+    final firstPending = route.pedidos
+        .where((p) => p.pedidoEstado != 'ENTREGADO')
+        .cast<RouteOrder?>()
+        .firstWhere((p) => true, orElse: () => null);
+    final latController = TextEditingController(
+      text: firstPending?.gpsLat?.toStringAsFixed(6) ?? '',
+    );
+    final lonController = TextEditingController(
+      text: firstPending?.gpsLon?.toStringAsFixed(6) ?? '',
+    );
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reportar mi posición'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Ingresa tu latitud y longitud actuales. Sin conexión, la posición queda guardada y se sincroniza después.',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: latController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Latitud'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: lonController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Longitud'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final lat = double.tryParse(latController.text);
+              final lon = double.tryParse(lonController.text);
+              if (lat == null ||
+                  lon == null ||
+                  lat < -90 ||
+                  lat > 90 ||
+                  lon < -180 ||
+                  lon > 180) {
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(
+                    content: Text('Coordenadas inválidas'),
+                  ),
+                );
+                return;
+              }
+              Navigator.of(dialogContext).pop();
+              context.read<RouteBloc>().add(
+                    PositionReported(route.id, lat, lon),
+                  );
+            },
+            child: const Text('Enviar'),
+          ),
+        ],
+      ),
+    );
+    latController.dispose();
+    lonController.dispose();
+  }
+
+  Future<void> _showIncidentDialog(
+    BuildContext context,
+    DeliveryRoute route,
+  ) async {
+    var tipo = 'BLOQUEO';
+    final descripcionController = TextEditingController();
+    final radioController = TextEditingController(text: '250');
+    final firstPending = route.pedidos
+        .where((p) => p.pedidoEstado != 'ENTREGADO')
+        .cast<RouteOrder?>()
+        .firstWhere((p) => true, orElse: () => null);
+    final latController = TextEditingController(
+      text: firstPending?.gpsLat?.toStringAsFixed(6) ?? '',
+    );
+    final lonController = TextEditingController(
+      text: firstPending?.gpsLon?.toStringAsFixed(6) ?? '',
+    );
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: const Text('Reportar incidente vial'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DropdownButtonFormField<String>(
+                  initialValue: tipo,
+                  decoration: const InputDecoration(labelText: 'Tipo'),
+                  items: const [
+                    DropdownMenuItem(value: 'BLOQUEO', child: Text('Bloqueo')),
+                    DropdownMenuItem(value: 'OBRAS', child: Text('Obras')),
+                    DropdownMenuItem(
+                      value: 'ACCIDENTE',
+                      child: Text('Accidente'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'CONGESTION_SEVERA',
+                      child: Text('Congestión severa'),
+                    ),
+                  ],
+                  onChanged: (value) => setDialogState(() => tipo = value!),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descripcionController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                    labelText: 'Descripción',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: latController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  decoration: const InputDecoration(labelText: 'Latitud'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: lonController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  decoration: const InputDecoration(labelText: 'Longitud'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: radioController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Radio de afectación (m)',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final lat = double.tryParse(latController.text);
+                final lon = double.tryParse(lonController.text);
+                final radio = int.tryParse(radioController.text);
+                if (descripcionController.text.trim().isEmpty ||
+                    lat == null ||
+                    lon == null ||
+                    radio == null ||
+                    radio < 1 ||
+                    radio > 5000) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Completa descripción, coordenadas y radio (1–5000 m).',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.of(dialogContext).pop();
+                context.read<RouteBloc>().add(
+                      IncidentReported(
+                        route.id,
+                        {
+                          'tipo': tipo,
+                          'descripcion': descripcionController.text.trim(),
+                          'lat': lat,
+                          'lon': lon,
+                          'radioAfectacionMetros': radio,
+                        },
+                      ),
+                    );
+              },
+              child: const Text('Registrar'),
+            ),
+          ],
+        ),
+      ),
+    );
+    descripcionController.dispose();
+    radioController.dispose();
+    latController.dispose();
+    lonController.dispose();
+  }
+
+  Future<void> _confirmReoptimize(
+    BuildContext context,
+    DeliveryRoute route,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reoptimizar ruta'),
+        content: const Text(
+          'El sistema recalculará la secuencia pendiente evitando los incidentes activos '
+          'y notificará al conductor. Las entregas ya realizadas se conservan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Reoptimizar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    context.read<RouteBloc>().add(
+          RouteReoptimized(
+            route.id,
+            {
+              'evento_id': const Uuid().v4(),
+              'tipo': 'INCIDENTE',
+              'rutas_ids': [route.id],
+            },
+          ),
+        );
+  }
+}
+
+class _NoticeBanner extends StatelessWidget {
+  const _NoticeBanner({required this.message, required this.icon});
+  final String message;
+  final IconData icon;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      color: theme.colorScheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(icon, color: theme.colorScheme.onSecondaryContainer),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSecondaryContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _Metric extends StatelessWidget {
@@ -189,11 +522,18 @@ class _Metric extends StatelessWidget {
 }
 
 class _DeliveryCard extends StatelessWidget {
-  const _DeliveryCard({required this.order});
+  const _DeliveryCard({
+    required this.order,
+    required this.isConductor,
+    required this.isExecuting,
+  });
   final RouteOrder order;
+  final bool isConductor;
+  final bool isExecuting;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final delivered = order.pedidoEstado == 'ENTREGADO';
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -205,9 +545,16 @@ class _DeliveryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  foregroundColor: theme.colorScheme.onPrimaryContainer,
-                  child: Text('${order.orden}'),
+                  backgroundColor: delivered
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.primaryContainer,
+                  foregroundColor: delivered
+                      ? theme.colorScheme.onPrimary
+                      : theme.colorScheme.onPrimaryContainer,
+                  child: Icon(
+                    delivered ? Icons.check : Icons.place_outlined,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -231,6 +578,12 @@ class _DeliveryCard extends StatelessWidget {
                 ),
                 if (order.peso != null)
                   Text('${Formatters.decimal.format(order.peso)} kg'),
+                Text(
+                  'Estado: ${order.pedidoEstado ?? 'ASIGNADO'}',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: delivered ? theme.colorScheme.primary : null,
+                  ),
+                ),
               ],
             ),
             const Divider(),
@@ -242,9 +595,32 @@ class _DeliveryCard extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            if (isConductor && !delivered) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  onPressed: isExecuting
+                      ? null
+                      : () => context.read<RouteBloc>().add(
+                            DeliveryCompleted(
+                              routeContextOf(context),
+                              order.pedidoId,
+                            ),
+                          ),
+                  icon: const Icon(Icons.done_all),
+                  label: const Text('Completar entrega'),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  String routeContextOf(BuildContext context) {
+    final state = context.read<RouteBloc>().state;
+    return state.selectedRoute?.id ?? '';
   }
 }

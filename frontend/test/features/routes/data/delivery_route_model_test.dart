@@ -60,6 +60,32 @@ void main() {
       expect(model.estado, 'PLANIFICADA');
     });
 
+    test('parses the delivery status from the backend contract', () {
+      final model = DeliveryRouteModel.fromJson({
+        ...json,
+        'pedidos': [
+          {
+            'pedido_id': 'o1',
+            'orden': 1,
+            'hora_estimada': '08:30:00',
+            'direccion': 'Av. Real 123',
+            'pedido_estado': 'ENTREGADO',
+          },
+          {
+            'pedido_id': 'o2',
+            'orden': 2,
+            'hora_estimada': '09:00:00',
+            'direccion': 'Jr. Lima 400',
+            'pedido_estado': 'EN_RUTA',
+          },
+        ],
+      });
+
+      final entity = model.toEntity();
+      expect(entity.pedidos.first.pedidoEstado, 'ENTREGADO');
+      expect(entity.pedidos.last.pedidoEstado, 'EN_RUTA');
+    });
+
     test('toEntity maps pedidos correctly', () {
       final entity = DeliveryRouteModel.fromJson(json).toEntity();
 

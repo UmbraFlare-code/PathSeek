@@ -2,7 +2,15 @@ import '../../features/auth/domain/entities/app_user.dart';
 import 'app_roles.dart';
 
 /// Modulos del sistema con control de acceso por rol.
-enum AppModule { fleet, drivers, orders, routes, dashboard, settings }
+enum AppModule {
+  fleet,
+  drivers,
+  orders,
+  clients,
+  routes,
+  dashboard,
+  settings,
+}
 
 /// Matriz de permisos alineada con DOC-008 (RBAC) y el backend.
 ///
@@ -32,6 +40,13 @@ class AppPermissions {
           AppRoles.auditor,
         ]);
       case AppModule.orders:
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.cliente,
+          AppRoles.auditor,
+        ]);
+      case AppModule.clients:
         return user.hasAnyRole([
           AppRoles.admin,
           AppRoles.operador,
@@ -71,6 +86,12 @@ class AppPermissions {
           AppRoles.operador,
           AppRoles.cliente,
         ]);
+      case AppModule.clients:
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.cliente,
+        ]);
       case AppModule.routes:
         return user.hasAnyRole([AppRoles.admin, AppRoles.operador]);
       case AppModule.dashboard:
@@ -88,6 +109,12 @@ class AppPermissions {
       case AppModule.orders:
       case AppModule.routes:
         return user.hasAnyRole([AppRoles.admin, AppRoles.operador]);
+      case AppModule.clients:
+        return user.hasAnyRole([
+          AppRoles.admin,
+          AppRoles.operador,
+          AppRoles.cliente,
+        ]);
       case AppModule.dashboard:
         return false;
     }
@@ -95,6 +122,12 @@ class AppPermissions {
 
   static bool canManageUsers(AppUser? user) => user?.rol == AppRoles.admin;
 
-  static bool canDelete(AppUser? user, AppModule module) =>
-      module != AppModule.settings && canUpdate(user, module);
+  static bool canDelete(AppUser? user, AppModule module) {
+    if (user == null) return false;
+    if (module == AppModule.settings) return false;
+    if (module == AppModule.clients) {
+      return user.hasAnyRole([AppRoles.admin, AppRoles.operador]);
+    }
+    return canUpdate(user, module);
+  }
 }

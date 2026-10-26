@@ -4,12 +4,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
+import 'core/services/connectivity_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupDependencies();
+
+  locator<ConnectivityService>().start();
 
   final authBloc = locator<AuthBloc>()
     ..add(const AuthCheckRequested());

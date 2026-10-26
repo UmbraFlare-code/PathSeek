@@ -7,12 +7,15 @@ class RouteState extends Equatable {
     this.isLoading = false,
     this.isGenerating = false,
     this.isSaving = false,
+    this.isExecuting = false,
     this.generateSuccess = false,
     this.generatedRoutes = 0,
     this.unassignedOrders = 0,
     this.errorMessage,
     this.generateErrorMessage,
     this.saveErrorMessage,
+    this.executionMessage,
+    this.offlineMessage,
     this.isDetailLoading = false,
     this.detailError,
   });
@@ -25,12 +28,15 @@ class RouteState extends Equatable {
   final bool isLoading;
   final bool isGenerating;
   final bool isSaving;
+  final bool isExecuting;
   final bool generateSuccess;
   final int generatedRoutes;
   final int unassignedOrders;
   final String? errorMessage;
   final String? generateErrorMessage;
   final String? saveErrorMessage;
+  final String? executionMessage;
+  final String? offlineMessage;
   final bool isDetailLoading;
   final String? detailError;
 
@@ -46,12 +52,15 @@ class RouteState extends Equatable {
     bool? isLoading,
     bool? isGenerating,
     bool? isSaving,
+    bool? isExecuting,
     bool? generateSuccess,
     int? generatedRoutes,
     int? unassignedOrders,
     String? errorMessage,
     String? generateErrorMessage,
     String? saveErrorMessage,
+    String? executionMessage,
+    String? offlineMessage,
     bool? isDetailLoading,
     String? detailError,
   }) {
@@ -61,12 +70,15 @@ class RouteState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       isGenerating: isGenerating ?? this.isGenerating,
       isSaving: isSaving ?? this.isSaving,
+      isExecuting: isExecuting ?? this.isExecuting,
       generateSuccess: generateSuccess ?? this.generateSuccess,
       generatedRoutes: generatedRoutes ?? this.generatedRoutes,
       unassignedOrders: unassignedOrders ?? this.unassignedOrders,
       errorMessage: errorMessage,
       generateErrorMessage: generateErrorMessage,
       saveErrorMessage: saveErrorMessage,
+      executionMessage: executionMessage,
+      offlineMessage: offlineMessage,
       isDetailLoading: isDetailLoading ?? this.isDetailLoading,
       detailError: detailError,
     );
@@ -79,12 +91,15 @@ class RouteState extends Equatable {
         isLoading,
         isGenerating,
         isSaving,
+        isExecuting,
         generateSuccess,
         generatedRoutes,
         unassignedOrders,
         errorMessage,
         generateErrorMessage,
         saveErrorMessage,
+        executionMessage,
+        offlineMessage,
         isDetailLoading,
         detailError,
       ];

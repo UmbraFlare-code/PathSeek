@@ -7,10 +7,19 @@ import '../network/secure_http_client.dart';
 import '../network/session_store.dart';
 import '../network/shared_prefs_token_storage.dart';
 import '../network/token_storage.dart';
+import '../services/connectivity_service.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/carbon/data/datasources/carbon_remote_datasource.dart';
+import '../../features/carbon/data/repositories/carbon_repository_impl.dart';
+import '../../features/carbon/domain/repositories/carbon_repository.dart';
+import '../../features/carbon/presentation/bloc/carbon_bloc.dart';
+import '../../features/clients/data/datasources/clients_remote_datasource.dart';
+import '../../features/clients/data/repositories/clients_repository_impl.dart';
+import '../../features/clients/domain/repositories/clients_repository.dart';
+import '../../features/clients/presentation/bloc/clients_bloc.dart';
 import '../../features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import '../../features/dashboard/domain/repositories/dashboard_repository.dart';
@@ -23,10 +32,17 @@ import '../../features/drivers/data/datasources/driver_remote_datasource.dart';
 import '../../features/drivers/data/repositories/driver_repository_impl.dart';
 import '../../features/drivers/domain/repositories/driver_repository.dart';
 import '../../features/drivers/presentation/bloc/driver_bloc.dart';
+import '../../features/notifications/data/datasources/notifications_remote_datasource.dart';
+import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notifications_repository.dart';
+import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
 import '../../features/orders/data/datasources/order_remote_datasource.dart';
 import '../../features/orders/data/repositories/order_repository_impl.dart';
 import '../../features/orders/domain/repositories/order_repository.dart';
 import '../../features/orders/presentation/bloc/order_bloc.dart';
+import '../../features/reports/data/datasources/reports_remote_datasource.dart';
+import '../../features/reports/data/repositories/reports_repository_impl.dart';
+import '../../features/reports/domain/repositories/reports_repository.dart';
 import '../../features/routes/data/datasources/route_remote_datasource.dart';
 import '../../features/routes/data/repositories/route_repository_impl.dart';
 import '../../features/routes/domain/repositories/route_repository.dart';
@@ -60,14 +76,21 @@ Future<void> setupDependencies() async {
       },
     ),
   );
+  locator.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityService(),
+  );
 
   _registerAuth();
   _registerFleet();
   _registerDrivers();
   _registerOrders();
+  _registerClients();
   _registerDashboard();
   _registerRoutes();
   _registerSettings();
+  _registerNotifications();
+  _registerReports();
+  _registerCarbon();
 }
 
 void _registerAuth() {
@@ -115,6 +138,16 @@ void _registerOrders() {
   locator.registerFactory<OrderBloc>(() => OrderBloc(repository: locator()));
 }
 
+void _registerClients() {
+  locator.registerLazySingleton<ClientsRemoteDataSource>(
+    () => ClientsRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<ClientsRepository>(
+    () => ClientsRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerFactory<ClientsBloc>(() => ClientsBloc(repository: locator()));
+}
+
 void _registerDashboard() {
   locator.registerLazySingleton<DashboardRemoteDataSource>(
     () => DashboardRemoteDataSourceImpl(locator()),
@@ -147,4 +180,35 @@ void _registerSettings() {
   locator.registerFactory<SettingsBloc>(
     () => SettingsBloc(repository: locator()),
   );
+}
+
+void _registerNotifications() {
+  locator.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerFactory<NotificationsBloc>(
+    () => NotificationsBloc(repository: locator()),
+  );
+}
+
+void _registerReports() {
+  locator.registerLazySingleton<ReportsRemoteDataSource>(
+    () => ReportsRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<ReportsRepository>(
+    () => ReportsRepositoryImpl(remoteDataSource: locator()),
+  );
+}
+
+void _registerCarbon() {
+  locator.registerLazySingleton<CarbonRemoteDataSource>(
+    () => CarbonRemoteDataSourceImpl(locator()),
+  );
+  locator.registerLazySingleton<CarbonRepository>(
+    () => CarbonRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerFactory<CarbonBloc>(() => CarbonBloc(repository: locator()));
 }

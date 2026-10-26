@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/domain/entities/app_user.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/carbon/presentation/pages/carbon_page.dart';
+import '../../features/clients/domain/entities/client_profile.dart';
+import '../../features/clients/presentation/pages/client_form_page.dart';
+import '../../features/clients/presentation/pages/clients_list_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/drivers/domain/entities/driver.dart';
 import '../../features/drivers/presentation/pages/driver_form_page.dart';
@@ -11,14 +16,18 @@ import '../../features/drivers/presentation/pages/driver_list_page.dart';
 import '../../features/fleet/domain/entities/vehicle.dart';
 import '../../features/fleet/presentation/pages/fleet_list_page.dart';
 import '../../features/fleet/presentation/pages/vehicle_form_page.dart';
+import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/orders/domain/entities/order.dart';
 import '../../features/orders/presentation/pages/order_form_page.dart';
 import '../../features/orders/presentation/pages/order_list_page.dart';
+import '../../features/reports/presentation/pages/reports_page.dart';
 import '../../features/routes/presentation/pages/route_detail_page.dart';
 import '../../features/routes/presentation/pages/route_list_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../constants/app_roles.dart';
 import '../constants/permissions.dart';
+import '../di/injection.dart';
 import 'home_shell.dart';
 
 class AppRouter {
@@ -113,6 +122,47 @@ class AppRouter {
             ],
           ),
           GoRoute(
+            path: '/clients',
+            builder: (context, state) => const ClientsListPage(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const ClientFormPage(),
+              ),
+              GoRoute(
+                path: ':id/edit',
+                redirect: (context, state) =>
+                    state.extra is ClientProfile &&
+                        (state.extra as ClientProfile).id ==
+                            state.pathParameters['id']
+                    ? null
+                    : '/clients',
+                builder: (context, state) =>
+                    ClientFormPage(client: state.extra as ClientProfile?),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) {
+              final user = _authBloc.state.user;
+              return BlocProvider<NotificationsBloc>(
+                create: (_) => locator<NotificationsBloc>(),
+                child: NotificationsPage(
+                  isConductor: user?.rol == AppRoles.conductor,
+                ),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/reports',
+            builder: (context, state) => const ReportsPage(),
+          ),
+          GoRoute(
+            path: '/carbon',
+            builder: (context, state) => const CarbonPage(),
+          ),
+          GoRoute(
             path: '/routes',
             builder: (context, state) => const RouteListPage(),
             routes: [
@@ -185,6 +235,35 @@ class AppRouter {
         AppRoles.cliente,
         AppRoles.auditor,
       ];
+    }
+
+    if (location.startsWith('/clients')) {
+      if (isMutating) {
+        return [AppRoles.admin, AppRoles.operador, AppRoles.cliente];
+      }
+      return [
+        AppRoles.admin,
+        AppRoles.operador,
+        AppRoles.cliente,
+        AppRoles.auditor,
+      ];
+    }
+
+    if (location == '/notifications' || location.startsWith('/notifications')) {
+      return [
+        AppRoles.admin,
+        AppRoles.operador,
+        AppRoles.auditor,
+        AppRoles.conductor,
+      ];
+    }
+
+    if (location == '/reports' || location.startsWith('/reports')) {
+      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor];
+    }
+
+    if (location == '/carbon' || location.startsWith('/carbon')) {
+      return [AppRoles.admin, AppRoles.operador, AppRoles.auditor];
     }
 
     if (location.startsWith('/routes')) {
