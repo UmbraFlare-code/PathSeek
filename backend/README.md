@@ -1,6 +1,6 @@
 # PathSeek Backend
 
-API REST de PathSeek. Incluye autenticación stateless, autorización por roles y el catálogo operativo: Vehículos, Conductores y Pedidos.
+API REST de PathSeek. Incluye autenticación stateless, autorización por roles, el catálogo operativo (Vehículos, Conductores, Pedidos y Clientes), rutas con optimización y reoptimización, ejecución del conductor, reportes PDF y compensación de carbono.
 
 ## Tecnologías
 
@@ -116,15 +116,15 @@ Las pruebas H2 en memoria mantienen Flyway desactivado y Hibernate crea su esque
 
 ## Reoptimización incremental
 
-Para la visualización por calles, consulta la [integración OSRM y configuración Docker](../docs/03%20Implementación/10%20Trazado%20vial%20OSRM%20V_1_0_0.md). La geometría vial conserva la secuencia operativa y expone métricas separadas de las estimaciones del optimizador.
+Para la visualización por calles, consulta la [integración OSRM y configuración Docker](../docs/Sprint%203/10%20Trazado%20vial%20OSRM%20V_1_0_0.md). La geometría vial conserva la secuencia operativa y expone métricas separadas de las estimaciones del optimizador.
 
 `POST /api/v1/rutas/reoptimizar` permite a ADMIN/OPERADOR procesar nuevos pedidos, cancelaciones, incidentes y averías sin regenerar todas las rutas. Incluye idempotencia por `evento_id`, presupuesto de cálculo, preservación de entregas realizadas y bandeja persistente de avisos.
 
-La migración de reoptimización se aplica automáticamente al iniciar el backend. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/03%20Implementación/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
+La migración de reoptimización se aplica automáticamente al iniciar el backend. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/Sprint%203/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
 
 ## Configuración y usuarios
 
-La nueva sección `/settings` permite a ADMIN crear y editar cuentas, asignar roles y activar/desactivar acceso. OPERADOR/AUDITOR pueden consultar únicamente el catálogo de roles. El backend aplica automáticamente las migraciones de usuarios y DNI al iniciar. Consulta el [contrato, permisos y pasos Docker](../docs/03%20Implementación/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md).
+La nueva sección `/settings` permite a ADMIN crear y editar cuentas, asignar roles y activar/desactivar acceso. OPERADOR/AUDITOR pueden consultar únicamente el catálogo de roles. El backend aplica automáticamente las migraciones de usuarios y DNI al iniciar. Consulta el [contrato, permisos y pasos Docker](../docs/Sprint%203/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md).
 
 ## Arquitectura
 
@@ -206,4 +206,33 @@ Las categorías permitidas son `AII`, `AIII`, `BII` y `BIII`. El DNI (8 dígitos
 | `PUT` | `/api/v1/pedidos/{id}` | Sí | Sí | No | No | No |
 | `DELETE` | `/api/v1/pedidos/{id}` | Sí | Sí | No | No | No |
 
-Valores permitidos: prioridad `EXPRESS`, `ESTANDAR`, `ECONOMICO`; tipo de producto `PERECEDERO`, `NO_PERECEDERO`; estado `PENDIENTE` (por defecto), `EN_RUTA`, `ENTREGADO`, `CANCELADO`. La ventana de tiempo usa formato `HH:mm` y la hora de fin debe ser posterior a la de inicio. No se admite un pedido activo duplicado (mismo cliente, dirección y ventana): responde `409 ORDER_DUPLICATE` (RN-012). `cliente_id` se guarda como texto libre hasta contar con el módulo de Clientes.
+Valores permitidos: prioridad `EXPRESS`, `ESTANDAR`, `ECONOMICO`; tipo de producto `PERECEDERO`, `NO_PERECEDERO`; estado `PENDIENTE` (por defecto), `EN_RUTA`, `ENTREGADO`, `CANCELADO`. La ventana de tiempo usa formato `HH:mm` y la hora de fin debe ser posterior a la de inicio. No se admite un pedido activo duplicado (mismo cliente, dirección y ventana): responde `409 ORDER_DUPLICATE` (RN-012). Para el rol CLIENTE, `cliente_id` es el UUID de su cuenta y corresponde al `usuario_id` del perfil en el módulo de Clientes; ADMIN/OPERADOR conservan identificadores libres históricos.
+
+## Clientes (US-004)
+
+| Método | Endpoint | ADMIN | OPERADOR | AUDITOR | CLIENTE |
+| --- | --- | --- | --- | --- | --- |
+| `GET` | `/api/v1/clientes` | Sí | Sí | Sí | Solo su perfil |
+| `GET` | `/api/v1/clientes/{id}` | Sí | Sí | Sí | Solo su perfil |
+| `POST` | `/api/v1/clientes` | Sí | Sí | No | Crea su perfil |
+| `PUT` | `/api/v1/clientes/{id}` | Sí | Sí | No | Solo su perfil |
+| `DELETE` | `/api/v1/clientes/{id}` | Sí | Sí | No | No |
+
+El perfil se vincula a una cuenta activa con rol `CLIENTE` (`usuario_id`). La cuenta no puede cambiarse después (`409 CLIENT_USER_LOCKED`), no puede duplicarse el perfil de una cuenta (`409 CLIENT_ALREADY_LINKED`) y el horario de atención requiere inicio y fin válidos (`HH:mm`, fin posterior al inicio). La migración `V9` añade las columnas de preferencias sin alterar datos existentes.
+
+## Ejecución de rutas del conductor (EN-008)
+
+| Método | Endpoint | Permiso |
+| --- | --- | --- |
+| `POST` | `/api/v1/rutas/{id}/posicion` | CONDUCTOR dueño de la ruta |
+| `POST` | `/api/v1/rutas/{id}/entregas/{pedidoId}/completar` | CONDUCTOR dueño de la ruta |
+
+Ambos endpoints son idempotentes para la cola de sincronización offline del frontend. Completar una entrega exige que las anteriores estén `ENTREGADO` (`409 ORDER_PREFIX_INCOMPLETE`); al completar todas, la ruta pasa a `COMPLETADA`. La posición actualiza el progreso estimado (último orden entregado, distancia, combustible y CO₂ del prefijo). El detalle de ruta incluye `pedido_estado` por parada.
+
+## Reportes de sostenibilidad (US-009)
+
+`GET /api/v1/reportes/sostenibilidad?desde=YYYY-MM-DD&hasta=YYYY-MM-DD` (ADMIN/OPERADOR/AUDITOR) devuelve un PDF con el resumen del período (rutas, distancia, CO₂, combustible y cumplimiento de ventanas) y el detalle por ruta. El rango de fechas es opcional; `desde` posterior a `hasta` responde `422 INVALID_REPORT_RANGE`. Las métricas son estimaciones del optimizador, no recorrido vial real.
+
+## Compensación de carbono (US-010)
+
+`GET /api/v1/compensacion/plan` (ADMIN/OPERADOR/AUDITOR) calcula las emisiones anuales de las rutas `COMPLETADA` de los últimos 12 meses, los árboles equivalentes (1 árbol ≈ 0.02 t CO₂/año) y sugiere los proyectos activos de `proyectos_compensacion` (migración `V8` + catálogo sembrado de forma idempotente).

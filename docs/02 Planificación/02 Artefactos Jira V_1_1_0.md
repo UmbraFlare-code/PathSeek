@@ -4,8 +4,8 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-015
-Versión: V_1_1_0
-Fecha: 2026-09-07
+Versión: V_1_3_0
+Fecha: 2026-09-07 (actualizado 2026-10-25)
 
 ---
 
@@ -20,7 +20,7 @@ Fecha: 2026-09-07
 | **Administrador del proyecto** | Equipo PIPRE (Project Manager) |
 | **Miembros del equipo** | Project Manager, Software Architect, 2 Developers Junior, QA Engineer, UI/UX Designer |
 | **Versión oficial creada** | `v1.0.0-MVP` |
-| **Sprint activo** | Sprint 1 (2 semanas, finalizado el 2026-09-25) |
+| **Sprint activo** | Sprint 3 (2 semanas, finalizado el 2026-10-23) |
 
 ---
 
@@ -158,7 +158,23 @@ Flujo: `To Do` → `In Progress` → `In Review / QA` → `Done`.
 | **Pull Requests integrados** | #6 y #7 (`fix-app-mobile` / mejoras web y móvil) |
 | **Entorno de producción** | Servidor VPS Contabo `https://169.58.74.99` (HTTPS SSL / Docker Compose) |
 
-El detalle del cierre de la iteración consta en los documentos de `docs/03 Implementación/` (Informe de estado, Registro de impedimentos, Revisión del Sprint y Retrospectiva).
+El detalle del cierre de la iteración consta en los documentos de `docs/Sprint 2/` (Informe de estado, Registro de impedimentos, Revisión del Sprint y Retrospectiva).
+
+### 4.7 Cierre del Sprint 3
+
+| Resultado | Valor |
+| --- | --- |
+| **Sprint** | Sprint 3 (2026-10-12 a 2026-10-23) |
+| **Story Points comprometidos** | 26 |
+| **Story Points completados** | 26 (100 %) |
+| **Ítems completados en Sprint 3** | PATHSEEK-8 (US-006), PATHSEEK-9 (EN-002), PATHSEEK-17 (US-004), PATHSEEK-13 (US-009), PATHSEEK-18 (US-010), PATHSEEK-15/16 (EN-007/EN-008) y PATHSEEK-19 (EN-009) |
+| **Story Points acumulados totales** | 70 / 89 SP (78.7 % del backlog general) |
+| **Validaciones externas pendientes** | Encuesta de campo EN-007, auditoría WCAG EN-006, p95 en staging (EN-001/EN-002) |
+| **Calidad** | 121 pruebas backend (118 H2 + 2 PostgreSQL + 1 carga opt-in) · 292 pruebas frontend · analyze 0 · build web e imágenes Docker correctas |
+| **CI/CD** | Nuevo workflow `frontend-checks.yml`; backend extendido con Sprint3ModulesIntegrationTests y migraciones 08/09 |
+| **Rama de integración** | `Feature/Sprint3-Cierre` (sobre `main`) |
+
+El detalle del cierre consta en `docs/Sprint 3/` (Informe de estado, Revisión, Retrospectiva, Registro de impedimentos, manuales y análisis del contexto logístico).
 
 ---
 
@@ -224,6 +240,7 @@ El detalle del cierre de la iteración consta en los documentos de `docs/03 Impl
 | V_1_0_0 | 2026-09-07 | Creación inicial: informe de parametrización de Jira Software y plantilla de evidencias (Fase 02: Planificación). | Equipo PIPRE |
 | V_1_1_0 | 2026-09-29 | Sincronización con el cierre del Sprint 1: ítems PATHSEEK-1/2/3/6 marcados como Done, resultado de 18/18 SP y sección de cierre del sprint. | Equipo PIPRE |
 | V_1_2_0 | 2026-10-06 | Sincronización con el cierre del Sprint 2: ítems PATHSEEK-10/7/4/15/16/11 marcados como Done, resultado de 26/26 SP (44 SP acumulados) y despliegue en producción. | Equipo PIPRE |
+| V_1_3_0 | 2026-10-25 | Sincronización con el cierre del Sprint 3: ítems PATHSEEK-8/9/13/15/16/17/18/19 marcados como Done, resultado de 26/26 SP (70 SP acumulados, 78.7 % del backlog) y validaciones externas documentadas. | Equipo PIPRE |
 
 ---
 

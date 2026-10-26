@@ -148,7 +148,9 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 ## Nomenclatura obligatoria
 ## Política estricta de recortes
 
-## [01 Informe de estado del proyecto V_1_0_0](03%20Implementación/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+## Fase 03 — Implementación por sprint
+
+### [Sprint 1](Sprint%201/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
 
 ## 1. Datos de la iteración
 ## 2. Sprint Goal (objetivo de la iteración)
@@ -156,7 +158,7 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 ## 4. Demostración del trabajo completado
 ## 5. Estado por componente
 
-## [02 Registro de Impedimentos V_1_0_0](03%20Implementación/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+## [Sprint 1 · Registro de Impedimentos](Sprint%201/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
 
 ## 1. Resumen
 ## 2. Tabla de impedimentos
@@ -164,7 +166,7 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 ## 4. Control de versiones
 ## 5. Referencia
 
-## [03 Revisión del Sprint V_1_0_0](03%20Implementación/03%20Revisión%20del%20Sprint%20V_1_0_0.md)
+## [Sprint 1 · Revisión del Sprint](Sprint%201/03%20Revisión%20del%20Sprint%20V_1_0_0.md)
 
 ## 1. Datos de la revisión
 ## 2. Historias de Usuario completadas en este Sprint
@@ -172,7 +174,7 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 ## 4. Pendientes
 ## 5. Control de versiones
 
-## [04 Retrospectiva del Sprint V_1_0_0](03%20Implementación/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+## [Sprint 1 · Retrospectiva del Sprint](Sprint%201/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
 
 ## 1. Datos de la retrospectiva
 ## 2. ¿Qué aprendimos?
@@ -180,7 +182,7 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 ## 4. ¿Qué podemos hacer mejor?
 ## 5. Acciones a realizar
 
-## [05 Justificación de la estructura del código V_1_0_0](03%20Implementación/05%20Justificación%20de%20la%20estructura%20del%20código%20V_1_0_0.md)
+## [Sprint 1 · Justificación de la estructura del código](Sprint%201/05%20Justificación%20de%20la%20estructura%20del%20código%20V_1_0_0.md)
 
 ## 1. Objetivo
 ## 2. Contexto: estructura actual del repositorio
@@ -188,15 +190,127 @@ Revisión temática de todos los Markdown de docs/; requisitos, restricciones, d
 ## 4. Fundamentos técnicos
 ## 5. Comparativa de alternativas
 
-## [09 Reoptimizacion incremental EN002 V_1_0_0](03%20Implementación/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md)
+## [Sprint 1 · Guía de ejecución local](Sprint%201/01%20Guía%20de%20ejecución%20local%20V_1_0_0.md)
+
+Requisitos, PostgreSQL, variables de entorno, backend, frontend web/móvil y problemas típicos.
+
+## [Sprint 1 · Guía para IA](Sprint%201/02%20Guía%20para%20IA%20V_1_0_0.md)
+
+Contrato sagrado frontend↔backend, checklist de módulos, validaciones espejadas, comandos y prohibiciones.
+
+### [Sprint 2](Sprint%202/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+
+## 1. Datos de la iteración
+## 2. Sprint Goal (objetivo de la iteración)
+## 3. Historias de Usuario completadas en este Sprint
+## 4. Demostración del trabajo completado
+## 5. Estado por componente
+
+## [Sprint 2 · Registro de Impedimentos](Sprint%202/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+
+## 1. Resumen
+## 2. Tabla de impedimentos
+## 3. Estado de resolución
+## 4. Control de versiones
+## 5. Referencia
+
+## [Sprint 2 · Revisión del Sprint](Sprint%202/03%20Revisión%20del%20Sprint%20V_1_0_0.md)
+
+## 1. Datos de la revisión
+## 2. Historias de Usuario completadas en este Sprint
+## 3. Demostración del trabajo completado
+## 4. Pendientes
+## 5. Control de versiones
+
+## [Sprint 2 · Retrospectiva del Sprint](Sprint%202/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+
+## 1. Datos de la retrospectiva
+## 2. ¿Qué aprendimos?
+## 3. ¿Qué estamos haciendo bien?
+## 4. ¿Qué podemos hacer mejor?
+## 5. Acciones a realizar
+
+## [Sprint 2 · Justificación de la estructura del código](Sprint%202/05%20Justificación%20de%20la%20estructura%20del%20código%20V_1_0_0.md)
+
+## 1. Objetivo
+## 2. Contexto: estructura actual del repositorio
+## 3. Decisión
+## 4. Fundamentos técnicos
+## 5. Comparativa de alternativas
+
+### [Sprint 3](Sprint%203/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md)
+
+Mapa geográfico real, metaheurística SA, filtros de identidad por rol y pendientes confirmados.
+
+## [Sprint 3 · Mejoras UIUX frontend](Sprint%203/07%20Mejoras%20UIUX%20frontend%20V_1_0_0.md)
+
+Diagnóstico UI/UX, cambios por hallazgo, archivos y verificación con la skill frontend-uiux.
+
+## [Sprint 3 · Rediseño integral UIUX Pro Max](Sprint%203/08%20Rediseño%20integral%20UIUX%20Pro%20Max%20V_1_0_0.md)
+
+Dirección de diseño Minimalism/Swiss, mapas, roles, archivos y resultados de validación.
+
+## [Sprint 3 · Reoptimizacion incremental EN002](Sprint%203/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md)
 
 Contrato de eventos, idempotencia, progreso de rutas, avisos, migración, presupuesto de ejecución y validación de EN-002 / US-006.
 
-## [10 Trazado vial OSRM V_1_0_0](03%20Implementación/10%20Trazado%20vial%20OSRM%20V_1_0_0.md)
+## [Sprint 3 · Trazado vial OSRM](Sprint%203/10%20Trazado%20vial%20OSRM%20V_1_0_0.md)
 
 Geometría por calles, estados de fallback, configuración Docker, pruebas y límites de las métricas viales.
 
-## [11 Configuracion usuarios y roles V_1_0_0](03%20Implementación/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md)
+## [Sprint 3 · Configuracion usuarios y roles](Sprint%203/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md)
 
 Acceso a Configuración, gestión de cuentas, catálogo de roles, revocación de sesiones, migración 06 y resultados de validación.
+
+## [Sprint 3 · Vinculacion conductor por DNI](Sprint%203/12%20Vinculacion%20conductor%20por%20DNI%20V_1_0_0.md)
+
+Vinculación de cuenta CONDUCTOR y perfil operativo mediante DNI; migración 07 y reglas de identidad.
+
+## [Sprint 3 · Informe de estado del Sprint 3](Sprint%203/13%20Informe%20de%20estado%20del%20proyecto%20Sprint%203%20V_1_0_0.md)
+
+## 1. Datos de la iteración
+## 2. Sprint Goal
+## 3. Historias completadas (US-004/006/009/010, EN-002/007/008/009)
+## 4. Demostración del trabajo completado
+## 5. Estado por componente
+## 6. Métricas y evidencias de calidad
+## 7. Impedimentos y riesgos
+## 8. Pendientes externos
+
+## [Sprint 3 · Revisión del Sprint 3](Sprint%203/14%20Revisión%20del%20Sprint%203%20V_1_0_0.md)
+
+## 1. Datos de la revisión
+## 2. Historias de Usuario completadas en este Sprint
+## 3. Demostración del trabajo completado
+## 4. Pendientes
+## 5. Control de versiones
+
+## [Sprint 3 · Retrospectiva del Sprint 3](Sprint%203/15%20Retrospectiva%20del%20Sprint%203%20V_1_0_0.md)
+
+## 1. Datos de la retrospectiva
+## 2. ¿Qué aprendimos?
+## 3. ¿Qué estamos haciendo bien?
+## 4. ¿Qué podemos hacer mejor?
+## 5. Acciones a realizar (A-13 a A-16)
+
+## [Sprint 3 · Registro de Impedimentos del Sprint 3](Sprint%203/16%20Registro%20de%20Impedimentos%20Sprint%203%20V_1_0_0.md)
+
+## 1. Resumen
+## 2. Tabla de impedimentos (IMP-08 a IMP-10)
+## 3. Estado de resolución
+## 4. Limitaciones de alcance
+## 5. Control de versiones
+
+## [Sprint 3 · Manual de usuario](Sprint%203/17%20Manual%20de%20usuario%20V_1_0_0.md)
+
+Acceso por rol, operación diaria, modo conductor, módulo de clientes y preguntas frecuentes (EN-009).
+
+## [Sprint 3 · Manual de administrador](Sprint%203/18%20Manual%20de%20administrador%20V_1_0_0.md)
+
+Arquitectura, variables, usuarios y roles, migraciones V1–V9, endpoints nuevos, calidad, seguridad y despliegue (EN-009).
+
+## [Sprint 3 · Análisis del contexto logístico de Huancayo](Sprint%203/19%20Análisis%20del%20contexto%20log%C3%ADstico%20de%20Huancayo%20V_1_0_0.md)
+
+Contexto operativo de UGEL Huancayo, modelado en la plataforma y límites conocidos (EN-009).
+
 

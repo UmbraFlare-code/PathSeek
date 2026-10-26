@@ -25,6 +25,8 @@ temp/
 *.bak
 *.swp
 *~
+__pycache__/
+*.pyc
 
 # --- Sistema operativo ---
 .DS_Store
