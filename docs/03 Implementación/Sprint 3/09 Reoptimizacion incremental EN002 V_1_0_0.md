@@ -99,7 +99,7 @@ El consumidor de eventos u operador debe invocar explícitamente `/reoptimizar`;
 | `POST /averias/{vehiculoId}` | ADMIN/OPERADOR registra avería física sin exigir recálculo factible; devuelve 204 |
 | `POST /averias/{vehiculoId}/resolver` | ADMIN/OPERADOR rehabilita el vehículo; devuelve 204 |
 
-Los avisos sobreviven reinicios y se crean en la misma transacción que el cambio de ruta. Son una bandeja de consulta HTTP: falta integrar su consulta en Flutter o un transporte push. Su persistencia no demuestra que el conductor los haya recibido. Registrar la avería física por separado permite excluir el vehículo aunque no exista un sustituto factible. El generador global también excluye los vehículos con avería activa.
+Los avisos sobreviven reinicios y se crean en la misma transacción que el cambio de ruta. La consulta ya está integrada en Flutter: bandeja `/notifications` con badge de no leídos y marcado de leído por el conductor; falta un transporte push. Su persistencia no demuestra que el conductor los haya recibido. Registrar la avería física por separado permite excluir el vehículo aunque no exista un sustituto factible. El generador global también excluye los vehículos con avería activa.
 
 ## Integridad y presupuesto de ejecución
 
@@ -122,7 +122,7 @@ El log `reoptimization` mide el servicio y su flush; `reoptimization_http` inclu
 
 ## Instalación y Docker
 
-La migración aditiva es `database/05_incremental_reoptimization.sql`: crea eventos idempotentes, incidentes, averías, progreso y avisos. No elimina datos. En una base nueva, Compose ejecuta los scripts 01–05 automáticamente. En un volumen existente se debe aplicar 05 **antes** de iniciar el backend actualizado, porque JPA valida el esquema y Flyway sigue desactivado.
+La migración aditiva es `database/05_incremental_reoptimization.sql`: crea eventos idempotentes, incidentes, averías, progreso y avisos. No elimina datos. En una base nueva, Compose ejecuta los scripts 01–05 automáticamente. **Actualización:** Flyway está activo (`flyway.enabled: true`) y aplica las migraciones automáticamente; el procedimiento manual siguiente queda como histórico para volúmenes gestionados sin Flyway.
 
 Desde la raíz del repositorio, con Docker Desktop iniciado y el servicio PostgreSQL disponible:
 

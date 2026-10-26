@@ -1,4 +1,4 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Revisión del Sprint 3
 
@@ -7,7 +7,7 @@
 **Líder del Proyecto:** Francis Maxuel Urquizo Ore
 
 Proyecto: PathSeek
-Código del documento: DOC-026
+Código del documento: DOC-031
 Versión: V_1_0_0
 Fecha: 2026-10-25
 
@@ -21,7 +21,7 @@ Fecha: 2026-10-25
 | **Fecha de la revisión** | 2026-10-25 |
 | **Modalidad** | Reunión de revisión formal (Sprint Review) |
 | **Participantes** | Equipo de Desarrollo PIPRE y supervisor académico (Ing. Daniel Gamarra) |
-| **Story Points completados** | 26 / 26 SP (100 %) |
+| **Story Points completados** | 31 / 31 SP (100 %) |
 | **Entorno de demostración** | Docker Compose local (PostgreSQL 16, Spring Boot 4.1.1, Flutter Web) |
 
 ---
@@ -62,7 +62,7 @@ Fecha: 2026-10-25
 ### EN-009 · Documentación y API (PATHSEEK-19 · 2 SP · Done)
 
 - OpenAPI/Swagger con `@Tag`/`@Operation` en todas las áreas.
-- Manuales de usuario y administrador + análisis del contexto logístico de Huancayo en `docs/Sprint 3/`.
+- Manuales de usuario y administrador + análisis del contexto logístico de Huancayo en `docs/03 Implementación/Sprint 3/`.
 
 ---
 
@@ -76,7 +76,7 @@ Fecha: 2026-10-25
 | 4 | **Reporte PDF** | Descarga con y sin rango de fechas; rango invertido rechazado |
 | 5 | **Compensación** | Plan con emisiones anuales, árboles y 3 proyectos locales |
 | 6 | **Clientes** | Alta de perfil con horario y restricciones; cliente gestiona su propio perfil |
-| 7 | **Calidad** | 121 pruebas backend + 292 frontend + analyze 0 + build web + imágenes Docker |
+| 7 | **Calidad** | 124 pruebas backend + 292 frontend + analyze 0 + build web + imágenes Docker |
 
 **Resultado de la revisión:** el equipo y el supervisor académico validaron las funcionalidades; la demostración ante el área logística de UGEL Huancayo queda programada junto con la prueba de campo del APK (pendiente externo).
 
@@ -103,6 +103,7 @@ Fecha: 2026-10-25
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-25 | Creación inicial: revisión del Sprint 3. | Equipo PIPRE |
+| V_1_1_0 | 2026-10-25 | Corrección de Story Points (31/31) y conteo de pruebas (124 backend). | Equipo PIPRE |
 
 ---
 
@@ -111,4 +112,4 @@ Fecha: 2026-10-25
 - **Informe de estado:** `13 Informe de estado del proyecto Sprint 3 V_1_0_0.md`.
 - **Impedimentos:** `16 Registro de Impedimentos Sprint 3 V_1_0_0.md`.
 - **Retrospectiva:** `15 Retrospectiva del Sprint 3 V_1_0_0.md`.
-- **Continuidad técnica:** `docs/Sprint 3/09 Reoptimizacion incremental EN002 V_1_0_0.md` y `docs/Sprint 3/10 Trazado vial OSRM V_1_0_0.md`.
+- **Continuidad técnica:** `docs/03 Implementación/Sprint 3/09 Reoptimizacion incremental EN002 V_1_0_0.md` y `docs/03 Implementación/Sprint 3/10 Trazado vial OSRM V_1_0_0.md`.

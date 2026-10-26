@@ -1,8 +1,8 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Manual de Usuario — PathSeek V_1_0_0
 
-**Proyecto:** PathSeek · **Fecha:** 2026-10-25 · **Responsable:** Equipo PIPRE
+**Proyecto:** PathSeek · **Código del documento:** DOC-034 · **Fecha:** 2026-10-25 · **Responsable:** Equipo PIPRE
 
 Plataforma de optimización de rutas sostenibles para **UGEL Huancayo**.
 
@@ -13,8 +13,8 @@ Plataforma de optimización de rutas sostenibles para **UGEL Huancayo**.
 | Perfil | Módulos disponibles |
 | --- | --- |
 | **ADMIN** | Resumen, Flota, Conductores, Pedidos, Clientes, Rutas, Reportes, Compensación, Configuración |
-| **OPERADOR** | Resumen, Flota, Conductores, Pedidos, Clientes, Rutas, Reportes, Compensación |
-| **AUDITOR** | Consulta de todo lo anterior, sin crear, editar ni eliminar |
+| **OPERADOR** | Resumen, Flota, Conductores, Pedidos, Clientes, Rutas, Reportes, Compensación, Configuración (solo consulta de roles) |
+| **AUDITOR** | Consulta de todo lo anterior, sin crear, editar ni eliminar; Configuración solo con consulta de roles |
 | **CONDUCTOR** | Resumen, Rutas propias y Avisos de rutas |
 | **CLIENTE** | Pedidos propios y su perfil en Clientes |
 

@@ -8,7 +8,7 @@ El repositorio ya contiene autenticación JWT rotativa, CRUD de vehículos/condu
 
 Se mantuvo la arquitectura Cliente-Servidor y las carpetas raíz `backend`, `frontend`, `database`; Spring Boot 4.1.1/Java 17, JPA y PostgreSQL; Flutter con BLoC, repositorios y Dio. Se reutilizaron DTOs, autenticación y servicios existentes. ADR-07 prevalece sobre el Node/Express revocado; ADR-05 determina flutter_map/OSM.
 
-Los 24 Markdown originales de docs se inventariaron por tema en [DOCUMENTATION_INDEX.md](../DOCUMENTATION_INDEX.md). Los criterios funcionales se contrastaron con DOC-006, DOC-007, DOC-008, DOC-009, C4/ADR y el backlog, además de los informes de cierre. No se modifican retrospectivamente las actas de cierre.
+Los 24 Markdown originales de docs se inventariaron por tema en [DOCUMENTATION_INDEX.md](../../DOCUMENTATION_INDEX.md). Los criterios funcionales se contrastaron con DOC-006, DOC-007, DOC-008, DOC-009, C4/ADR y el backlog, además de los informes de cierre. No se modifican retrospectivamente las actas de cierre.
 
 ## 2. Sprint y discrepancias documentales
 
@@ -74,7 +74,7 @@ No se han reconstruido contenedores ni actualizado una base persistente para est
 
 Validar con producto un proveedor de rutas/tráfico y el modelo de jornadas. Completar US-004 para vincular clientes sin perder sus datos históricos. Continuar US-006 antes de declarar reoptimización terminada. Mantener fuera las restricciones por placa hasta nueva instrucción.
 
-Para ver los cambios locales se deben reconstruir las imágenes. Si todavía no se aplicaron las correcciones SQL de la revisión anterior, seguir primero [CODE_REVIEW.md](../../CODE_REVIEW.md); conservar el volumen y no usar `down -v`.
+Para ver los cambios locales se deben reconstruir las imágenes. Si todavía no se aplicaron las correcciones SQL de la revisión anterior, seguir primero [CODE_REVIEW.md](../../../CODE_REVIEW.md); conservar el volumen y no usar `down -v`.
 
 ```powershell
 docker compose up --build -d

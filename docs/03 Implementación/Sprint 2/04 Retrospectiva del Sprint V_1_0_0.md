@@ -1,4 +1,4 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Reprospectiva del sprint
 
@@ -7,7 +7,7 @@
 **Líder del Proyecto:** Francis Maxuel Urquizo Ore
 
 Proyecto: PathSeek  
-Código del documento: DOC-023  
+Código del documento: DOC-028  
 Versión: V_1_0_0  
 Fecha: 2026-10-06  
 

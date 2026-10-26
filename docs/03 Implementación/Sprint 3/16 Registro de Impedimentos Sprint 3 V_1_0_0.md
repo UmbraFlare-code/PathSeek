@@ -1,4 +1,4 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Registro de Impedimentos — Sprint 3
 
@@ -7,7 +7,7 @@
 **Líder del Proyecto:** Francis Maxuel Urquizo Ore
 
 Proyecto: PathSeek
-Código del documento: DOC-028
+Código del documento: DOC-033
 Versión: V_1_0_0
 Fecha: 2026-10-25
 

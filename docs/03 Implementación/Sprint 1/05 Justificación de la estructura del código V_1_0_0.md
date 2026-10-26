@@ -1,4 +1,4 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Justificación técnica de la organización del código fuente
 
@@ -37,7 +37,7 @@ PathSeek/
 │   ├── pubspec.yaml
 │   └── .gitignore
 ├── database/           # Esquema, triggers, procedimientos almacenados y datos semilla
-├── docs/               # Documentación por fases (01 Inicio, 02 Planificación, 03 Implementación)
+├── docs/               # Documentación por fases (01 Inicio, 02 Planificación, 03 Implementación con Sprint 1–3)
 ├── .gitignore          # Reglas globales del repositorio
 └── README.md
 ```

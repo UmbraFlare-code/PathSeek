@@ -1,8 +1,8 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Análisis del contexto logístico de Huancayo V_1_0_0
 
-**Proyecto:** PathSeek · **Fecha:** 2026-10-25 · **Responsable:** Equipo PIPRE
+**Proyecto:** PathSeek · **Código del documento:** DOC-036 · **Fecha:** 2026-10-25 · **Responsable:** Equipo PIPRE
 
 Contexto operativo de la distribución de UGEL Huancayo y su modelado en la plataforma (EN-009).
 

@@ -16,7 +16,7 @@ HTTP/JSON. Arquitectura Cliente-Servidor (ver ADR-06 y ADR-07 en DOC-012).
 | --- | --- | --- |
 | Backend (API REST) | Java 17 + Spring Boot 4.1 + PostgreSQL + Flyway | `backend/` |
 | Frontend (web + móvil) | Flutter/Dart (BLoC, go_router, dio, get_it) | `frontend/` |
-| Documentación | Markdown + Mermaid en `docs/` | `docs/01 Inicio/`, `docs/02 Planificación/`, `docs/03 Documentación/` |
+| Documentación | Markdown + Mermaid en `docs/` | `docs/01 Inicio/`, `docs/02 Planificación/`, `docs/03 Implementación/` (Sprint 1–3) |
 
 Estado MVP: autenticación JWT, Vehículos, Conductores y Pedidos (CRUD).
 Pendiente: Clientes, Rutas/Optimizador, Mapa, Dashboard, Reportes.

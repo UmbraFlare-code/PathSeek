@@ -1,4 +1,4 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Retrospectiva del Sprint 3
 
@@ -7,7 +7,7 @@
 **Líder del Proyecto:** Francis Maxuel Urquizo Ore
 
 Proyecto: PathSeek
-Código del documento: DOC-027
+Código del documento: DOC-032
 Versión: V_1_0_0
 Fecha: 2026-10-25
 
@@ -21,7 +21,7 @@ Fecha: 2026-10-25
 | **Fecha de la sesión** | 2026-10-25 |
 | **Facilitador** | Project Manager |
 | **Participantes** | Project Manager, Software Architect, Developers Junior (Backend y Frontend), QA Engineer y UI/UX Designer |
-| **Resultado del Sprint** | 26 / 26 Story Points completados (100 %) |
+| **Resultado del Sprint** | 31 / 31 Story Points completados (100 %) |
 
 ---
 
@@ -36,8 +36,8 @@ Fecha: 2026-10-25
 
 ## 3. ¿Qué estamos haciendo bien?
 
-- **Cumplimiento estricto del compromiso:** 26/26 SP del sprint y 70/89 SP del backlog (78.7 %).
-- **Pruebas por módulo desde el inicio:** 121 pruebas backend y 292 frontend, con cobertura de los flujos nuevos (clientes, reportes, compensación, ejecución, offline).
+- **Cumplimiento estricto del compromiso:** 31/31 SP del sprint y 75/89 SP del backlog (84.3 %).
+- **Pruebas por módulo desde el inicio:** 124 pruebas backend y 292 frontend, con cobertura de los flujos nuevos (clientes, reportes, compensación, ejecución, offline).
 - **Trazabilidad documental:** cada entrega técnica registra alcance, límites y validación (docs 06–12 y 13–19), sin declarar Done lo que no se verificó.
 - **CI por componente:** workflow de frontend (analyze + test) y extensión del workflow de backend con las suites nuevas y las migraciones 08/09.
 

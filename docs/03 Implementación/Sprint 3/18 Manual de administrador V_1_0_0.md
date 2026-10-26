@@ -1,8 +1,8 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Manual de Administrador — PathSeek V_1_0_0
 
-**Proyecto:** PathSeek · **Fecha:** 2026-10-25 · **Responsable:** Equipo PIPRE
+**Proyecto:** PathSeek · **Código del documento:** DOC-035 · **Fecha:** 2026-10-25 · **Responsable:** Equipo PIPRE
 
 Guía operativa y técnica para administrar la plataforma (EN-009).
 
@@ -12,7 +12,7 @@ Guía operativa y técnica para administrar la plataforma (EN-009).
 
 - **Backend:** Java 17 + Spring Boot 4.1.1, API REST en `/api/v1`, Swagger en `/swagger-ui.html`.
 - **Frontend:** Flutter (web + APK Android).
-- **Base de datos:** PostgreSQL 16, migraciones Flyway (`backend/src/main/resources/db/migration/`, V1–V9). Flyway se ejecuta automáticamente al iniciar el backend; no requiere pasos manuales en bases nuevas ni existentes.
+- **Base de datos:** PostgreSQL 16, migraciones Flyway (`backend/src/main/resources/db/migration/`, V1–V3 y V5–V9). Flyway se ejecuta automáticamente al iniciar el backend; no requiere pasos manuales en bases nuevas ni existentes.
 - **Despliegue:** Docker Compose (local: `docker-compose.yml`; producción: `docker-compose.prod.yml` en la VPS).
 
 ---
@@ -39,7 +39,7 @@ No subas `.env` al repositorio; usa `.env.example` como plantilla.
 - **Configuración → Usuarios:** crear/editar cuentas, asignar rol (`ADMIN`, `OPERADOR`, `CONDUCTOR`, `CLIENTE`, `AUDITOR`) y activar/desactivar.
 - Cambiar correo, rol o estado revoca las sesiones de esa cuenta (JWT `ver` + refresh).
 - Siempre queda al menos un ADMIN activo; la cuenta actual no puede desactivarse ni cambiarse el rol a sí misma.
-- Los conductores se vinculan por DNI (migración 07); los clientes por `usuario_id` (migración 09).
+- Los conductores se vinculan por DNI (migración 07); los clientes por `usuario_id` (esquema inicial V1) y sus preferencias de entrega viven en la migración 09.
 
 ---
 
@@ -47,7 +47,7 @@ No subas `.env` al repositorio; usa `.env.example` como plantilla.
 
 | Migración | Contenido |
 | --- | --- |
-| V1–V4 | Esquema base, triggers y procedimientos |
+| V1–V3 | Esquema base, triggers y procedimientos (V4 reservada, no se ejecuta) |
 | V5 | Reoptimización: eventos, incidentes, averías, progreso y avisos |
 | V6 | Administración de usuarios (`token_version`) |
 | V7 | Vinculación conductor por DNI |
@@ -89,7 +89,7 @@ flutter test
 flutter build web --release
 ```
 
-- **CI:** `reoptimization-check.yml` (backend H2 + PostgreSQL) y `frontend-checks.yml` (analyze + test) se ejecutan en PRs por ruta.
+- **CI:** `reoptimization-check.yml` (backend H2 + PostgreSQL) y `frontend-checks.yml` (analyze + test) se ejecutan en PRs y pushes que afectan las rutas de archivos correspondientes.
 - **Carga opt-in:** `PATHSEEK_LOAD_TEST=true` habilita la prueba 1000/50 (EN-005).
 
 ---

@@ -1,4 +1,4 @@
-[← Volver al README Principal](../../README.md)
+[← Volver al README Principal](../../../README.md)
 
 # Informe de estado del proyecto
 
@@ -7,7 +7,7 @@
 **Líder del Proyecto:** Francis Maxuel Urquizo Ore
 
 Proyecto: PathSeek  
-Código del documento: DOC-020  
+Código del documento: DOC-025  
 Versión: V_1_0_0  
 Fecha: 2026-10-06  
 
