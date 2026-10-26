@@ -273,6 +273,13 @@ class _QuickAccess extends StatelessWidget {
           icon: Icons.inventory_2_outlined,
           onTap: (context) => context.go('/orders'),
         ),
+      if (AppPermissions.canView(user, AppModule.clients))
+        _QuickCard(
+          title: 'Clientes y preferencias',
+          description: 'Horarios de atención, restricciones y perfiles de entrega.',
+          icon: Icons.storefront_outlined,
+          onTap: (context) => context.go('/clients'),
+        ),
       if (AppPermissions.canView(user, AppModule.routes))
         _QuickCard(
           title: 'Rutas de distribución',

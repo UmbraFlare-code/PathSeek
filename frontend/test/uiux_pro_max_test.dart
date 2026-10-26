@@ -114,8 +114,8 @@ void main() {
       sdk = sdk.parent;
     }
     for (final entry in {
-      'Roboto': 'roboto-regular.ttf',
-      'MaterialIcons': 'materialicons-regular.otf',
+      'Roboto': 'Roboto-Regular.ttf',
+      'MaterialIcons': 'MaterialIcons-Regular.otf',
     }.entries) {
       final font = FontLoader(entry.key)
         ..addFont(

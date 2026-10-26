@@ -74,6 +74,13 @@ class _OrderListViewState extends State<OrderListView> {
               icon: const Icon(Icons.refresh),
               label: const Text('Actualizar'),
             ),
+            if (user?.rol == 'CLIENTE' &&
+                AppPermissions.canView(user, AppModule.clients))
+              OutlinedButton.icon(
+                onPressed: () => context.go('/clients'),
+                icon: const Icon(Icons.storefront_outlined),
+                label: const Text('Mis preferencias'),
+              ),
             if (canCreate)
               FilledButton.icon(
                 onPressed: () => context.go('/orders/new'),

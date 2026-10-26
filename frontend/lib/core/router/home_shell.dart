@@ -459,9 +459,9 @@ List<_Destination> _destinationsFor(AppUser? user) => [
       Icons.inventory_2,
     ),
   if (AppPermissions.canView(user, AppModule.clients))
-    const _Destination(
+    _Destination(
       '/clients',
-      'Clientes',
+      user?.rol == 'CLIENTE' ? 'Mis preferencias' : 'Clientes',
       Icons.storefront_outlined,
       Icons.storefront,
     ),
