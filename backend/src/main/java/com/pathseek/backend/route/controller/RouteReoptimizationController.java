@@ -6,6 +6,7 @@ import com.pathseek.backend.route.service.*;
 import com.pathseek.backend.route.repository.RoadIncidentRepository;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/rutas")
+@Tag(name = "Reoptimización de rutas", description = "Reoptimización incremental, avisos e incidentes viales")
 public class RouteReoptimizationController {
     private final RouteReoptimizationService service;
     private final RouteEventInboxService inbox;

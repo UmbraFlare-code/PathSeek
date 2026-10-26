@@ -3,6 +3,8 @@ package com.pathseek.backend.user.controller;
 import com.pathseek.backend.user.dto.*;
 import com.pathseek.backend.user.entity.UserRole;
 import com.pathseek.backend.user.service.UserAdministrationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +13,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Usuarios y Configuración", description = "Administración de cuentas y catálogo de roles (EN-003)")
 public class UserAdministrationController {
     private final UserAdministrationService service;
     public UserAdministrationController(UserAdministrationService service) { this.service = service; }
 
     @GetMapping("/usuarios")
+    @Operation(summary = "Lista cuentas de usuario", description = "Paginado con búsqueda por nombre/correo y filtros por rol y estado; solo ADMIN")
     public UserPageResponse list(@RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "20") int tamano, @RequestParam(required = false) String buscar,
             @RequestParam(required = false) UserRole rol, @RequestParam(required = false) Boolean activo) {
@@ -24,14 +28,17 @@ public class UserAdministrationController {
 
     @PostMapping("/usuarios")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Crea una cuenta de usuario")
     public UserResponse create(@Valid @RequestBody CreateUserRequest request) { return service.create(request); }
 
     @PutMapping("/usuarios/{id}")
+    @Operation(summary = "Edita nombre, correo, rol o estado de una cuenta")
     public UserResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
         return service.update(id, request);
     }
 
     @GetMapping("/configuracion/roles")
+    @Operation(summary = "Consulta el catálogo de roles y capacidades implementadas")
     public List<RoleResponse> roles() {
         // Catalog of currently implemented capabilities; target-only roadmap features are not advertised.
         return List.of(
