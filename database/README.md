@@ -82,4 +82,4 @@ Abre una ventana de script SQL conectada a la base de datos `pathseek` y ejecuta
 ## 🛠️ Notas de Integración con Spring Boot
 
 - Hibernate está configurado con `ddl-auto: validate`. Asegúrate de que las entidades JPA coincidan exactamente con la estructura de las tablas.
-- Para llamar a los procedimientos almacenados desde JPA, revisa la guía adjunta [PENDIENTES_BACKEND.md](file:///home/umbraflare/PathSeek/database/PENDIENTES_BACKEND.md).
+- Para llamar a los procedimientos almacenados desde JPA, revisa la guía adjunta [PENDIENTES_BACKEND.md](PENDIENTES_BACKEND.md).

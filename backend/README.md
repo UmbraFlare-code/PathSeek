@@ -116,15 +116,15 @@ Las pruebas H2 en memoria mantienen Flyway desactivado y Hibernate crea su esque
 
 ## Reoptimización incremental
 
-Para la visualización por calles, consulta la [integración OSRM y configuración Docker](../docs/Sprint%203/10%20Trazado%20vial%20OSRM%20V_1_0_0.md). La geometría vial conserva la secuencia operativa y expone métricas separadas de las estimaciones del optimizador.
+Para la visualización por calles, consulta la [integración OSRM y configuración Docker](../docs/03%20Implementaci%C3%B3n/Sprint%203/10%20Trazado%20vial%20OSRM%20V_1_0_0.md). La geometría vial conserva la secuencia operativa y expone métricas separadas de las estimaciones del optimizador.
 
 `POST /api/v1/rutas/reoptimizar` permite a ADMIN/OPERADOR procesar nuevos pedidos, cancelaciones, incidentes y averías sin regenerar todas las rutas. Incluye idempotencia por `evento_id`, presupuesto de cálculo, preservación de entregas realizadas y bandeja persistente de avisos.
 
-La migración de reoptimización se aplica automáticamente al iniciar el backend. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/Sprint%203/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
+La migración de reoptimización se aplica automáticamente al iniciar el backend. Consulta el [contrato, ejemplos, límites, instrucciones Docker y validación de EN-002](../docs/03%20Implementaci%C3%B3n/Sprint%203/09%20Reoptimizacion%20incremental%20EN002%20V_1_0_0.md). La distancia continúa siendo estimada, sin red vial; el SLA operativo requiere medición en staging.
 
 ## Configuración y usuarios
 
-La nueva sección `/settings` permite a ADMIN crear y editar cuentas, asignar roles y activar/desactivar acceso. OPERADOR/AUDITOR pueden consultar únicamente el catálogo de roles. El backend aplica automáticamente las migraciones de usuarios y DNI al iniciar. Consulta el [contrato, permisos y pasos Docker](../docs/Sprint%203/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md).
+La nueva sección `/settings` permite a ADMIN crear y editar cuentas, asignar roles y activar/desactivar acceso. OPERADOR/AUDITOR pueden consultar únicamente el catálogo de roles. El backend aplica automáticamente las migraciones de usuarios y DNI al iniciar. Consulta el [contrato, permisos y pasos Docker](../docs/03%20Implementaci%C3%B3n/Sprint%203/11%20Configuracion%20usuarios%20y%20roles%20V_1_0_0.md).
 
 ## Arquitectura
 
