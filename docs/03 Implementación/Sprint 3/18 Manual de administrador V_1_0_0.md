@@ -6,6 +6,10 @@
 
 Guía operativa y técnica para administrar la plataforma (EN-009).
 
+Versión efectiva: V_1_1_0 (2026-10-27). El [corte QA](../Sprint%203/03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md)
+documenta cobertura, límites de Sonar y las dos incidencias; los resultados históricos de despliegue
+no acreditan este árbol local. No se ejecutó despliegue ni migración durante el cierre documental.
+
 ---
 
 ## 1. Arquitectura
@@ -99,7 +103,7 @@ flutter build web --release
 - JWT stateless con validación de firma, rol, estado y versión de sesión en cada petición.
 - RBAC por rol en el servidor; la UI nunca es la única barrera.
 - Triggers registran cambios en `auditoria`; no existe aún pantalla de auditoría global (no se anuncia como disponible).
-- No expone hashes, tokens ni stack traces en respuestas HTTP.
+- Las respuestas no deben exponer hashes ni stack traces. Login y refresh sí devuelven los tokens previstos por contrato en JSON; no son cookies autenticadoras ni deben registrarse en logs o evidencias.
 
 ---
 
@@ -117,3 +121,4 @@ flutter build web --release
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-25 | Creación del manual de administrador (EN-009). | Equipo PIPRE |
+| V_1_1_0 | 2026-10-27 | Corrige afirmación sobre tokens en respuestas y enlaza QA; sin cambios de configuración o despliegue. | Auditoría documental QA |

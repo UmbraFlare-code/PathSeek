@@ -4,8 +4,14 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-014
-Versión: V_1_3_0
-Fecha: 2026-09-07 (actualizado 2026-10-25)
+Versión: V_1_5_0
+Fecha: 2026-09-07 (actualizado 2026-10-27)
+
+> **Aclaración QA V_1_5_0:** los estados Done y 75/89 SP del cierre son registros históricos,
+> no aceptación nuevamente verificada. EN-007/008 ya figuran en Sprint 2 y se vuelven a contar
+> en Sprint 3; EN-004 tiene 3 SP en este backlog y 5 SP en el cierre anterior. Se requiere
+> conciliación Jira antes de afirmar velocidad o acumulado definitivo. Consulte la
+> [revisión consolidada y DoD](../03%20Implementaci%C3%B3n/Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md).
 
 ---
 
@@ -610,7 +616,7 @@ Entonces encuentra el manual de usuario, el manual de administrador y el anális
 
 Toda Historia de Usuario y Enabler se considera **"Done"** únicamente si cumple la totalidad de los siguientes criterios de calidad técnica:
 
-1. **Cobertura de pruebas unitarias ≥ 80 %** sobre el código nuevo y modificado (medida con Jest/Jasmine en el pipeline CI).
+1. **Cobertura de pruebas ≥ 80 %** sobre el código nuevo y modificado. Para el stack real se usa JaCoCo/JUnit en Java y cobertura de pruebas Flutter/Dart; Jest/Jasmine no corresponde a estos componentes. La cobertura global disponible no demuestra por sí sola este criterio por cambio ni su ejecución en CI.
 2. **Análisis estático de código sin vulnerabilidades críticas** ni *code smells* bloqueantes (SonarQube / CodeQL integrado al pipeline).
 3. **Revisión de código (Peer Review) aprobada** por al menos un par técnico mediante *Pull Request* en el repositorio Git.
 4. **Despliegue automatizado ejecutable** en el ambiente de Staging / Pruebas (CI/CD con GitHub Actions).
@@ -619,7 +625,7 @@ Toda Historia de Usuario y Enabler se considera **"Done"** únicamente si cumple
 Adicionalmente, para este proyecto:
 
 6. **Criterios de Aceptación verificados** en sintaxis Gherkin y ejecutados (manual o automatizados) con resultado exitoso.
-7. **Estándares transversales aplicados:** accesibilidad WCAG 2.1 AA y seguridad OWASP Top 10 en las vistas y endpoints afectados.
+7. **Estándares transversales aplicados:** el requisito histórico era WCAG 2.1 AA y OWASP Top 10; el cierre académico Sprint 3 evalúa WCAG 2.2 AA y la clasificación oficial OWASP 2025. Su cumplimiento no está certificado: ver los informes consolidados 04 y 05.
 8. **Sin deuda técnica crítica:** los hallazgos bloqueantes de la revisión quedan registrados y resueltos en el mismo Sprint.
 
 ---
@@ -674,6 +680,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 | V_1_2_0 | 2026-10-06 | Sincronización con el cierre del Sprint 2: se registra el estado Done de US-008, US-007, US-005, EN-007/EN-008 y EN-004 (26 SP adicionales, 44 SP acumulados) y despliegue en producción. | Equipo PIPRE |
 | V_1_3_0 | 2026-10-25 | Sincronización con el cierre del Sprint 3: se registra el estado Done de US-004, US-006, US-009, US-010, EN-002, EN-007/EN-008 (offline + bandeja) y EN-009 (26 SP adicionales, 70 SP acumulados, 78.7 % del backlog) con validaciones externas pendientes documentadas. | Equipo PIPRE |
 | V_1_4_0 | 2026-10-25 | Corrección aritmética del cierre del Sprint 3: 31 SP adicionales y 75 SP acumulados (84.3 %), al contar EN-002 y EN-007/EN-008 por separado según el backlog. | Equipo PIPRE |
+| V_1_5_0 | 2026-10-27 | Aclaración de acumulados no ratificados, herramientas reales de cobertura y alcance OWASP/WCAG; no altera Jira ni acepta historias. | Auditoría documental QA |
 
 ---
 

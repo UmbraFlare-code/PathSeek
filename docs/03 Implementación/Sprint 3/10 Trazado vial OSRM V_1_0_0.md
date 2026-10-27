@@ -2,6 +2,11 @@
 
 Fecha: 2026-10-22. Continuidad de RF-004 / US-007. No modifica las actas históricas de sprint.
 
+Versión efectiva: V_1_1_0. Actualización documental: 2026-10-27.
+El [informe QA](../Sprint%203/03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md)
+registra el recorrido lineal que sustituyó la regex y la configuración actual del proveedor;
+correcciones locales pendientes de reanálisis Sonar, sin nuevo cambio de código en este corte.
+
 ### Corrección del decodificador web
 
 La API podía responder `OSRM / OK` y aun así la web mostrar recorrido no disponible. Se reprodujo el error compilando el decodificador a JavaScript: el operador `~` devolvía un entero de 32 bits sin signo para los deltas negativos, a diferencia del comportamiento de la VM de Dart. El control de coordenadas descartaba entonces toda la polilínea. Se sustituye por la operación aritmética equivalente `-(result >> 1) - 1`. La polilínea de referencia pasó de cero a tres puntos en la ejecución JavaScript real, manteniendo coordenadas negativas. Se añade `frontend/tool/verify_polyline_web.dart` para evitar que la validación dependa únicamente de pruebas nativas:
@@ -29,9 +34,11 @@ Referencia: [API oficial OSRM](https://project-osrm.org/docs/v5.24.0/api/#route-
 | Variable | Valor |
 | --- | --- |
 | `ROUTING_ENABLED` | `false` por defecto en Spring; `true` por defecto en Compose |
-| `ROUTING_BASE_URL` | `https://router.project-osrm.org` |
+| `ROUTING_BASE_URL` | Sin valor por defecto en backend; Compose conserva fallback público hasta configuración explícita. |
 
-Para desarrollo nativo, añadir `ROUTING_ENABLED=true` al `backend/.env` leído por el lanzador. En Compose se pueden sobrescribir ambas variables en el `.env` raíz. Usar una instancia OSRM propia o un proveedor contratado para una instalación operativa; el servidor público de demostración no ofrece el SLA de PathSeek. Las coordenadas de las paradas se envían al proveedor configurado; no se envían nombres, direcciones, JWT ni identificadores.
+Para desarrollo nativo, configurar `ROUTING_ENABLED=true` y `ROUTING_BASE_URL` explícitamente en el entorno leído por el lanzador. Sin URL el backend devuelve `SCHEMATIC / PROVIDER_UNAVAILABLE`; no elige un proveedor público. En Compose se pueden sobrescribir ambas variables en el `.env` raíz. El fallback público de Compose no garantiza el SLA. Las coordenadas de las paradas se envían al proveedor configurado; no se envían nombres, direcciones, JWT ni identificadores.
+
+Control de cambios: V_1_1_0, 2026-10-27, actualización del fallback/configuración y enlace a evidencia QA; cifras de verificación más abajo conservadas como antecedentes de 2026-10-22.
 
 Cada instancia del backend admite como máximo una solicitud externa por segundo, sin esperar; mantiene hasta 128 geometrías por cinco minutos, identificadas por coordenadas y secuencia. Una consulta limitada devuelve estado explícito y puede reintentarse al volver a abrir el detalle. La caché es local a cada proceso, no compartida entre réplicas. Hasta 100 puntos por solicitud, conexión de 3 s, respuesta de 8 s y ajuste a la vía limitado a 100 m. No se desactiva TLS ni se usa HTTP como fallback automático.
 

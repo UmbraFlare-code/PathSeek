@@ -8,8 +8,12 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-032
-Versión: V_1_0_0
+Versión: V_1_1_0
 Fecha: 2026-10-25
+
+> **Aclaración QA 2026-10-27:** se conserva el relato histórico; no se acredita aquí una sesión,
+> participantes o compromisos nuevos. La [retrospectiva consolidada](../Sprint%203/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+> contiene acciones propuestas y distingue su ratificación pendiente. Los SP no se vuelven a aceptar.
 
 ---
 
@@ -30,14 +34,14 @@ Fecha: 2026-10-25
 - **Reportes PDF sin infraestructura adicional:** OpenPDF (Java puro) permitió generar el reporte de sostenibilidad dentro del mismo backend, sin servidores de reporting ni nuevas instancias.
 - **La caché offline es best-effort:** un fallo de almacenamiento local nunca debe romper el flujo en línea; se aislaron las escrituras de caché para que no compitan con la API.
 - **Idempotencia como base de la sincronización:** diseñar los endpoints de ejecución (posición y entregas) idempotentes simplificó la cola offline: repetir una acción jamás duplica efectos.
-- **Migraciones aditivas e idempotentes:** `V8`/`V9` se aplican solas con Flyway y pueden repetirse sin riesgo; se evita tocar volúmenes existentes.
+- **Migraciones versionadas:** Flyway registra `V8`/`V9` y aplica cada versión pendiente una vez. La presencia de sentencias idempotentes no autoriza a repetir manualmente toda migración ni demuestra ausencia de riesgo; las pruebas PostgreSQL no se ejecutaron en este corte documental.
 
 ---
 
 ## 3. ¿Qué estamos haciendo bien?
 
 - **Cumplimiento estricto del compromiso:** 31/31 SP del sprint y 75/89 SP del backlog (84.3 %).
-- **Pruebas por módulo desde el inicio:** 124 pruebas backend y 292 frontend, con cobertura de los flujos nuevos (clientes, reportes, compensación, ejecución, offline).
+- **Pruebas por módulo:** el baseline correcto es 121 casos backend totales con tres omitidos; 292 frontend es antecedente documental. El corte QA posterior reúne 131 casos backend, 129 aprobados y dos omitidos. Cantidad de pruebas no equivale a cobertura ni aceptación integral.
 - **Trazabilidad documental:** cada entrega técnica registra alcance, límites y validación (docs 06–12 y 13–19), sin declarar Done lo que no se verificó.
 - **CI por componente:** workflow de frontend (analyze + test) y extensión del workflow de backend con las suites nuevas y las migraciones 08/09.
 
@@ -78,6 +82,7 @@ Fecha: 2026-10-25
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-25 | Creación inicial: retrospectiva del Sprint 3. | Equipo PIPRE |
+| V_1_1_0 | 2026-10-27 | Rectifica conteo y distingue retrospectiva histórica de propuestas QA pendientes de ratificación. | Auditoría documental QA |
 
 ---
 

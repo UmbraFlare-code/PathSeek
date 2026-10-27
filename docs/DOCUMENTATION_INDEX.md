@@ -2,6 +2,23 @@
 
 Revisión temática de todos los Markdown de docs/; requisitos, restricciones, decisiones, sprints y trazabilidad contrastados con el código.
 
+## Entrega canónica Sprint 3 — V_1_0_0, 2026-10-27
+
+La carpeta única `Sprint 3/` reúne entrega y antecedentes por decisión explícita del equipo.
+Su nombre difiere de `Sprint 03` en la consigna; se conserva esta excepción documentada.
+Las actas y cifras históricas deben leerse con las aclaraciones del corte QA.
+
+- [01 Revisión del Sprint y matriz de ocho criterios](03%20Implementaci%C3%B3n/Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md).
+- [02 Retrospectiva del Sprint](03%20Implementaci%C3%B3n/Sprint%203/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md).
+- [03 Calidad de código](03%20Implementaci%C3%B3n/Sprint%203/03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md).
+- [04 OWASP Top 10:2025](03%20Implementaci%C3%B3n/Sprint%203/04%20OWASP%20V_1_0_0.md).
+- [05 WCAG 2.2 AA](03%20Implementaci%C3%B3n/Sprint%203/05%20WCAG%20V_1_0_0.md).
+- [Consigna y rúbrica recibidas](03%20Implementaci%C3%B3n/Sprint%203/evidencias/00%20Consigna%20y%20r%C3%BAbrica%20recibidas.md).
+- [Registro de evidencias D/H/P](03%20Implementaci%C3%B3n/Sprint%203/evidencias/01%20Registro%20de%20evidencias%20QA.md).
+
+La consigna adicional PFA no fue suministrada. Sin asignar conformidad global ni nota académica.
+[Volver al README principal](../README.md).
+
 ## [01. Selección del enfoque del proyecto V_1_0_0](01%20Inicio/01.%20Selección%20del%20enfoque%20del%20proyecto%20V_1_0_0.md)
 
 ## Encabezado de Metadatos

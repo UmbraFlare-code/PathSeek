@@ -8,8 +8,15 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-033
-Versión: V_1_0_0
+Versión: V_1_1_0
 Fecha: 2026-10-25
+
+> **Seguimiento documental 2026-10-27:** «sin bloqueantes» describe el cierre histórico, no
+> disponibilidad actual de evidencias. La API Sonar requiere autenticación (401), la auditoría
+> WCAG dinámica no pudo ejecutarse por limitación del control de navegador y no hay acta nueva
+> de aceptación. Los códigos IMP-08/09/10 también aparecen con otras descripciones en Sprint 2:
+> deben leerse con prefijo de sprint (S2-IMP/S3-IMP), sin fusionar ni dar por resuelto otro evento.
+> Ver [pendientes y matriz QA](../Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md).
 
 ---
 
@@ -53,6 +60,7 @@ La iteración 3 transcurrió sin impedimentos bloqueantes. Se registraron tres h
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-25 | Creación inicial: registro de impedimentos del Sprint 3. | Equipo PIPRE |
+| V_1_1_0 | 2026-10-27 | Separa impedimentos históricos de bloqueos de evidencia actuales y aclara IDs repetidos entre sprints. | Auditoría documental QA |
 
 ---
 

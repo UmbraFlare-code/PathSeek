@@ -8,7 +8,7 @@
 
 Proyecto: PathSeek  
 Código del documento: DOC-027  
-Versión: V_1_0_0  
+Versión: V_1_1_0
 Fecha: 2026-10-06  
 
 ---
@@ -49,7 +49,7 @@ Como operador logístico, se implementó la visualización y exploración de rut
 
 Como conductor y equipo operativo en campo, se optimizó la plataforma para dispositivos móviles:
 
-- Diseño responsivo adaptativo con navegación táctil, menús colapsables y contrastes acordes a estándares WCAG 2.1 AA.
+- Diseño responsivo adaptativo con navegación táctil y menús colapsables. La conformidad WCAG 2.1 AA no quedó acreditada por una auditoría completa; el [corte WCAG Sprint 3](../Sprint%203/05%20WCAG%20V_1_0_0.md) registra mediciones parciales y evaluación de navegador pendiente.
 - Generación automatizada del paquete instalador Android (`pathseek.apk`) en el proceso de construcción de Docker.
 - Acceso y descarga directa del APK desde el menú lateral y la barra superior de la aplicación web (`https://169.58.74.99/downloads/pathseek.apk`).
 
@@ -107,6 +107,7 @@ Demostración a los **stakeholders** de las funcionalidades implementadas durant
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-06 | Creación inicial: revisión del Sprint 2 (Fase 03: Implementación). | Equipo PIPRE |
+| V_1_1_0 | 2026-10-27 | Corrige afirmación de conformidad WCAG no acreditada y enlaza la evaluación Sprint 3. | Auditoría documental QA |
 
 ---
 

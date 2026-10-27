@@ -8,6 +8,32 @@ La [revisión de código y lógica](CODE_REVIEW.md) recoge las correcciones post
 
 El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/Sprint%203/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) documenta la continuidad del Sprint 3 y los límites de integración pendientes.
 
+## Cierre académico del Sprint 3 — corte QA 2026-10-27
+
+La entrega se consolida en `docs/03 Implementación/Sprint 3/` por decisión explícita del equipo,
+que difiere del nombre `Sprint 03` indicado en la consigna. Esta carpeta reúne informes y
+antecedentes técnicos; los informes siguientes
+prevalecen para distinguir implementación, evidencia y aceptación pendiente. La revisión es
+documental: no acredita una nueva demostración ni cumplimiento integral de OWASP/WCAG.
+
+| Informe obligatorio | Alcance verificable |
+| --- | --- |
+| [01 Revisión del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias, DoD, contradicciones, pendientes y matriz de los ocho criterios. |
+| [02 Retrospectiva del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%203/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes y acciones propuestas en cuatro ejes, pendientes de ratificación. |
+| [03 Calidad de código](docs/03%20Implementaci%C3%B3n/Sprint%203/03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md) | Sonar histórico, servidor UP/API 401, JaCoCo y deuda sin métricas inventadas. |
+| [04 OWASP](docs/03%20Implementaci%C3%B3n/Sprint%203/04%20OWASP%20V_1_0_0.md) | Diez categorías oficiales 2025 y hotspots todavía no consultables. |
+| [05 WCAG](docs/03%20Implementaci%C3%B3n/Sprint%203/05%20WCAG%20V_1_0_0.md) | Objetivo 2.2 AA, fuentes/contrastes y auditoría de navegador pendiente. |
+
+[Consigna y rúbrica recibidas](docs/03%20Implementaci%C3%B3n/Sprint%203/evidencias/00%20Consigna%20y%20r%C3%BAbrica%20recibidas.md) ·
+[Registro de evidencias](docs/03%20Implementaci%C3%B3n/Sprint%203/evidencias/01%20Registro%20de%20evidencias%20QA.md) ·
+[Índice documental](docs/DOCUMENTATION_INDEX.md).
+
+El primer Sonar reportado por el usuario dio Gate PASSED, cobertura 85,8 % y duplicación 1,7 %,
+con dos problemas abiertos. Los reportes locales posteriores contienen 131 casos acumulados,
+129 aprobados y dos omitidos, con JaCoCo de líneas 92,41 % y ramas 69,73 %. Son cortes distintos;
+no se afirma que los problemas hayan sido cerrados en Sonar. Las cifras históricas de SP más
+abajo no constituyen una nueva aceptación: EN-007/008 y su posible doble conteo requieren conciliación.
+
 ## Presentación
 
 **PathSeek** es una plataforma web de optimización de rutas de distribución de última milla para **UGEL Huancayo**, institución educativa con operaciones logísticas. El sistema resuelve el Problema de Ruteo de Vehículos con Ventanas de Tiempo (VRPTW) y consideraciones ambientales (Green VRP) mediante metaheurísticas (Algoritmos Genéticos, Búsqueda Tabú, Colonia de Hormigas o Enfriamiento Simulado).
@@ -26,7 +52,7 @@ El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/Sprint%
 | **Duración**               | 14 semanas (4 iteraciones)                          |
 | **Enfoque**                | Híbrido con dominancia ágil (iterativo-incremental) |
 | **Presupuesto**            | S/ 500,000 (MVP) + S/ 120,000 anual operativo       |
-| **Versión documento**      | V_1_4_0                                             |
+| **Versión documento**      | V_1_5_0 (corte documental QA 2026-10-27)              |
 
 ## Índice de documentación
 
