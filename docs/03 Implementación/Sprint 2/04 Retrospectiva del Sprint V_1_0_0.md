@@ -8,7 +8,7 @@
 
 Proyecto: PathSeek  
 Código del documento: DOC-028  
-Versión: V_1_0_0  
+Versión: V_1_1_0
 Fecha: 2026-10-06  
 
 ---
@@ -30,7 +30,7 @@ Fecha: 2026-10-06
 - **Optimización de compilaciones multi-etapa con Docker:** La integración de un `Dockerfile` multi-stage para Flutter permitió compilar la versión Web y al mismo tiempo generar y disponibilizar el paquete instalador Android (`pathseek.apk`), reduciendo drásticamente el tiempo de distribución hacia los usuarios finales.
 - **Configuración desacoplada de seguridad para observabilidad:** Comprendimos la necesidad de excluir explícitamente las rutas de telemetría (`/actuator/**`, `/api/v1/health`) del filtro de autenticación JWT para permitir que los healthchecks de Docker monitoreen la salud del backend sin sobrecargar la capa de seguridad.
 - **Diseño web adaptativo centrado en tarjetas:** La transición hacia un diseño en tarjetas modulares (*Cards View*) mejoró sustancialmente la legibilidad de la información logística tanto en pantallas de escritorio como en smartphones de conductores.
-- **Terminación SSL y seguridad perimetral:** La implementación de Nginx como proxy inverso con redirección permanente 301 garantizó el cumplimiento de los estándares OWASP y el cifrado de datos en tránsito sin afectar el rendimiento.
+- **Terminación SSL y seguridad perimetral:** Nginx y la redirección 301 son controles de transporte; por sí solos no garantizan cumplimiento OWASP ni rendimiento. La [evaluación OWASP Sprint 3](../Sprint%203/04%20OWASP%20V_1_0_0.md) mantiene las diez categorías Bajo Revisión por el alcance de la evidencia.
 
 ---
 
@@ -84,6 +84,7 @@ Fecha: 2026-10-06
 | Versión | Fecha | Descripción | Responsable |
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-06 | Creación inicial: retrospectiva del Sprint 2 (Fase 03: Implementación). | Equipo PIPRE |
+| V_1_1_0 | 2026-10-27 | Corrige inferencia no sustentada de cumplimiento OWASP a partir de HTTPS; conserva el antecedente de la retrospectiva. | Auditoría documental QA |
 
 ---
 

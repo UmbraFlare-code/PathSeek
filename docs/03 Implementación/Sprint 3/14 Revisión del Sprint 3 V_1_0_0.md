@@ -8,8 +8,13 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-031
-Versión: V_1_0_0
+Versión: V_1_2_0
 Fecha: 2026-10-25
+
+> **Aclaración QA 2026-10-27:** reunión, asistentes y validación de esta acta son afirmaciones
+> históricas sin acta firmada/grabación aportada al corte. No se repite esa aceptación como
+> evidencia directa. Los SP requieren conciliación. La [revisión consolidada](../Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+> prevalece para estado de evidencias, DoD y pendientes; no documenta una nueva reunión.
 
 ---
 
@@ -76,9 +81,9 @@ Fecha: 2026-10-25
 | 4 | **Reporte PDF** | Descarga con y sin rango de fechas; rango invertido rechazado |
 | 5 | **Compensación** | Plan con emisiones anuales, árboles y 3 proyectos locales |
 | 6 | **Clientes** | Alta de perfil con horario y restricciones; cliente gestiona su propio perfil |
-| 7 | **Calidad** | 124 pruebas backend + 292 frontend + analyze 0 + build web + imágenes Docker |
+| 7 | **Calidad** | Baseline corregido: 121 casos backend totales, tres omitidos; Flutter/analyze/build/Docker corresponden al antecedente documental. |
 
-**Resultado de la revisión:** el equipo y el supervisor académico validaron las funcionalidades; la demostración ante el área logística de UGEL Huancayo queda programada junto con la prueba de campo del APK (pendiente externo).
+**Resultado histórico declarado:** el documento anterior afirma validación de equipo/supervisor. No se dispone de evidencia independiente de esa aceptación ni de una fecha ratificada para UGEL; la demostración de campo sigue pendiente de coordinación y registro reales.
 
 **Trazabilidad técnica:** los cambios se integraron en la rama `Feature/Sprint3-Cierre` sobre `main`.
 
@@ -104,6 +109,7 @@ Fecha: 2026-10-25
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-25 | Creación inicial: revisión del Sprint 3. | Equipo PIPRE |
 | V_1_1_0 | 2026-10-25 | Corrección de Story Points (31/31) y conteo de pruebas (124 backend). | Equipo PIPRE |
+| V_1_2_0 | 2026-10-27 | Corrige doble conteo de pruebas y distingue afirmaciones de reunión de evidencia directamente disponible. | Auditoría documental QA |
 
 ---
 

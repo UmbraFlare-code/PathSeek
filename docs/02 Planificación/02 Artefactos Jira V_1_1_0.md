@@ -4,8 +4,14 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-015
-Versión: V_1_3_0
-Fecha: 2026-09-07 (actualizado 2026-10-25)
+Versión: V_1_5_0
+Fecha: 2026-09-07 (actualizado 2026-10-27)
+
+> **Aclaración QA V_1_5_0 (2026-10-27):** no se consultó Jira en esta auditoría. Los cierres y
+> SP siguientes son antecedentes, pendientes de conciliar EN-007/008 ya contabilizados y
+> EN-004 con distinta estimación. El conteo de 124 pruebas en el cierre es incorrecto:
+> 121 incluía tres omitidas. El agregado local posterior contiene 131 casos (129 aprobados,
+> dos omitidos). Véase la [revisión consolidada](../03%20Implementaci%C3%B3n/Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md).
 
 ---
 
@@ -170,7 +176,7 @@ El detalle del cierre de la iteración consta en los documentos de `docs/03 Impl
 | **Ítems completados en Sprint 3** | PATHSEEK-8 (US-006), PATHSEEK-9 (EN-002), PATHSEEK-17 (US-004), PATHSEEK-13 (US-009), PATHSEEK-18 (US-010), PATHSEEK-15/16 (EN-007/EN-008) y PATHSEEK-19 (EN-009) |
 | **Story Points acumulados totales** | 75 / 89 SP (84.3 % del backlog general) |
 | **Validaciones externas pendientes** | Encuesta de campo EN-007, auditoría WCAG EN-006, p95 en staging (EN-001/EN-002) |
-| **Calidad** | 124 pruebas backend (121 H2 + 2 PostgreSQL + 1 carga opt-in) · 292 pruebas frontend · analyze 0 · build web e imágenes Docker correctas |
+| **Calidad histórica corregida** | Baseline backend: 121 casos totales, 3 omitidos; 292 Flutter/analyze/build/Docker son antecedentes no reproducidos aquí. Corte posterior: 131 casos acumulados, 129 aprobados, 2 omitidos. |
 | **CI/CD** | Nuevo workflow `frontend-checks.yml`; backend extendido con Sprint3ModulesIntegrationTests y migraciones 08/09 |
 | **Rama de integración** | `Feature/Sprint3-Cierre` (sobre `main`) |
 
@@ -242,6 +248,7 @@ El detalle del cierre consta en `docs/03 Implementación/Sprint 3/` (Informe de 
 | V_1_2_0 | 2026-10-06 | Sincronización con el cierre del Sprint 2: ítems PATHSEEK-10/7/4/15/16/11 marcados como Done, resultado de 26/26 SP (44 SP acumulados) y despliegue en producción. | Equipo PIPRE |
 | V_1_3_0 | 2026-10-25 | Sincronización con el cierre del Sprint 3: ítems PATHSEEK-8/9/13/15/16/17/18/19 marcados como Done, resultado de 26/26 SP (70 SP acumulados, 78.7 % del backlog) y validaciones externas documentadas. | Equipo PIPRE |
 | V_1_4_0 | 2026-10-25 | Corrección aritmética del cierre del Sprint 3: 31/31 SP (EN-002 incluido, EN-007/EN-008 contados por separado), acumulado 75/89 SP (84.3 %) y 124 pruebas backend. | Equipo PIPRE |
+| V_1_5_0 | 2026-10-27 | Rectifica conteo de pruebas y documenta estimaciones/aceptación sin ratificación ni nueva consulta Jira. | Auditoría documental QA |
 
 ---
 

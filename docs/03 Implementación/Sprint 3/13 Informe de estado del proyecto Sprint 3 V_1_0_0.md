@@ -8,8 +8,14 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-030
-Versión: V_1_0_0
+Versión: V_1_2_0
 Fecha: 2026-10-25
+
+> **Revisión documental 2026-10-27:** este informe conserva el cierre declarado, no un acta
+> de aceptación nuevamente verificada. La [revisión canónica](../Sprint%203/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+> distingue implementación de DoD pendiente. Los 31/31 y 75/89 SP requieren conciliación de
+> estimaciones y posible doble conteo EN-007/008. Las demos/Docker/Flutter son antecedentes
+> documentales; la evidencia directa actual se identifica en el informe de calidad.
 
 ---
 
@@ -33,7 +39,7 @@ Fecha: 2026-10-25
 
 > **"Completar la reoptimización dinámica con bandeja de avisos para el conductor, habilitar la operación offline con sincronización, y entregar los módulos de clientes, reportes PDF y compensación de carbono con sus pruebas automatizadas y documentación."**
 
-El objetivo se cumplió en su totalidad funcional; las únicas actividades no ejecutables en este entorno (validación de campo con conductores reales, auditoría WCAG en navegador y medición p95 en staging) quedan registradas como pendientes externos.
+La documentación previa declara implementación funcional del alcance. No acredita cumplimiento total del DoD: faltan validación de campo, auditoría WCAG, p95 en staging y evidencia de aceptación. Esos pendientes no se consideran automáticamente dispensados por ser externos.
 
 ---
 
@@ -48,7 +54,7 @@ El objetivo se cumplió en su totalidad funcional; las únicas actividades no ej
 | PATHSEEK-18 | **US-010** Compensación de Carbono | Story | 3 | **Done** |
 | PATHSEEK-15/16 | **EN-007 / EN-008** Modo Conductor y Offline | Task | 6 | **Done** (encuesta de campo y teselas offline pendientes externas) |
 | PATHSEEK-19 | **EN-009** Documentación y API | Task | 2 | **Done** |
-| — | **EN-001 / EN-005** Benchmarks de generación y carga | Task | — | **Done** (herramientas + artefactos locales) |
+| — | **EN-001 / EN-005** Benchmarks de generación y carga | Task | — | **Parcial**: herramientas locales; no acreditan SLA PostgreSQL ni PostGIS/indexación espacial. |
 | — | Pipeline CI/CD frontend (A-11) | Task | — | **Done** |
 
 **Story Points acumulados:** 44 (Sprint 1–2) + 31 (Sprint 3) = **75 / 89 SP (84.3 % del backlog)**.
@@ -62,7 +68,7 @@ El objetivo se cumplió en su totalidad funcional; las únicas actividades no ej
 - **Clientes (US-004):** CRUD `/api/v1/clientes` con preferencias de entrega (dirección, referencia, teléfono, horario de atención y restricciones de acceso). El cliente gestiona su propio perfil vinculado a su cuenta.
 - **Reportes PDF (US-009):** página `/reports` con rango de fechas y descarga del PDF generado en el backend (resumen del período y detalle por ruta).
 - **Compensación (US-010):** página `/carbon` con emisiones anuales de rutas completadas, árboles equivalentes y proyectos locales con costo estimado.
-- **Calidad y CI:** backend 124 pruebas (121 en H2 por defecto, 2 PostgreSQL y 1 de carga opt-in; incluidas las nuevas de clientes, reportes, compensación y ejecución), 292 pruebas Flutter, `flutter analyze` sin incidencias, build web release e imágenes Docker construidas. Nuevo workflow `frontend-checks.yml` (analyze + test en PRs y pushes que tocan el frontend) y artefacto de benchmark de generación 150/15.
+- **Calidad y CI:** corrección de conteo: el baseline Maven reportaba 121 casos totales con tres omitidos, no 124. El agregado local posterior registra 131 casos, 129 aprobados y dos omitidos. Las 292 pruebas Flutter, analyze y builds son antecedentes no reproducidos en el corte documental. Los workflows existen; su última ejecución no se consultó.
 
 ---
 
@@ -109,7 +115,7 @@ El objetivo se cumplió en su totalidad funcional; las únicas actividades no ej
 | --- | :---: |
 | Story Points del sprint | 31 / 31 (100 %) |
 | Backlog acumulado | 75 / 89 SP (84.3 %) |
-| Pruebas backend | 124 (121 H2 + 2 PostgreSQL + 1 carga opt-in, 0 fallos) |
+| Pruebas backend | Baseline: 121 casos totales, 3 omitidos; corte QA posterior: 131 acumulados, 129 aprobados, 2 omitidos, 0 fallos/errores |
 | Pruebas frontend | 292 (0 fallos) |
 | `flutter analyze` | 0 incidencias |
 | Build web release | Correcto |
@@ -146,6 +152,7 @@ El objetivo se cumplió en su totalidad funcional; las únicas actividades no ej
 | --- | --- | --- | --- |
 | V_1_0_0 | 2026-10-25 | Creación inicial: informe de estado del Sprint 3. | Equipo PIPRE |
 | V_1_1_0 | 2026-10-25 | Corrección de Story Points (31 SP, 75/89) y conteo de pruebas (124 backend); verificación final del cierre. | Equipo PIPRE |
+| V_1_2_0 | 2026-10-27 | Rectifica conteo anterior, limita Done al alcance demostrado y enlaza evidencia QA; SP/aceptación histórica sin ratificación nueva. | Auditoría documental QA |
 
 ## Referencia
 
