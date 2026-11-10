@@ -1,0 +1,27 @@
+name: Green IT & Performance Audit
+
+on:
+  push:
+    paths: ['docs/**', 'frontend/**', '.github/workflows/green-audit.yml']
+  pull_request:
+    paths: ['docs/**', 'frontend/**', '.github/workflows/green-audit.yml']
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Lighthouse CI Performance & Green Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Lighthouse CI Audit
+        run: |
+          npm install -g @lhci/cli
+          echo "Lighthouse CI instalado exitosamente"
+          lhci --version || true

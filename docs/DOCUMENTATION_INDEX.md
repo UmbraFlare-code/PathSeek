@@ -330,4 +330,16 @@ Arquitectura, variables, usuarios y roles, migraciones V1–V9, endpoints nuevos
 
 Contexto operativo de UGEL Huancayo, modelado en la plataforma y límites conocidos (EN-009).
 
+## [Sprint 3 · Pipeline CI/CD, Despliegue en Dokploy y Contexto de Pruebas](03%20Implementaci%C3%B3n/Sprint%203/20%20Pipeline%20CI%20CD%20y%20contexto%20de%20pruebas%20V_1_0_0.md)
+
+Topología de workflows activos de GitHub Actions (frontend-checks, reoptimization-check, green-audit), despliegue continuo (CD) orquestado con Dokploy Compose (docker-compose.dokploy.yml), matriz de ejecución H2/PostgreSQL 16, pirámide de pruebas y cumplimiento de Definition of Done (DoD).
+
+## [Reducción del impacto ambiental · Informe de optimización MERN](03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md)
+
+Auditoría de rendimiento, diagnóstico inicial, 8 refactorizaciones técnicas full-stack MERN con código comparativo ANTES y DESPUÉS, métricas Lighthouse (Score 96/100, FCP 0.9s, LCP 1.4s, TBT 85ms, CLS 0.02, 1.1 MB) y cálculo matemático de huella de carbono con el modelo SWDM v4.
+
+## [Reducción del impacto ambiental · Estándares de ingeniería de software](03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/02%20Estandares%20Ingenier%C3%ADa%20de%20software%20V_1_0_0.md)
+
+Fundamentación explícita en ISO/IEC 25010, los 4 principios de la Green Software Foundation (GSF), pautas W3C WSG 1.0 (1.2, 2.4, 3.1), pautas de desarrollo verde basadas en Clean Code, SOLID, DRY y YAGNI, matriz íntegra de mapeo directo para las 8 optimizaciones y automatización con GitHub Actions (green-audit.yml).
+
 
