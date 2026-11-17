@@ -2,6 +2,17 @@
 
 Revisión temática de todos los Markdown de docs/; requisitos, restricciones, decisiones, sprints y trazabilidad contrastados con el código.
 
+## Entrega canónica Sprint 4 — Inspección 5 (V_1_0_0, 2026-11-16)
+
+La carpeta canónica `docs/03 Implementación/Sprint 4/` (accesible también mediante el symlink `docs/03 Inplementación/Sprint 4/`) consolida el cierre definitivo del proyecto, alcanzando el 100 % de los Story Points del backlog (89/89 SP).
+
+- [01 Revisión del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) — Cierre del backlog, DoD, demo con UGEL Huancayo y pendientes post-MVP.
+- [02 Retrospectiva del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) — Lecciones aprendidas en 4 ejes y acciones SMART A-17 a A-20.
+- [03 Analisis PlayWrigth V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) — Suite E2E multi-navegador con Playwright, métricas Web Vitals, latencia API y resiliencia.
+- [04 Usabilidad V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) — Evaluación psicométrica cuantitativa SUS ($n=6$), cálculo aritmético (score 81.67 "Excelente", Grado A) y mejoras UI/UX.
+
+[Volver al README principal](../README.md).
+
 ## Entrega canónica Sprint 3 — V_1_0_0, 2026-10-27
 
 La carpeta única `Sprint 3/` reúne entrega y antecedentes por decisión explícita del equipo.
@@ -341,5 +352,21 @@ Auditoría de rendimiento, diagnóstico inicial, 8 refactorizaciones técnicas f
 ## [Reducción del impacto ambiental · Estándares de ingeniería de software](03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/02%20Estandares%20Ingenier%C3%ADa%20de%20software%20V_1_0_0.md)
 
 Fundamentación explícita en ISO/IEC 25010, los 4 principios de la Green Software Foundation (GSF), pautas W3C WSG 1.0 (1.2, 2.4, 3.1), pautas de desarrollo verde basadas en Clean Code, SOLID, DRY y YAGNI, matriz íntegra de mapeo directo para las 8 optimizaciones y automatización con GitHub Actions (green-audit.yml).
+
+## [Sprint 4 · Revisión del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+
+Cierre formal de los 89/89 SP del backlog, verificación del Definition of Done (DoD), resumen de la demostración presencial/remota ante stakeholders de UGEL Huancayo en entorno Dokploy y gestión de pendientes técnicos evolutivos.
+
+## [Sprint 4 · Retrospectiva del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+
+Análisis de lecciones técnicas en Flutter Web/Playwright y Dokploy, aciertos de ingeniería, evaluación en 4 ejes (Personas, Relaciones, Procesos, Herramientas) y plan de acción SMART A-17 a A-20 con responsables y métricas.
+
+## [Sprint 4 · Análisis Playwright V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md)
+
+Suite de pruebas automatizadas E2E multi-navegador en Chromium, Firefox y WebKit, código fuente de pruebas críticas, métricas de Core Web Vitals (TTFB 184ms, FCP 1.12s, LCP 1.98s), latencia de endpoints Spring Boot (< 500ms), resiliencia offline y artefactos HTML generados.
+
+## [Sprint 4 · Usabilidad V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md)
+
+Ficha técnica del cuestionario psicométrico System Usability Scale (SUS), muestra representativa $n=6$ usuarios de UGEL Huancayo, cálculo matemático individual y promedio global de 81.67 puntos (Calificación "Excelente", Grado A), superando el benchmark estándar de 68 puntos, junto con matriz de cuellos de botella detectados y resueltos.
 
 

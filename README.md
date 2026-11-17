@@ -2,11 +2,28 @@
 
 **Optimizador de Rutas Sostenibles para UGEL Huancayo**
 
+[![CI Pipeline](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/ci.yml/badge.svg)](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/ci.yml)
+[![Tests Suite](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/tests.yml/badge.svg)](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/tests.yml)
+[![Deploy to Production](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/deploy-production.yml)
+
 Para ejecutar el sistema, consulta la [guía de ejecución local](LOCAL.md). La [revisión de contratos](CONTRACT_REVIEW.md) describe las correcciones de integración y sus límites.
 
 La [revisión de código y lógica](CODE_REVIEW.md) recoge las correcciones posteriores, pruebas y pendientes confirmados.
 
 El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/Sprint%203/06%20Continuidad%20mapa%20rutas%20y%20permisos%20V_1_0_0.md) documenta la continuidad del Sprint 3 y los límites de integración pendientes.
+
+## Cierre académico del Sprint 4 — Inspección 5 (2026-11-16)
+
+La entrega final del **Sprint 4** se consolida en la carpeta [docs/03 Implementación/Sprint 4/](docs/03%20Implementaci%C3%B3n/Sprint%204/) (accesible también como [docs/03 Inplementación/Sprint 4/](docs/03%20Inplementaci%C3%B3n/Sprint%204/) vía enlace simbólico institucional). Comprende el 100 % del alcance del backlog (**89/89 Story Points**), suite E2E automatizada con Playwright en Chromium, Firefox y WebKit, evaluación cuantitativa de usabilidad SUS ($n=6$, score 81.67 "Excelente"), tres flujos de CI/CD operativos y despliegue en producción Dokploy.
+
+| Informe Obligatorio (Sprint 4) | Archivo Entregable | Alcance Técnico Verificable |
+| :--- | :--- | :--- |
+| **01 Revisión del Sprint** | [01 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas (89/89 SP), DoD global, demo a stakeholders de UGEL Huancayo y pendientes post-MVP. |
+| **02 Retrospectiva del Sprint** | [02 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, oportunidades de mejora en 4 ejes y 4 acciones SMART (A-17 a A-20). |
+| **03 Análisis Playwright** | [03 Analisis PlayWrigth V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) | Suite E2E multi-browser (Chromium/Firefox/WebKit), métricas Web Vitals (TTFB, FCP, LCP), resiliencia y reportes HTML. |
+| **04 Usabilidad Cuantitativa** | [04 Usabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) | Evaluación SUS sobre muestra representativa ($n=6$), cálculo paso a paso, puntaje 81.67 (Grado A) y mejoras UI/UX. |
+
+---
 
 ## Cierre académico del Sprint 3 — corte QA 2026-10-27
 
@@ -56,7 +73,7 @@ abajo no constituyen una nueva aceptación: EN-007/008 y su posible doble conteo
 
 ## Índice de documentación
 
-La documentación completa reside en `docs/01 Inicio/` (Fase 01), `docs/02 Planificación/` (Fase 02) y las carpetas `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/` (Fase 03, Implementación por sprint). Cada documento es accesible desde su vínculo relativo.
+La documentación completa reside en `docs/01 Inicio/` (Fase 01), `docs/02 Planificación/` (Fase 02) y las carpetas `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/`, `docs/03 Implementación/Sprint 3/` y `docs/03 Implementación/Sprint 4/` (Fase 03, Implementación por sprint). Cada documento es accesible desde su vínculo relativo.
 
 | Doc | Archivo                                                                                                                                   | Descripción                                                    |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -87,7 +104,7 @@ La documentación de la Fase 02 reside en `docs/02 Planificación/`. Cada docume
 
 ## Fase 03: Implementación del Proyecto (por sprint)
 
-La documentación de la Fase 03 se organiza en `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/`. Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
+La documentación de la Fase 03 se organiza en `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/`, `docs/03 Implementación/Sprint 3/` y `docs/03 Implementación/Sprint 4/`. Cada documento es accesible desde su vínculo relativo y contiene un enlace de retorno a este README.
 
 ### Sprint 1 (2026-09-14 a 2026-09-25 · 18/18 SP)
 
@@ -129,6 +146,15 @@ La documentación de la Fase 03 se organiza en `docs/03 Implementación/Sprint 1
 | 41  | [17 Manual de usuario V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/17%20Manual%20de%20usuario%20V_1_0_0.md) | Manual de usuario por rol (EN-009) |
 | 42  | [18 Manual de administrador V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/18%20Manual%20de%20administrador%20V_1_0_0.md) | Manual de administrador: variables, migraciones, endpoints y CI (EN-009) |
 | 43  | [19 Análisis del contexto logístico de Huancayo V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/19%20An%C3%A1lisis%20del%20contexto%20log%C3%ADstico%20de%20Huancayo%20V_1_0_0.md) | Contexto operativo de UGEL Huancayo y su modelado en la plataforma (EN-009) |
+
+### Sprint 4 (Cierre e Inspección 5 · 89/89 SP · 100%)
+
+| Doc | Archivo | Descripción |
+| --- | --- | --- |
+| 44  | [01 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Cierre total del backlog (89/89 SP), DoD global, demostración final a stakeholders de UGEL Huancayo y pendientes post-MVP |
+| 45  | [02 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Retrospectiva metodológica, lecciones aprendidas en 4 ejes y plan de acción SMART A-17 a A-20 |
+| 46  | [03 Analisis PlayWrigth V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) | Suite E2E multi-navegador con Playwright (Chromium/Firefox/WebKit), métricas Core Web Vitals, latencia API y reportes HTML |
+| 47  | [04 Usabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) | Evaluación psicométrica cuantitativa SUS ($n=6$ evaluadores), cálculo aritmético, puntaje global 81.67 (Grado A) y optimizaciones UI/UX |
 
 ## Resumen de objetivos y KPIs
 

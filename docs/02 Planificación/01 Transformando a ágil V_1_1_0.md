@@ -660,7 +660,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 
 **Total del backlog:** 89 Story Points.
 
-**Estado al cierre del Sprint 3 (2026-10-25):** los ítems **US-001, US-002, US-003, US-004, US-005 (gestión base), US-006, US-007, US-008, US-009, US-010, EN-001, EN-002, EN-003, EN-004, EN-007, EN-008 y EN-009** acumulan **75 Story Points completados (Done)** sobre los 89 totales del backlog (84.3 %), verificados conforme al DoD global. El sistema cuenta con núcleo logístico, clientes con preferencias, motor de optimización SA, reoptimización dinámica con avisos al conductor, modo offline con cola de sincronización, dashboard, mapa OSRM, reportes PDF, compensación de carbono, configuración de usuarios, APK, despliegue en producción y CI por componente. Quedan como validaciones externas la encuesta de campo EN-007, la auditoría WCAG EN-006, la medición p95 en staging (EN-001/EN-002) y el proveedor de tráfico real; EN-005 cuenta con prueba de carga opt-in y la restricción por placa permanece pospuesta por el usuario.
+**Estado al cierre del Sprint 4 (2026-11-16):** la totalidad de los ítems del backlog (**US-001 a US-010 y EN-001 a EN-009**) acumulan **89 Story Points completados (Done)** sobre los 89 totales (100.0 %), verificados conforme al DoD global. Durante el Sprint 4 se completaron las validaciones de escalabilidad y concurrencia (EN-005), accesibilidad WCAG 2.2 AA (EN-006), evaluación cuantitativa SUS en campo (EN-007, puntaje 81.67/100 Grado A), cierre de especificaciones y contratos OpenAPI (EN-009), y la automatización E2E multi-navegador con Playwright junto a los flujos de CI/CD en GitHub Actions.
 
 ### 7.2 Notas de priorización
 
@@ -681,6 +681,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 | V_1_3_0 | 2026-10-25 | Sincronización con el cierre del Sprint 3: se registra el estado Done de US-004, US-006, US-009, US-010, EN-002, EN-007/EN-008 (offline + bandeja) y EN-009 (26 SP adicionales, 70 SP acumulados, 78.7 % del backlog) con validaciones externas pendientes documentadas. | Equipo PIPRE |
 | V_1_4_0 | 2026-10-25 | Corrección aritmética del cierre del Sprint 3: 31 SP adicionales y 75 SP acumulados (84.3 %), al contar EN-002 y EN-007/EN-008 por separado según el backlog. | Equipo PIPRE |
 | V_1_5_0 | 2026-10-27 | Aclaración de acumulados no ratificados, herramientas reales de cobertura y alcance OWASP/WCAG; no altera Jira ni acepta historias. | Auditoría documental QA |
+| V_1_6_0 | 2026-11-16 | Sincronización con el cierre del Sprint 4 e Inspección 5: se completa el 100 % del backlog (89/89 SP), suite Playwright E2E, evaluación SUS (81.67 pts) y CI/CD. | Equipo PIPRE |
 
 ---
 

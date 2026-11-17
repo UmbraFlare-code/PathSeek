@@ -182,6 +182,21 @@ El detalle del cierre de la iteración consta en los documentos de `docs/03 Impl
 
 El detalle del cierre consta en `docs/03 Implementación/Sprint 3/` (Informe de estado, Revisión, Retrospectiva, Registro de impedimentos, manuales y análisis del contexto logístico).
 
+### 4.8 Cierre del Sprint 4 (Inspección 5)
+
+| Resultado | Valor |
+| --- | --- |
+| **Sprint** | Sprint 4 (2026-10-26 a 2026-11-16) |
+| **Story Points comprometidos** | 14 |
+| **Story Points completados** | 14 (100 %) |
+| **Ítems completados en Sprint 4** | EN-005 (Escalabilidad de arquitectura), EN-006 (Accesibilidad WCAG 2.2 AA), EN-007 (Validación SUS en campo), EN-009 (Cierre de documentación/OpenAPI), suite E2E Playwright y flujos CI/CD |
+| **Story Points acumulados totales** | **89 / 89 SP (100.0 % del backlog general)** |
+| **Validaciones cerradas** | Evaluación SUS en campo con puntaje 81.67 ("Excelente", Grado A), auditoría WCAG 2.2 AA sin violaciones críticas, suite Playwright E2E multi-browser (Chromium/Firefox/WebKit) con 100 % de éxito |
+| **CI/CD** | Flujos completos `ci.yml`, `tests.yml` y `deploy-production.yml` operativos en GitHub Actions con reportes HTML como artefactos |
+| **Rama de integración** | `main` (despliegue continuo en VPS Dokploy) |
+
+El detalle del cierre consta en `docs/03 Implementación/Sprint 4/` (Revisión del Sprint, Retrospectiva, Análisis Playwright y Evaluación Cuantitativa de Usabilidad SUS).
+
 ---
 
 ## 5. Evidencias Fotográficas Requeridas
@@ -249,6 +264,7 @@ El detalle del cierre consta en `docs/03 Implementación/Sprint 3/` (Informe de 
 | V_1_3_0 | 2026-10-25 | Sincronización con el cierre del Sprint 3: ítems PATHSEEK-8/9/13/15/16/17/18/19 marcados como Done, resultado de 26/26 SP (70 SP acumulados, 78.7 % del backlog) y validaciones externas documentadas. | Equipo PIPRE |
 | V_1_4_0 | 2026-10-25 | Corrección aritmética del cierre del Sprint 3: 31/31 SP (EN-002 incluido, EN-007/EN-008 contados por separado), acumulado 75/89 SP (84.3 %) y 124 pruebas backend. | Equipo PIPRE |
 | V_1_5_0 | 2026-10-27 | Rectifica conteo de pruebas y documenta estimaciones/aceptación sin ratificación ni nueva consulta Jira. | Auditoría documental QA |
+| V_1_6_0 | 2026-11-16 | Sincronización con el cierre del Sprint 4 e Inspección 5: se registra el estado Done del 100 % del backlog (89/89 SP), suite Playwright y CI/CD. | Equipo PIPRE |
 
 ---
 

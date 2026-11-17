@@ -1,0 +1,16 @@
+{
+  "name": "pathseek-frontend-e2e",
+  "version": "1.0.0",
+  "description": "Suite E2E y Monitoreo de Rendimiento con Playwright para PathSeek",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:firefox": "playwright test --project=firefox",
+    "test:e2e:webkit": "playwright test --project=webkit",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

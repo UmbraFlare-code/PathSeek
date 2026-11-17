@@ -86,6 +86,16 @@ bower_components/
 .pnpm-store/
 
 # ============================================================
+# Pruebas automatizadas y reportes E2E (Playwright)
+# ============================================================
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+frontend/playwright-report/
+frontend/test-results/
+
+# ============================================================
 # Bases de datos locales / volcados
 # ============================================================
 *.sqlite

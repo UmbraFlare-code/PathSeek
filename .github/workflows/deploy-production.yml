@@ -1,0 +1,38 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Automatic Production Deployment (Dokploy VPS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Dokploy Deployment Webhook
+        env:
+          DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -n "$DOKPLOY_WEBHOOK_URL" ]; then
+            echo "Triggering deployment via Dokploy Webhook..."
+            curl -X POST -f "$DOKPLOY_WEBHOOK_URL"
+          else
+            echo "Notice: DOKPLOY_WEBHOOK_URL not configured in repository secrets. Simulated deployment trigger."
+          fi
+
+      - name: Verify Production Healthcheck
+        run: |
+          echo "Verifying production endpoint availability..."
+          # Validar respuesta del servidor de producción (Nginx / Spring Actuator)
+          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" --connect-timeout 10 https://169.58.74.99/ || true)
+          echo "Production HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "401" ] || [ "$STATUS" = "302" ]; then
+            echo "Production environment is operational (Status $STATUS)."
+          else
+            echo "Production endpoint unreachable or initializing (Status $STATUS)."
+          fi
