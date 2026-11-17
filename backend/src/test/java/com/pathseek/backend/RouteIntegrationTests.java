@@ -137,7 +137,8 @@ class RouteIntegrationTests {
                 .andExpect(jsonPath("$.pedidos_cancelados").value(0))
                 .andExpect(jsonPath("$.rutas_planificadas").value(0))
                 .andExpect(jsonPath("$.co2_total_kg").value(0))
-                .andExpect(jsonPath("$.combustible_total_l").value(0));
+                .andExpect(jsonPath("$.combustible_total_l").value(0))
+                .andExpect(jsonPath("$.rutas_ejecutadas.rutas_completadas").value(0));
     }
 
     @Test
@@ -282,6 +283,8 @@ class RouteIntegrationTests {
                 .andExpect(jsonPath("$.pedidos_pendientes").value(0))
                 .andExpect(jsonPath("$.pedidos_en_ruta").value(2))
                 .andExpect(jsonPath("$.rutas_planificadas").value(1))
+                .andExpect(jsonPath("$.rutas_ejecutadas.rutas_completadas").value(0))
+                .andExpect(jsonPath("$.rutas_ejecutadas.co2_kg").value(0))
                 .andExpect(jsonPath("$.co2_total_kg").value(JsonPath.<Number>read(generateRes, "$.rutas[0].co2_kg")))
                 .andExpect(jsonPath("$.combustible_total_l").value(JsonPath.<Number>read(generateRes, "$.rutas[0].combustible_l")));
 

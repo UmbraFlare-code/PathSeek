@@ -3,7 +3,6 @@
 **Optimizador de Rutas Sostenibles para UGEL Huancayo**
 
 [![CI Pipeline](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/ci.yml/badge.svg)](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/ci.yml)
-[![Tests Suite](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/tests.yml/badge.svg)](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/tests.yml)
 [![Deploy to Production](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/UmbraFlare-code/PathSeek/actions/workflows/deploy-production.yml)
 
 Para ejecutar el sistema, consulta la [guía de ejecución local](LOCAL.md). La [revisión de contratos](CONTRACT_REVIEW.md) describe las correcciones de integración y sus límites.
@@ -14,14 +13,14 @@ El [seguimiento de mapa, rutas y permisos](docs/03%20Implementaci%C3%B3n/Sprint%
 
 ## Cierre académico del Sprint 4 — Inspección 5 (2026-11-16)
 
-La entrega final del **Sprint 4** se consolida en la carpeta [docs/03 Implementación/Sprint 4/](docs/03%20Implementaci%C3%B3n/Sprint%204/) (accesible también como [docs/03 Inplementación/Sprint 4/](docs/03%20Inplementaci%C3%B3n/Sprint%204/) vía enlace simbólico institucional). Comprende el 100 % del alcance del backlog (**89/89 Story Points**), suite E2E automatizada con Playwright en Chromium, Firefox y WebKit, evaluación cuantitativa de usabilidad SUS ($n=6$, score 81.67 "Excelente"), tres flujos de CI/CD operativos y despliegue en producción Dokploy.
+La carpeta [docs/03 Implementación/Sprint 4/](docs/03%20Implementaci%C3%B3n/Sprint%204/) reúne los cuatro informes de la Inspección 5. El backlog suma **89 Story Points** y la aceptación acumulada sigue pendiente de conciliación. La revisión recoge los resultados de CI, el SUS de **81,67/100** y la evidencia pendiente de campo, accesibilidad, staging y producción.
 
 | Informe Obligatorio (Sprint 4) | Archivo Entregable | Alcance Técnico Verificable |
 | :--- | :--- | :--- |
-| **01 Revisión del Sprint** | [01 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Historias completadas (89/89 SP), DoD global, demo a stakeholders de UGEL Huancayo y pendientes post-MVP. |
+| **01 Revisión del Sprint** | [01 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Estado de los criterios de aceptación, Definition of Done y pendientes con UGEL Huancayo. |
 | **02 Retrospectiva del Sprint** | [02 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Aprendizajes, aciertos, oportunidades de mejora en 4 ejes y 4 acciones SMART (A-17 a A-20). |
-| **03 Análisis Playwright** | [03 Analisis PlayWrigth V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) | Suite E2E multi-browser (Chromium/Firefox/WebKit), métricas Web Vitals (TTFB, FCP, LCP), resiliencia y reportes HTML. |
-| **04 Usabilidad Cuantitativa** | [04 Usabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) | Evaluación SUS sobre muestra representativa ($n=6$), cálculo paso a paso, puntaje 81.67 (Grado A) y mejoras UI/UX. |
+| **03 Análisis Playwright** | [03 Analisis PlayWrigth V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) | Suite E2E para Chromium, Firefox y WebKit con Flutter compilado, API real en entorno de pruebas y reportes HTML. |
+| **04 Usabilidad Cuantitativa** | [04 Usabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) | Cálculo SUS global de 81,67 con seis respuestas y alcance de la evaluación de campo. |
 
 ---
 
@@ -69,7 +68,7 @@ abajo no constituyen una nueva aceptación: EN-007/008 y su posible doble conteo
 | **Duración**               | 14 semanas (4 iteraciones)                          |
 | **Enfoque**                | Híbrido con dominancia ágil (iterativo-incremental) |
 | **Presupuesto**            | S/ 500,000 (MVP) + S/ 120,000 anual operativo       |
-| **Versión documento**      | V_1_5_0 (corte documental QA 2026-10-27)              |
+| **Versión documento**      | V_1_6_0 (revisión de Sprint 4, 2026-11-17)           |
 
 ## Índice de documentación
 
@@ -147,14 +146,14 @@ La documentación de la Fase 03 se organiza en `docs/03 Implementación/Sprint 1
 | 42  | [18 Manual de administrador V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/18%20Manual%20de%20administrador%20V_1_0_0.md) | Manual de administrador: variables, migraciones, endpoints y CI (EN-009) |
 | 43  | [19 Análisis del contexto logístico de Huancayo V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%203/19%20An%C3%A1lisis%20del%20contexto%20log%C3%ADstico%20de%20Huancayo%20V_1_0_0.md) | Contexto operativo de UGEL Huancayo y su modelado en la plataforma (EN-009) |
 
-### Sprint 4 (Cierre e Inspección 5 · 89/89 SP · 100%)
+### Sprint 4 (Inspección 5 y seguimiento de aceptación)
 
 | Doc | Archivo | Descripción |
 | --- | --- | --- |
-| 44  | [01 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Cierre total del backlog (89/89 SP), DoD global, demostración final a stakeholders de UGEL Huancayo y pendientes post-MVP |
+| 44  | [01 Revisión del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) | Criterios de aceptación, resultados y evidencia pendiente |
 | 45  | [02 Retrospectiva del Sprint V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) | Retrospectiva metodológica, lecciones aprendidas en 4 ejes y plan de acción SMART A-17 a A-20 |
-| 46  | [03 Analisis PlayWrigth V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) | Suite E2E multi-navegador con Playwright (Chromium/Firefox/WebKit), métricas Core Web Vitals, latencia API y reportes HTML |
-| 47  | [04 Usabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) | Evaluación psicométrica cuantitativa SUS ($n=6$ evaluadores), cálculo aritmético, puntaje global 81.67 (Grado A) y optimizaciones UI/UX |
+| 46  | [03 Analisis PlayWrigth V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) | Suite Playwright sobre la aplicación compilada, disponibilidad de la API y reportes HTML |
+| 47  | [04 Usabilidad V_1_0_0.md](docs/03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) | Cálculo SUS global de 81,67 con seis respuestas y validación del APK pendiente |
 
 ## Resumen de objetivos y KPIs
 
@@ -309,7 +308,7 @@ La documentación se genera a partir de la consigna del proyecto "PathSeek" – 
 ## Cómo leer
 
 1. Revisa `docs/01 Inicio/` en orden numérico (01 → 13) para una lectura secuencial.
-2. Continúa con `docs/02 Planificación/` (01 → 04) y con la Fase 03 en `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/`.
+2. Continúa con `docs/02 Planificación/` (01 → 04) y con los sprints 1 a 4 en `docs/03 Implementación/`.
 3. Cada documento incluye su propio "Control de versiones" y "Referencia" al final.
 
 ## Control de versiones
@@ -321,4 +320,5 @@ La documentación se genera a partir de la consigna del proyecto "PathSeek" – 
 | V_1_2_0 | 2026-10-06 | Sincronización con los entregables del Sprint 2: actualización de la Fase 03 (Implementación), enlaces relativos de ida y vuelta y despliegue en producción. | Equipo PIPRE |
 | V_1_3_0 | 2026-10-25 | Cierre del Sprint 3: Fase 03 reorganizada por carpetas `docs/03 Implementación/Sprint 1/`, `docs/03 Implementación/Sprint 2/` y `docs/03 Implementación/Sprint 3/` (recuperación del Sprint 1, reubicación del Sprint 2 y entregables completos del Sprint 3). | Equipo PIPRE |
 | V_1_4_0 | 2026-10-25 | Cierre del Sprint 3 corregido a 31/31 SP (75/89, 84.3 %) y 124 pruebas backend; Fase 03 consolidada dentro de `docs/03 Implementación/`. | Equipo PIPRE |
+| V_1_6_0 | 2026-11-17 | Actualiza la revisión del Sprint 4, las pruebas verificadas y la evidencia pendiente de aceptación. | Equipo PIPRE |
 

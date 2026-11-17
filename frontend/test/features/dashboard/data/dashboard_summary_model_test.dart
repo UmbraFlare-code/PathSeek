@@ -53,6 +53,39 @@ void main() {
       expect(entity.pedidosTotales, 69);
     });
 
+    test('parses executed routes with a measured zero percent and unpriced savings', () {
+      final response = {
+        ...json,
+        'rutas_ejecutadas': {
+          'rutas_completadas': 2,
+          'distancia_km': '14.75',
+          'co2_kg': 2,
+          'combustible_l': 3,
+          'cumplimiento_ventanas_pct': 0,
+          'comparacion_hoy': {
+            'combustible_secuencial_l': 4,
+            'ahorro_l': 1,
+            'ahorro_pct': '25.0',
+            'ahorro_pen': null,
+          },
+        },
+      };
+      final model = DashboardSummaryModel.fromJson(response);
+      expect(model, DashboardSummaryModel.fromJson(response));
+      expect(
+        model.toEntity().executedRoutes,
+        const ExecutedRoutesMetrics(
+          completedRoutes: 2,
+          distanceKm: 14.75,
+          co2Kg: 2,
+          fuelLiters: 3,
+          onTimePercent: 0,
+          dailyComparison: DailyFuelComparison(sequentialLiters: 4, savedLiters: 1, savedPercent: 25),
+        ),
+      );
+      expect(DashboardSummaryModel.fromJson(json).toEntity().executedRoutes, isNull);
+    });
+
     test('empty summary hasData is false', () {
       const entity = DashboardSummary();
       expect(entity.hasData, isFalse);

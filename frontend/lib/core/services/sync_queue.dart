@@ -25,7 +25,7 @@ class SyncQueue {
       'pedido_id': ?pedidoId,
       'lat': ?lat,
       'lon': ?lon,
-      'created_at': DateTime.now().toIso8601String(),
+      'created_at': DateTime.now().toUtc().toIso8601String(),
     });
     await _write(items);
   }
@@ -40,6 +40,7 @@ class SyncQueue {
             pedidoId: item['pedido_id'] as String?,
             lat: (item['lat'] as num?)?.toDouble(),
             lon: (item['lon'] as num?)?.toDouble(),
+            createdAt: DateTime.tryParse('${item['created_at']}'),
           ),
         )
         .toList();
@@ -89,6 +90,7 @@ class SyncAction {
     this.pedidoId,
     this.lat,
     this.lon,
+    this.createdAt,
   });
 
   final String tipo;
@@ -96,4 +98,5 @@ class SyncAction {
   final String? pedidoId;
   final double? lat;
   final double? lon;
+  final DateTime? createdAt;
 }

@@ -41,6 +41,9 @@ public class RouteOrder {
     @Column(name = "cumplio_ventana")
     private Boolean cumplioVentana;
 
+    @Column(name = "entregado_en")
+    private OffsetDateTime entregadoEn;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
@@ -111,6 +114,10 @@ public class RouteOrder {
 
     public void setCumplioVentana(Boolean cumplioVentana) {
         this.cumplioVentana = cumplioVentana;
+    }
+
+    public void setEntregadoEn(OffsetDateTime entregadoEn) {
+        this.entregadoEn = entregadoEn;
     }
 
     public OffsetDateTime getCreatedAt() {

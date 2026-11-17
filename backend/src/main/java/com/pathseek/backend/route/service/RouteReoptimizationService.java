@@ -184,7 +184,7 @@ public class RouteReoptimizationService {
             if (!changed.contains(frame.route.getId())) continue;
             if (!session.repair(frame.plan)) throw conflict("REOPTIMIZATION_INFEASIBLE", "No se encontró una secuencia factible para la ruta " + frame.route.getId() + "; no se aplicó el evento.");
             session.improve(frame.plan, properties.getIterations());
-            apply(frame, session.schedule(frame.plan, frame.plan.orders));
+            apply(frame, session.schedule(frame.plan, frame.plan.orders), now);
             notifications.save(new RouteNotification(request.eventoId(), frame.route,
                     "Ruta actualizada por " + request.tipo() + ". Consulte la nueva secuencia y sus horarios estimados.", now.toOffsetDateTime()));
             if (frame.route.getConductor().getUsuarioId() == null) unlinked++; else notificationCount++;
@@ -242,7 +242,7 @@ public class RouteReoptimizationService {
                 new Plan(route.getId(), route.getFecha(), start, departure, vehicle.getCapacidadKg(), vehicle.getCapacidadM3(), remaining, new ArrayList<>(areas)));
     }
 
-    private void apply(Frame frame, Schedule schedule) {
+    private void apply(Frame frame, Schedule schedule, ZonedDateTime now) {
         DeliveryRoute route = frame.route;
         Set<UUID> kept = frame.completed.stream().map(stop -> stop.getPedido().getId()).collect(Collectors.toSet());
         frame.plan.orders.forEach(order -> kept.add(order.getId()));
@@ -264,7 +264,10 @@ public class RouteReoptimizationService {
         route.setCo2Kg(money(frame.prefixCo2 + schedule.distanceKm() * frame.vehicle.getFactorEmision().doubleValue()));
         if (route.getEstado() == RouteStatus.EN_PROGRESO) progress.save(new RouteProgress(route.getId(), frame.plan.start.lat(), frame.plan.start.lon(),
                 frame.completed.stream().mapToInt(RouteOrder::getOrden).max().orElse(0), frame.prefixDistance, frame.prefixFuel, frame.prefixCo2));
-        if (frame.plan.orders.isEmpty()) route.setEstado(frame.completed.isEmpty() ? RouteStatus.CANCELADA : RouteStatus.COMPLETADA);
+        if (frame.plan.orders.isEmpty()) {
+            if (frame.completed.isEmpty()) route.setEstado(RouteStatus.CANCELADA);
+            else route.complete(now.toOffsetDateTime());
+        }
         routes.save(route);
     }
     private List<UUID> scope(ReoptimizationRequest request, LocalDate date) {

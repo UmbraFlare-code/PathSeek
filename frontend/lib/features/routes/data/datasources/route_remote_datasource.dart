@@ -15,7 +15,11 @@ abstract class RouteRemoteDataSource {
 
   Future<void> deleteRoute(String id);
 
-  Future<Map<String, dynamic>> completeDelivery(String rutaId, String pedidoId);
+  Future<Map<String, dynamic>> completeDelivery(
+    String rutaId,
+    String pedidoId, {
+    DateTime? deliveredAt,
+  });
 
   Future<Map<String, dynamic>> reportPosition(
     String rutaId,
@@ -30,7 +34,7 @@ abstract class RouteRemoteDataSource {
 
 class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
   RouteRemoteDataSourceImpl(this._client, {OfflineRouteCache? cache})
-      : _cache = cache ?? OfflineRouteCache();
+    : _cache = cache ?? OfflineRouteCache();
 
   final ApiClient _client;
   final OfflineRouteCache _cache;
@@ -100,10 +104,14 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
   @override
   Future<Map<String, dynamic>> completeDelivery(
     String rutaId,
-    String pedidoId,
-  ) async {
+    String pedidoId, {
+    DateTime? deliveredAt,
+  }) async {
     final response = await _client.dio.post(
       '${ApiPaths.rutas}/$rutaId/entregas/$pedidoId/completar',
+      data: deliveredAt == null
+          ? null
+          : {'entregado_en': deliveredAt.toUtc().toIso8601String()},
     );
     return _unwrap(response.data);
   }

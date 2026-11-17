@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import tools.jackson.databind.ObjectMapper;
 
@@ -36,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * EN-001: generación de rutas válidas en ≤ 45 s para 150 pedidos y 15 vehículos.
- * EN-005: prueba de volumen con 1,000 pedidos y 50 vehículos (opt-in, sin SLA rígido).
+ * EN-005: prueba sintética de volumen con 1,000 pedidos y 50 vehículos (opt-in).
  * Los artefactos JSON quedan en {@code target/} como evidencia reproducible.
  */
 @SpringBootTest
@@ -51,6 +52,7 @@ class GenerationPerformanceTests {
     @Autowired VehicleRepository vehicles;
     @Autowired DriverRepository drivers;
     @Autowired ObjectMapper json;
+    @Autowired JdbcTemplate jdbc;
     int sequence;
 
     @AfterEach
@@ -82,15 +84,35 @@ class GenerationPerformanceTests {
     void projectedLoad1000Orders50VehiclesRemainsStable() throws Exception {
         seed(1000, 50);
         long started = System.nanoTime();
-        GenerateRoutesResponse result = assertTimeout(Duration.ofSeconds(300), () -> generation.generateRoutes());
+        GenerateRoutesResponse result = assertTimeout(SLA, () -> generation.generateRoutes());
         double elapsedMs = (System.nanoTime() - started) / 1_000_000.0;
-        assertTrue(result.rutas().size() > 0);
+        assertEquals(1000, result.totalPedidosPlanificados());
+        assertTrue(result.pedidosNoAsignados().isEmpty());
         writeArtifact("generation-benchmark-1000x50.json", Map.of(
                 "scenario", "1000_pedidos_50_vehiculos",
                 "pedidos", 1000, "vehiculos", 50,
                 "rutas_generadas", result.rutas().size(),
                 "pedidos_no_asignados", result.pedidosNoAsignados().size(),
-                "local_elapsed_ms", elapsedMs));
+                "local_elapsed_ms", elapsedMs, "sla_ms", SLA.toMillis()));
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "PATHSEEK_POSTGIS_TEST", matches = "true")
+    void proximityQueryUsesPostgisIndexAtProjectedVolume() throws Exception {
+        seed(1000, 0);
+        jdbc.execute("ANALYZE pedidos");
+        var plan = jdbc.queryForList("""
+                EXPLAIN (ANALYZE, BUFFERS)
+                SELECT pedido_id FROM pedidos
+                WHERE ST_DWithin(
+                    ST_SetSRID(ST_MakePoint(gps_lon, gps_lat), 4326)::geography,
+                    ST_SetSRID(ST_MakePoint(-75.20, -12.06), 4326)::geography,
+                    20
+                )
+                """, String.class);
+        writeArtifact("generation-benchmark-postgis.json", Map.of("plan", plan));
+        assertTrue(plan.stream().anyMatch(line -> line.contains("idx_pedidos_gps_geography")),
+                () -> String.join("\n", plan));
     }
 
     private void seed(int orderCount, int vehicleCount) {

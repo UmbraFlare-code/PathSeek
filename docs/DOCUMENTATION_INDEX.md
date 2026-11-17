@@ -2,14 +2,14 @@
 
 Revisión temática de todos los Markdown de docs/; requisitos, restricciones, decisiones, sprints y trazabilidad contrastados con el código.
 
-## Entrega canónica Sprint 4 — Inspección 5 (V_1_0_0, 2026-11-16)
+## Entrega canónica Sprint 4 — Inspección 5 (V_1_1_0, revisión 2026-11-17)
 
-La carpeta canónica `docs/03 Implementación/Sprint 4/` (accesible también mediante el symlink `docs/03 Inplementación/Sprint 4/`) consolida el cierre definitivo del proyecto, alcanzando el 100 % de los Story Points del backlog (89/89 SP).
+La carpeta canónica `docs/03 Implementación/Sprint 4/` reúne los informes de la Inspección 5 y el estado de aceptación. El backlog suma 89 SP.
 
-- [01 Revisión del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) — Cierre del backlog, DoD, demo con UGEL Huancayo y pendientes post-MVP.
+- [01 Revisión del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) — Criterios de aceptación, DoD y evidencia pendiente.
 - [02 Retrospectiva del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) — Lecciones aprendidas en 4 ejes y acciones SMART A-17 a A-20.
-- [03 Analisis PlayWrigth V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) — Suite E2E multi-navegador con Playwright, métricas Web Vitals, latencia API y resiliencia.
-- [04 Usabilidad V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) — Evaluación psicométrica cuantitativa SUS ($n=6$), cálculo aritmético (score 81.67 "Excelente", Grado A) y mejoras UI/UX.
+- [03 Analisis PlayWrigth V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md) — Suite Playwright sobre Flutter Web compilado, API y resiliencia en entorno de pruebas.
+- [04 Usabilidad V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md) — Evaluación SUS con seis respuestas y promedio reproducible de 81,67.
 
 [Volver al README principal](../README.md).
 
@@ -355,7 +355,7 @@ Fundamentación explícita en ISO/IEC 25010, los 4 principios de la Green Softwa
 
 ## [Sprint 4 · Revisión del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
 
-Cierre formal de los 89/89 SP del backlog, verificación del Definition of Done (DoD), resumen de la demostración presencial/remota ante stakeholders de UGEL Huancayo en entorno Dokploy y gestión de pendientes técnicos evolutivos.
+Revisión de estimaciones, estado de aceptación, evidencia de CI y pendientes de validación técnica y de campo.
 
 ## [Sprint 4 · Retrospectiva del Sprint V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
 
@@ -363,10 +363,10 @@ Análisis de lecciones técnicas en Flutter Web/Playwright y Dokploy, aciertos d
 
 ## [Sprint 4 · Análisis Playwright V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md)
 
-Suite de pruebas automatizadas E2E multi-navegador en Chromium, Firefox y WebKit, código fuente de pruebas críticas, métricas de Core Web Vitals (TTFB 184ms, FCP 1.12s, LCP 1.98s), latencia de endpoints Spring Boot (< 500ms), resiliencia offline y artefactos HTML generados.
+Suite E2E para Chromium, Firefox y WebKit con flujos de negocio, salud, resiliencia y reportes de accesibilidad y rendimiento del entorno de prueba.
 
 ## [Sprint 4 · Usabilidad V_1_0_0](03%20Implementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md)
 
-Ficha técnica del cuestionario psicométrico System Usability Scale (SUS), muestra representativa $n=6$ usuarios de UGEL Huancayo, cálculo matemático individual y promedio global de 81.67 puntos (Calificación "Excelente", Grado A), superando el benchmark estándar de 68 puntos, junto con matriz de cuellos de botella detectados y resueltos.
+Cuestionario System Usability Scale, matriz de seis respuestas, detalle del cálculo y seguimiento de la evaluación específica de conductores.
 
 

@@ -4,8 +4,8 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-014
-Versión: V_1_5_0
-Fecha: 2026-09-07 (actualizado 2026-10-27)
+Versión: V_1_7_0
+Fecha: 2026-09-07 (actualizado 2026-11-16)
 
 > **Aclaración QA V_1_5_0:** los estados Done y 75/89 SP del cierre son registros históricos,
 > no aceptación nuevamente verificada. EN-007/008 ya figuran en Sprint 2 y se vuelven a contar
@@ -660,7 +660,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 
 **Total del backlog:** 89 Story Points.
 
-**Estado al cierre del Sprint 4 (2026-11-16):** la totalidad de los ítems del backlog (**US-001 a US-010 y EN-001 a EN-009**) acumulan **89 Story Points completados (Done)** sobre los 89 totales (100.0 %), verificados conforme al DoD global. Durante el Sprint 4 se completaron las validaciones de escalabilidad y concurrencia (EN-005), accesibilidad WCAG 2.2 AA (EN-006), evaluación cuantitativa SUS en campo (EN-007, puntaje 81.67/100 Grado A), cierre de especificaciones y contratos OpenAPI (EN-009), y la automatización E2E multi-navegador con Playwright junto a los flujos de CI/CD en GitHub Actions.
+**Estado del Sprint 4 (2026-11-16).** El total estimado es **89 Story Points**. EN-005 vale 3 SP en este backlog y los cuatro enablers tratados en el sprint suman 11 SP. QA-E2E añade 1 SP al alcance reportado del sprint. Los estados de aceptación y el acumulado requieren conciliar Jira y adjuntar los resultados de los criterios pendientes. [Revisión del Sprint 4](../03%20Implementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
 
 ### 7.2 Notas de priorización
 
@@ -682,6 +682,7 @@ Estimación realizada con **Puntos de Historia (Story Points)** mediante la secu
 | V_1_4_0 | 2026-10-25 | Corrección aritmética del cierre del Sprint 3: 31 SP adicionales y 75 SP acumulados (84.3 %), al contar EN-002 y EN-007/EN-008 por separado según el backlog. | Equipo PIPRE |
 | V_1_5_0 | 2026-10-27 | Aclaración de acumulados no ratificados, herramientas reales de cobertura y alcance OWASP/WCAG; no altera Jira ni acepta historias. | Auditoría documental QA |
 | V_1_6_0 | 2026-11-16 | Sincronización con el cierre del Sprint 4 e Inspección 5: se completa el 100 % del backlog (89/89 SP), suite Playwright E2E, evaluación SUS (81.67 pts) y CI/CD. | Equipo PIPRE |
+| V_1_7_0 | 2026-11-16 | Aclara el total estimado, las cifras de Sprint 4 y la aceptación pendiente. | Equipo PIPRE |
 
 ---
 

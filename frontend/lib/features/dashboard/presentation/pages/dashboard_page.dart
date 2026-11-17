@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,16 +19,40 @@ import '../../domain/entities/dashboard_summary.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../widgets/kpi_card.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<DashboardBloc>(
-      create: (_) => locator<DashboardBloc>()..add(const DashboardLoaded()),
-      child: const DashboardView(),
-    );
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late final DashboardBloc _bloc;
+  late final Timer _refresh;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = locator<DashboardBloc>()..add(const DashboardLoaded());
+    _refresh = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+        _bloc.add(const DashboardLoaded());
+      }
+    });
   }
+
+  @override
+  void dispose() {
+    _refresh.cancel();
+    _bloc.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => BlocProvider<DashboardBloc>.value(
+    value: _bloc,
+    child: const DashboardView(),
+  );
 }
 
 class DashboardView extends StatelessWidget {
@@ -36,6 +62,7 @@ class DashboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, state) {
+        final metrics = state.summary?.executedRoutes;
         return RefreshIndicator(
           onRefresh: () async =>
               context.read<DashboardBloc>().add(const DashboardLoaded()),
@@ -47,30 +74,36 @@ class DashboardView extends StatelessWidget {
               children: [
                 _HeaderBadge(),
                 const SizedBox(height: 20),
-                if (state.isLoading)
+                if (state.summary == null && !state.hasError)
                   const LoadingIndicator(message: 'Cargando indicadores...')
-                else if (state.hasError)
+                else if (state.summary == null && state.hasError)
                   ErrorView(
                     message: state.errorMessage!,
                     onRetry: () => context.read<DashboardBloc>().add(
                       const DashboardLoaded(),
                     ),
                   )
-                else if (state.summary == null || !state.summary!.hasData)
-                  EmptyView(
-                    message:
-                        AppPermissions.canCreate(
-                          context.watch<AuthBloc>().state.user,
-                          AppModule.routes,
-                        )
-                        ? 'Aún no hay datos de operación. Genera rutas para consultar los indicadores de sostenibilidad.'
-                        : 'Aún no hay datos de operación disponibles para consultar.',
-                    icon: Icons.insert_chart_outlined,
-                  )
                 else ...[
-                  _KpiGrid(summary: state.summary!),
-                  const SizedBox(height: 24),
-                  const _QuickAccess(),
+                  if (state.hasError)
+                    Semantics(
+                      liveRegion: true,
+                      child: const Text(
+                        'No se pudo actualizar. Se muestran los últimos datos disponibles.',
+                      ),
+                    ),
+                  if (metrics == null || metrics.completedRoutes == 0)
+                    EmptyView(
+                      message:
+                          'Aún no hay rutas completadas. Los indicadores aparecerán al registrar las entregas de una ruta.',
+                      icon: Icons.insert_chart_outlined,
+                    )
+                  else ...[
+                    _FuelSavingsMessage(comparison: metrics.dailyComparison),
+                    const SizedBox(height: 20),
+                    _KpiGrid(summary: state.summary!, metrics: metrics),
+                    const SizedBox(height: 24),
+                    const _QuickAccess(),
+                  ],
                 ],
               ],
             ),
@@ -86,7 +119,7 @@ class _HeaderBadge extends StatelessWidget {
   Widget build(BuildContext context) => PageHeader(
     title: 'Resumen operativo',
     description:
-        'Consulta la actividad de distribución y sus indicadores de sostenibilidad.',
+        'Indicadores de rutas completadas. Se actualizan automáticamente cada 10 segundos.',
     icon: Icons.dashboard_outlined,
     actions: [
       OutlinedButton.icon(
@@ -100,14 +133,46 @@ class _HeaderBadge extends StatelessWidget {
   );
 }
 
+class _FuelSavingsMessage extends StatelessWidget {
+  const _FuelSavingsMessage({required this.comparison});
+
+  final DailyFuelComparison? comparison;
+
+  @override
+  Widget build(BuildContext context) {
+    final comparison = this.comparison;
+    final savedSoles = comparison?.savedSoles;
+    final String message;
+    if (comparison == null) {
+      message = 'Aún no hay rutas completadas comparables hoy.';
+    } else if (savedSoles == null && comparison.savedLiters > 0) {
+      message = 'El ahorro en soles requiere un precio por litro configurado.';
+    } else if (savedSoles != null && savedSoles > 0) {
+      message =
+          'Has ahorrado ${Formatters.soles(savedSoles)} en combustible hoy';
+    } else {
+      return const SizedBox.shrink();
+    }
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(message, style: Theme.of(context).textTheme.titleMedium),
+      ),
+    );
+  }
+}
+
 class _KpiGrid extends StatelessWidget {
-  const _KpiGrid({required this.summary});
+  const _KpiGrid({required this.summary, required this.metrics});
 
   final DashboardSummary summary;
+  final ExecutedRoutesMetrics metrics;
 
   @override
   Widget build(BuildContext context) {
     final narrow = isNarrow(context);
+    final comparison = metrics.dailyComparison;
+    final windowPercent = metrics.onTimePercent;
     final cards = <Widget>[
       KpiCard(
         label: 'Vehículos registrados',
@@ -149,18 +214,6 @@ class _KpiGrid extends StatelessWidget {
         value: Formatters.integer.format(summary.rutasPlanificadas),
         icon: Icons.route_outlined,
       ),
-      KpiCard(
-        label: 'CO2 total emitido',
-        value: Formatters.co2(summary.co2TotalKg),
-        icon: Icons.eco_outlined,
-        accent: AppTheme.primary,
-      ),
-      KpiCard(
-        label: 'Combustible consumido',
-        value: Formatters.liters(summary.combustibleTotalL),
-        icon: Icons.local_gas_station_outlined,
-        accent: AppTheme.primaryDark,
-      ),
     ];
 
     return LayoutBuilder(
@@ -174,9 +227,56 @@ class _KpiGrid extends StatelessWidget {
             : 3;
         final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
         final groups = [
+          (
+            'Rutas completadas',
+            [
+              KpiCard(
+                label: 'Distancia recorrida estimada',
+                value: Formatters.km(metrics.distanceKm),
+                icon: Icons.route_outlined,
+              ),
+              KpiCard(
+                label: 'Emisiones estimadas',
+                value: Formatters.co2(metrics.co2Kg),
+                icon: Icons.eco_outlined,
+              ),
+              KpiCard(
+                label: 'Combustible consumido estimado',
+                value: Formatters.liters(metrics.fuelLiters),
+                icon: Icons.local_gas_station_outlined,
+              ),
+              KpiCard(
+                label: 'Cumplimiento de ventanas',
+                value: windowPercent == null
+                    ? 'Sin horas registradas'
+                    : Formatters.percent(windowPercent),
+                icon: Icons.schedule_outlined,
+              ),
+            ],
+          ),
+          if (comparison != null)
+            (
+              'Comparación estimada de hoy con la ruta secuencial',
+              [
+                KpiCard(
+                  label: 'Combustible de referencia',
+                  value: Formatters.liters(comparison.sequentialLiters),
+                  icon: Icons.alt_route_outlined,
+                ),
+                KpiCard(
+                  label: 'Combustible ahorrado',
+                  value: Formatters.liters(comparison.savedLiters),
+                  icon: Icons.local_gas_station_outlined,
+                ),
+                KpiCard(
+                  label: 'Ahorro comparado',
+                  value: Formatters.percent(comparison.savedPercent),
+                  icon: Icons.eco_outlined,
+                ),
+              ],
+            ),
           ('Recursos de distribución', cards.sublist(0, 2)),
-          ('Estado de los pedidos', cards.sublist(2, 6)),
-          ('Rutas y sostenibilidad', cards.sublist(6)),
+          ('Pedidos y planificación', cards.sublist(2)),
         ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -276,7 +376,8 @@ class _QuickAccess extends StatelessWidget {
       if (AppPermissions.canView(user, AppModule.clients))
         _QuickCard(
           title: 'Clientes y preferencias',
-          description: 'Horarios de atención, restricciones y perfiles de entrega.',
+          description:
+              'Horarios de atención, restricciones y perfiles de entrega.',
           icon: Icons.storefront_outlined,
           onTap: (context) => context.go('/clients'),
         ),

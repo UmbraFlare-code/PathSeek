@@ -60,7 +60,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "app.dashboard.fuel-price-pen-per-liter=6.50")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(Sprint3ModulesIntegrationTests.TimeConfig.class)
@@ -301,6 +301,36 @@ class Sprint3ModulesIntegrationTests {
                         .header("Authorization", "Bearer " + auth))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ruta_estado").value("COMPLETADA"));
+    }
+
+    @Test void dashboardReportsCompletedRoutesActualWindowsAndSavingsInSoles() throws Exception {
+        var conductor = user(UserRole.CONDUCTOR);
+        var route = routeWithStops(conductor, 2);
+        route.setCo2Kg(new BigDecimal("2.40"));
+        route.setCombustibleL(new BigDecimal("0.10"));
+        routes.saveAndFlush(route);
+        routeWithStops(conductor, 1);
+        var first = "/api/v1/rutas/" + route.getId() + "/entregas/" + route.getPedidos().get(0).getPedido().getId() + "/completar";
+        var last = "/api/v1/rutas/" + route.getId() + "/entregas/" + route.getPedidos().get(1).getPedido().getId() + "/completar";
+        String driverToken = "Bearer " + token(conductor);
+        api.perform(post(first).header("Authorization", driverToken).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"entregado_en\":\"2026-10-25T11:30:00Z\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.cumplio_ventana").value(false));
+        api.perform(post(last).header("Authorization", driverToken).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"entregado_en\":\"2026-10-25T14:00:00Z\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.cumplio_ventana").value(true));
+        api.perform(post(last).header("Authorization", driverToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.ya_registrado").value(true));
+
+        api.perform(get("/api/v1/dashboard/resumen").header("Authorization", "Bearer " + token(user(UserRole.OPERADOR))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rutas_ejecutadas.rutas_completadas").value(1))
+                .andExpect(jsonPath("$.rutas_ejecutadas.distancia_km").value(12.0))
+                .andExpect(jsonPath("$.rutas_ejecutadas.co2_kg").value(2.4))
+                .andExpect(jsonPath("$.rutas_ejecutadas.entregas_con_hora").value(2))
+                .andExpect(jsonPath("$.rutas_ejecutadas.cumplimiento_ventanas_pct").value(50.0))
+                .andExpect(jsonPath("$.rutas_ejecutadas.comparacion_hoy.ahorro_l").value(org.hamcrest.Matchers.greaterThan(0.0)))
+                .andExpect(jsonPath("$.rutas_ejecutadas.comparacion_hoy.ahorro_pen").value(org.hamcrest.Matchers.greaterThan(0.0)));
     }
 
     @Test void conductorReportsPositionAndCannotTouchOtherRoutes() throws Exception {

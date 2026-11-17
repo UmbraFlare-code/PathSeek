@@ -143,11 +143,16 @@ class HomeShell extends StatelessWidget {
                     const VerticalDivider(width: 1),
                   ],
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1520),
-                        child: child,
+                    child: Semantics(
+                      // Keep the nested navigator's modal semantics inside its pane.
+                      container: true,
+                      explicitChildNodes: true,
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1520),
+                          child: child,
+                        ),
                       ),
                     ),
                   ),

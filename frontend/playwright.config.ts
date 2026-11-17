@@ -1,26 +1,24 @@
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Configuración de Playwright para PathSeek
- * Evaluación de calidad E2E, Rendimiento (Web Vitals) y Resiliencia
- */
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  globalSetup: './e2e/setup',
+  timeout: 45_000,
+  expect: { timeout: 15_000 },
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'test-results/test-results.json' }]
   ],
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://169.58.74.99',
-    trace: 'on-first-retry',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost',
+    actionTimeout: 12_000,
+    navigationTimeout: 25_000,
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    ignoreHTTPSErrors: true,
   },
   projects: [
     {

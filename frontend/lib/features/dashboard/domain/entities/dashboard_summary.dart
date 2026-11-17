@@ -11,6 +11,7 @@ class DashboardSummary extends Equatable {
     this.rutasPlanificadas = 0,
     this.co2TotalKg = 0,
     this.combustibleTotalL = 0,
+    this.executedRoutes,
   });
 
   final int totalVehiculos;
@@ -22,6 +23,7 @@ class DashboardSummary extends Equatable {
   final int rutasPlanificadas;
   final double co2TotalKg;
   final double combustibleTotalL;
+  final ExecutedRoutesMetrics? executedRoutes;
 
   bool get hasData =>
       totalVehiculos > 0 ||
@@ -39,14 +41,65 @@ class DashboardSummary extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalVehiculos,
-        conductoresDisponibles,
-        pedidosPendientes,
-        pedidosEnRuta,
-        pedidosEntregados,
-        pedidosCancelados,
-        rutasPlanificadas,
-        co2TotalKg,
-        combustibleTotalL,
-      ];
+    totalVehiculos,
+    conductoresDisponibles,
+    pedidosPendientes,
+    pedidosEnRuta,
+    pedidosEntregados,
+    pedidosCancelados,
+    rutasPlanificadas,
+    co2TotalKg,
+    combustibleTotalL,
+    executedRoutes,
+  ];
+}
+
+class ExecutedRoutesMetrics extends Equatable {
+  const ExecutedRoutesMetrics({
+    required this.completedRoutes,
+    required this.distanceKm,
+    required this.co2Kg,
+    required this.fuelLiters,
+    this.onTimePercent,
+    this.dailyComparison,
+  });
+
+  final int completedRoutes;
+  final double distanceKm;
+  final double co2Kg;
+  final double fuelLiters;
+  final double? onTimePercent;
+  final DailyFuelComparison? dailyComparison;
+
+  @override
+  List<Object?> get props => [
+    completedRoutes,
+    distanceKm,
+    co2Kg,
+    fuelLiters,
+    onTimePercent,
+    dailyComparison,
+  ];
+}
+
+class DailyFuelComparison extends Equatable {
+  const DailyFuelComparison({
+    required this.sequentialLiters,
+    required this.savedLiters,
+    required this.savedPercent,
+    this.savedSoles,
+  });
+
+  final double sequentialLiters;
+  final double savedLiters;
+  final double savedPercent;
+  final double? savedSoles;
+
+  @override
+  List<Object?> get props => [
+    sequentialLiters,
+    savedLiters,
+    savedPercent,
+    savedSoles,
+  ];
 }

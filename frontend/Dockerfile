@@ -7,7 +7,7 @@ COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get --no-color
 
 COPY . .
-RUN flutter build web --release --dart-define=APP_ENV=${APP_ENV} --dart-define=API_BASE_URL=${API_BASE_URL}
+RUN flutter build web --release --no-tree-shake-icons --no-web-resources-cdn --dart-define=APP_ENV=${APP_ENV} --dart-define=API_BASE_URL=${API_BASE_URL}
 
 FROM web-builder AS apk-builder
 RUN flutter build apk --release --dart-define=APP_ENV=prod

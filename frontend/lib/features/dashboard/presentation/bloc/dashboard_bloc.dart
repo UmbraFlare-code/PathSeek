@@ -10,8 +10,8 @@ part 'dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   DashboardBloc({required DashboardRepository repository})
-      : _repository = repository,
-        super(const DashboardState.initial()) {
+    : _repository = repository,
+      super(const DashboardState.initial()) {
     on<DashboardLoaded>(_onDashboardLoaded);
   }
 
@@ -21,6 +21,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     DashboardLoaded event,
     Emitter<DashboardState> emit,
   ) async {
+    if (state.isLoading) return;
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
       final summary = await _repository.getSummary();

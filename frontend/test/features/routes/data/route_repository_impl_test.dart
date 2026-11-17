@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pathseek/core/errors/exceptions.dart';
 import 'package:pathseek/core/errors/failures.dart';
+import 'package:pathseek/core/services/sync_queue.dart';
 import 'package:pathseek/features/routes/data/datasources/route_remote_datasource.dart';
 import 'package:pathseek/features/routes/data/models/delivery_route_model.dart';
 import 'package:pathseek/features/routes/data/repositories/route_repository_impl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockRouteRemoteDataSource extends Mock
     implements RouteRemoteDataSource {}
@@ -17,6 +19,20 @@ void main() {
   setUp(() {
     remoteDataSource = MockRouteRemoteDataSource();
     repository = RouteRepositoryImpl(remoteDataSource: remoteDataSource);
+  });
+
+  test('syncing a delayed delivery sends the original recorded time', () async {
+    SharedPreferences.setMockInitialValues({});
+    final queue = SyncQueue();
+    await queue.enqueue(tipo: 'completar', rutaId: 'r1', pedidoId: 'o1');
+    final recordedAt = (await queue.list()).single.createdAt;
+    expect(recordedAt, isNotNull);
+    when(() => remoteDataSource.completeDelivery('r1', 'o1', deliveredAt: recordedAt))
+        .thenAnswer((_) async => <String, dynamic>{});
+
+    expect(await repository.flushOfflineQueue(), 1);
+    expect(await queue.length(), 0);
+    verify(() => remoteDataSource.completeDelivery('r1', 'o1', deliveredAt: recordedAt)).called(1);
   });
 
   group('RouteRepositoryImpl.getRoutes', () {

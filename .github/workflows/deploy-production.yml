@@ -1,38 +1,62 @@
 name: Deploy to Production
 
 on:
-  push:
-    branches: [ main ]
-    tags: [ 'v*' ]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    branches: [main]
+    types: [completed]
   workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Automatic Production Deployment (Dokploy VPS)
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    name: Deploy and verify Dokploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Verify the release passed CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          test "$RELEASE_SHA" = "$latest"
+          passed=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$RELEASE_SHA&branch=main&status=success" --jq '.total_count')
+          test "$passed" -gt 0
 
-      - name: Trigger Dokploy Deployment Webhook
+      - name: Trigger and verify the deployment
         env:
           DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
+          PRODUCTION_BASE_URL: ${{ vars.PRODUCTION_BASE_URL }}
         run: |
-          if [ -n "$DOKPLOY_WEBHOOK_URL" ]; then
-            echo "Triggering deployment via Dokploy Webhook..."
-            curl -X POST -f "$DOKPLOY_WEBHOOK_URL"
-          else
-            echo "Notice: DOKPLOY_WEBHOOK_URL not configured in repository secrets. Simulated deployment trigger."
+          if [ -z "$DOKPLOY_WEBHOOK_URL" ] || [[ "$PRODUCTION_BASE_URL" != https://* ]]; then
+            echo "::error::Configura DOKPLOY_WEBHOOK_URL y PRODUCTION_BASE_URL (HTTPS)."
+            exit 1
           fi
+          curl --fail --silent --show-error --max-time 30 --request POST --output /dev/null "$DOKPLOY_WEBHOOK_URL"
 
-      - name: Verify Production Healthcheck
-        run: |
-          echo "Verifying production endpoint availability..."
-          # Validar respuesta del servidor de producción (Nginx / Spring Actuator)
-          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" --connect-timeout 10 https://169.58.74.99/ || true)
-          echo "Production HTTP Status: $STATUS"
-          if [ "$STATUS" = "200" ] || [ "$STATUS" = "401" ] || [ "$STATUS" = "302" ]; then
-            echo "Production environment is operational (Status $STATUS)."
-          else
-            echo "Production endpoint unreachable or initializing (Status $STATUS)."
-          fi
+          origin=${PRODUCTION_BASE_URL%/}
+          for attempt in {1..24}; do
+            if curl --fail --silent --show-error --max-time 8 "$origin/api/v1/health" -o health.json &&
+               jq -e '.status == "UP"' health.json >/dev/null &&
+               curl --fail --silent --show-error --max-time 8 "$origin/" -o index.html &&
+               grep -q 'flutter_bootstrap.js' index.html &&
+               curl --fail --silent --show-error --max-time 8 "$origin/flutter_bootstrap.js" -o bootstrap.js &&
+               grep -q 'main.dart.js' bootstrap.js; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::El frontend y la API no pasaron la verificación HTTPS de producción."
+          exit 1

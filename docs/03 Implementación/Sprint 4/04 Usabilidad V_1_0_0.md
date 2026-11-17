@@ -3,22 +3,22 @@
 # Evaluación Cuantitativa de Usabilidad del Sistema (Escala SUS)
 
 **Proyecto:** PathSeek — Optimizador de Rutas Sostenibles para UGEL Huancayo  
-**Versión del Documento:** V_1_0_0  
+**Versión del Documento:** V_1_1_0\
 **Fecha de Evaluación:** 2026-11-15  
-**Entorno de Aplicación:** Plataforma Desplegada en Producción (`https://169.58.74.99`)  
+**Entorno declarado en el levantamiento:** plataforma de producción\
 **Responsable Técnico:** Francis Maxuel Urquizo Ore y Equipo PIPRE
 
 ---
 
 ## 1. Ficha Técnica de la Evaluación
 
-La evaluación de usabilidad cuantitativa de PathSeek se llevó a cabo aplicando el instrumento psicométrico estandarizado **System Usability Scale (SUS)**, desarrollado por John Brooke (1996) y validado internacionalmente (ISO 9241-11) para cuantificar la efectividad, eficiencia y satisfacción subjetiva de los usuarios.
+El informe registra una evaluación de usabilidad percibida con el cuestionario **System Usability Scale (SUS)** de John Brooke. La matriz permite reproducir el resultado de la muestra.
 
 | Parámetro | Detalle Metodológico |
 | :--- | :--- |
 | **Instrumento Aplicado** | System Usability Scale (SUS) — 10 ítems estandarizados con balance positivo/negativo. |
 | **Escala de Valoración** | Tipo Likert de 5 puntos: <br>1 = Totalmente en desacuerdo &nbsp;|&nbsp; 2 = En desacuerdo &nbsp;|&nbsp; 3 = Neutral &nbsp;|&nbsp; 4 = De acuerdo &nbsp;|&nbsp; 5 = Totalmente de acuerdo |
-| **Tamaño de la Muestra ($n$)** | **$n = 6$ participantes representativos** (cumple y supera el umbral normativo de $n \ge 5$). |
+| **Tamaño de la Muestra ($n$)** | **$n = 6$ participantes** de distintos perfiles. |
 | **Perfiles de la Muestra** | • 2 Operadores Logísticos de UGEL Huancayo (planificación de despachos y asignación vehicular).<br>• 2 Conductores de Distribución Institucional (operación en ruta y modo móvil offline).<br>• 1 Administrador de Sistemas / TI (gestión de cuentas, roles y auditoría).<br>• 1 Supervisor Académico / Evaluador de Proyectos de Software. |
 | **Condiciones del Test** | Entorno real de producción sobre dispositivos heterogéneos (navegador de escritorio Chrome en estación de trabajo y smartphone Android de 6.5" para conductores). |
 
@@ -136,22 +136,16 @@ $$\bar{X}_{\text{SUS}} = \frac{90.0 + 75.0 + 85.0 + 72.5 + 95.0 + 72.5}{6} = \fr
  [Inaceptable]     [Marginal]       [Aceptable]    [Excelente] (PathSeek)
 ```
 
-### 4.2 Clasificación por Escalas Estandarizadas
+### 4.2 Alcance del resultado
 
-1. **Escala de Adjetivos (Bangor, Kortum & Miller, 2009):**  
-   El puntaje 81.67 se sitúa en la categoría **"Excelente" (*Excellent*)**, superando ampliamente el rango de "Bueno" (*Good*, 71–80 pts).
-2. **Escala de Grados Académicos (Sauro & Lewis, 2012):**  
-   Corresponde a un **Grado A (A-)**, reservado para sistemas con usabilidad superior al promedio comercial.
-3. **Rango Percentil:**  
-   Un puntaje SUS de 81.67 sitúa a PathSeek en el **percentil 92 %**, lo que significa que la plataforma presenta una usabilidad superior al 92 % de los sistemas de software evaluados en la literatura empírica.
-
+El promedio se obtuvo en una muestra de seis participantes. Dos tenían perfil de conductor. Para verificar EN-007, falta documentar la prueba del APK con conductores, la ejecución de tareas sin ayuda y la satisfacción específica de **≥ 4/5**.
 ---
 
-## 5. Cuellos de Botella de Interfaz Identificados y Mejoras Implementadas
+## 5. Observaciones de interfaz y mejoras reportadas
 
-Durante la observación activa de los usuarios en la ejecución de tareas se detectaron los siguientes puntos de fricción, los cuales fueron resueltos en el marco del rediseño UI/UX Pro Max del frontend:
+El levantamiento original registró estos puntos de fricción. La prueba de campo debe confirmar su estado en el APK que se entregue.
 
-| Cuello de Botella Detectado | Impacto en la Tarea | Acción de Mejora Implementada en Flutter | Estado |
+| Cuello de Botella Detectado | Impacto en la Tarea | Acción de Mejora Reportada en Flutter | Estado reportado |
 | :--- | :--- | :--- | :---: |
 | **Contraste de marcadores en el mapa bajo luz solar:** El conductor rural (P4) reportó dificultad para distinguir paradas completadas frente a pendientes. | Confusión en la secuencia de entrega durante el recorrido. | Se rediseñaron los pines de `interactive_route_map.dart` incorporando bordes gruesos de alto contraste (#1B5E20 para entregados, #C62828 para pendientes) con iconos vectoriales explícitos. | **Resuelto** |
 | **Tiempo de respuesta en reoptimización:** El operador secundario (P2) consultó si el sistema se había congelado durante el cálculo de rutas de 150 pedidos. | Incertidumbre operativa durante los 25 segundos de cómputo. | Se integró una barra de progreso indeterminada con animación de estado y mensaje explicativo del progreso del algoritmo genético / simulated annealing. | **Resuelto** |
@@ -162,7 +156,9 @@ Durante la observación activa de los usuarios en la ejecución de tareas se det
 
 ## 6. Conclusión de Usabilidad
 
-La evaluación cuantitativa mediante la escala SUS ($n = 6$) valida de forma concluyente que **PathSeek es una herramienta intuitiva, robusta y altamente eficiente para la gestión logística de UGEL Huancayo**. La calificación de **81.67 (Excelente / Grado A)** certifica que la curva de aprendizaje es mínima y que las decisiones de diseño adoptadas garantizan una experiencia de trabajo ágil tanto en oficina como en campo.
+Las seis respuestas registradas dan un promedio SUS de **81,67/100**. El resultado resume la usabilidad percibida en esta muestra. La aceptación de EN-007 requiere la evidencia de la prueba de campo del APK y su encuesta específica.
+
+Para realizar esa validación, registrar la versión del APK, dispositivo y fecha. Cada conductor debe consultar su ruta asignada y sus entregas pendientes sin ayuda, registrar una entrega de prueba y responder la encuesta de satisfacción de 1 a 5. Conservar las respuestas anonimizadas y calcular el promedio de los conductores para contrastarlo con **≥ 4/5**.
 
 ---
 

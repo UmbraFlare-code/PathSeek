@@ -153,7 +153,7 @@ public class SustainabilityReportService {
             document.add(new Paragraph(
                     "Nota: distancia, combustible y emisiones son valores estimados del optimizador; "
                             + "no corresponden a recorrido vial real ni a tráfico observado. "
-                            + "El cumplimiento de ventanas se registra contra la hora estimada de llegada.",
+                            + "El cumplimiento usa la hora de entrega registrada cuando está disponible y la estimación de llegada en los demás casos.",
                     SMALL));
             document.close();
             return out.toByteArray();

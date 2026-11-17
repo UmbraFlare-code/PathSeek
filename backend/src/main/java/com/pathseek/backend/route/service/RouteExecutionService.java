@@ -18,7 +18,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -30,24 +33,24 @@ import java.util.UUID;
  */
 @Service
 public class RouteExecutionService {
+    private static final ZoneId LIMA = ZoneId.of("America/Lima");
 
     private final DeliveryRouteRepository routes;
     private final RouteProgressRepository progress;
     private final RoutingContextService context;
+    private final Clock clock;
 
     public RouteExecutionService(DeliveryRouteRepository routes, RouteProgressRepository progress,
-                                 RoutingContextService context) {
+                                 RoutingContextService context, Clock clock) {
         this.routes = routes;
         this.progress = progress;
         this.context = context;
+        this.clock = clock;
     }
 
     @Transactional
-    public DeliveryUpdateResponse completeDelivery(UUID rutaId, UUID pedidoId) {
+    public DeliveryUpdateResponse completeDelivery(UUID rutaId, UUID pedidoId, OffsetDateTime recordedAt) {
         DeliveryRoute route = loadOwn(rutaId);
-        if (!active(route)) {
-            throw new BusinessConflictException("ROUTE_NOT_ACTIVE", "La ruta no admite registros de ejecución");
-        }
         RouteOrder stop = route.getPedidos().stream()
                 .filter(s -> s.getPedido().getId().equals(pedidoId))
                 .findFirst()
@@ -55,6 +58,9 @@ public class RouteExecutionService {
         Order order = stop.getPedido();
         if (order.getEstado() == OrderStatus.ENTREGADO) {
             return response(route, stop, true);
+        }
+        if (!active(route)) {
+            throw new BusinessConflictException("ROUTE_NOT_ACTIVE", "La ruta no admite registros de ejecución");
         }
         int orden = stop.getOrden();
         boolean prefixOk = route.getPedidos().stream()
@@ -64,15 +70,20 @@ public class RouteExecutionService {
             throw new BusinessConflictException("ORDER_PREFIX_INCOMPLETE",
                     "Complete las entregas anteriores antes de registrar esta");
         }
+        OffsetDateTime receivedAt = OffsetDateTime.now(clock);
+        OffsetDateTime deliveredAt = recordedAt == null || recordedAt.isAfter(receivedAt) ? receivedAt : recordedAt;
         order.setEstado(OrderStatus.ENTREGADO);
-        stop.setCumplioVentana(withinWindow(order, stop.getHoraEstimada()));
+        stop.setEntregadoEn(deliveredAt);
+        var deliveryTime = deliveredAt.atZoneSameInstant(LIMA);
+        stop.setCumplioVentana(deliveryTime.toLocalDate().equals(route.getFecha())
+                && withinWindow(order, deliveryTime.toLocalTime()));
         if (route.getEstado() == RouteStatus.PLANIFICADA) {
             route.setEstado(RouteStatus.EN_PROGRESO);
         }
         boolean allDelivered = route.getPedidos().stream()
                 .allMatch(s -> s.getPedido().getEstado() == OrderStatus.ENTREGADO);
         if (allDelivered) {
-            route.setEstado(RouteStatus.COMPLETADA);
+            route.complete(deliveredAt);
         }
         routes.save(route);
         return response(route, stop, false);
@@ -114,7 +125,7 @@ public class RouteExecutionService {
     }
 
     private DeliveryRoute loadOwn(UUID rutaId) {
-        DeliveryRoute route = routes.findById(rutaId)
+        DeliveryRoute route = routes.lockPlanningRoutes(List.of(rutaId)).stream().findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Ruta no encontrada con ID: " + rutaId));
         if (route.getConductor().getUsuarioId() == null
                 || !route.getConductor().getUsuarioId().toString().equals(CurrentActor.subject())) {

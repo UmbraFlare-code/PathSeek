@@ -161,6 +161,12 @@ Los roles válidos son `ADMIN`, `OPERADOR`, `CONDUCTOR`, `CLIENTE` y `AUDITOR`. 
 
 El bootstrap está desactivado por defecto. Para crear una cuenta local reproducible, configura `APP_BOOTSTRAP_USER_ENABLED=true` y completa nombre, email y contraseña antes de iniciar la aplicación. La contraseña se guarda con BCrypt, solo se crea el usuario si el email aún no existe y nunca se sobrescriben cuentas ni se imprime la contraseña.
 
+### Indicadores del dashboard
+
+`GET /api/v1/dashboard/resumen` incluye `rutas_ejecutadas`, con los totales estimados de distancia, CO₂ y consumo de las rutas completadas. El cumplimiento de ventanas usa las entregas con hora registrada, en la zona `America/Lima`. Las entregas históricas sin hora registrada conservan su estado y quedan fuera de ese porcentaje.
+
+La comparación de hoy estima el combustible de las mismas entregas con salida y regreso al depósito, según el orden de registro de los pedidos y el rendimiento del vehículo de la ruta. Las rutas anteriores a la migración sin fecha de finalización se asignan a su fecha operativa. El campo `ahorro_pen` se calcula con `DASHBOARD_FUEL_PRICE_PEN_PER_LITER`, en soles por litro. Con `0` o sin la variable, el dashboard muestra el ahorro en litros y porcentaje. La web actualiza los indicadores cada 10 segundos mientras está activa.
+
 ### Probar con Swagger
 
 1. Inicia la API y abre `http://localhost:8080/swagger-ui.html`.

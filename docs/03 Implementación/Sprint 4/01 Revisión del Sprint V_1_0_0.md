@@ -2,71 +2,45 @@
 
 # Revisión del sprint
 
-**Nombre del Proyecto:** PathSeek — Optimizador de Rutas Sostenibles para UGEL Huancayo
+- **Proyecto:** PathSeek, optimizador de rutas sostenibles para UGEL Huancayo
+- **Líder:** Francis Maxuel Urquizo Ore
+- **Iteración:** Sprint 4 (Inspección 5)
+- **Corte del sprint:** 2026-11-16
+- **Revisión:** V_1_1_0 · 2026-11-17
 
-**Líder del Proyecto:** Francis Maxuel Urquizo Ore
+## Historias de usuario y validaciones del sprint
 
-**Versión:** V_1_0_0  
-**Fecha de corte:** 2026-11-16  
-**Iteración:** Sprint 4 (Cierre e Inspección 5)  
-**Entorno de despliegue auditado:** VPS Dokploy Producción (`https://169.58.74.99`)  
-**Rama de cierre:** `main`
+El backlog suma 89 puntos en 19 ítems. La revisión anterior registró 14 puntos para el Sprint 4. Con las estimaciones del backlog, los cuatro enablers suman 11 puntos y el trabajo QA-E2E añade 1 punto de alcance del sprint. Jira debe conciliar la aceptación y el cómputo acumulado de los ítems que ya figuraron en otros sprints. [Backlog canónico](../../02%20Planificaci%C3%B3n/01%20Transformando%20a%20%C3%A1gil%20V_1_1_0.md) · [Cierre de Jira](../../02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_1_0.md#48-cierre-del-sprint-4-inspecci%C3%B3n-5)
 
----
+| Ítem | SP | Verificación disponible | Pendiente de aceptación |
+| --- | ---: | --- | --- |
+| EN-005 Escalabilidad | 3 | En PostgreSQL 16 con PostGIS, el escenario sintético asignó 1.000 pedidos con 50 vehículos en 4,91 s de un máximo de 45 s. `EXPLAIN` confirmó el uso del índice GiST en la consulta de proximidad. | Medición representativa p95 en staging. |
+| EN-006 Accesibilidad | 3 | Idioma español declarado, configuración de viewport que permite zoom y menú lateral en el árbol semántico. Axe y login por teclado pasaron en los tres navegadores. En Chromium también se comprobó la activación por teclado y axe en pedidos, rutas, reportes y compensación. | Recorrido completo por teclado y lector de pantalla, contraste de los elementos dibujados en el canvas y revisión de los criterios AA restantes. |
+| EN-007 Modo conductor y usabilidad | 3 | El informe registra SUS global de **81,67/100** con seis respuestas. | Evidencia de uso del APK en campo sin ayuda y encuesta de satisfacción específica de conductores **≥ 4/5**. |
+| EN-009 Documentación y API | 2 | Manuales de usuario y administrador y contexto logístico. Se verificó el OpenAPI 3.1 generado por el backend de pruebas con los endpoints de salud, reoptimización y PDF. | Corroborar la versión expuesta en el ambiente de entrega. |
+| QA-E2E | 1 | Playwright aprobó 33 casos locales sobre Flutter Web compilado y una API con PostgreSQL. La suite cubre formulario, autenticación, autorización, módulos principales, PDF y resiliencia. | Adjuntar la corrida de GitHub Actions de la revisión corregida. |
 
-## Historias de Usuario completadas en este Sprint
+### Definition of Done
 
-Durante el Sprint 4 se completó el 100 % de los ítems remanentes del Product Backlog, alcanzando **89 de 89 Story Points (100 % de completitud global)** conforme al *Definition of Done* (DoD) institucional (análisis estático sin errores bloqueantes, cobertura de pruebas > 80 %, integración continua automatizada, revisión de pares y despliegue operativo en producción).
+GitHub Actions guarda los resultados de Maven y Flutter, los reportes JaCoCo y LCOV y la cobertura de las líneas modificadas que reportan esas herramientas en los PR. El criterio del backlog es **≥ 80 %**. La existencia de un reporte global o un número de pruebas aprobadas no acredita por sí sola la cobertura de cada cambio.
 
-| Código | Título de la Historia / Enabler | SP | Criterios de Aceptación Verificados | Enlace de Cierre (Commit / PR) |
-| :--- | :--- | :---: | :--- | :--- |
-| **EN-005** | Escalabilidad de la Arquitectura | 5 | Verificación de concurrencia de reoptimización ante solicitudes simultáneas; tolerancia a picos de demanda en horas punta en Huancayo; estabilidad de pools de conexiones PostgreSQL con tiempos de respuesta p95 < 1200 ms. | [PR #12](https://github.com/UmbraFlare-code/PathSeek/pull/12) · [Commit c2732af](https://github.com/UmbraFlare-code/PathSeek/commit/c2732af) |
-| **EN-006** | Accesibilidad WCAG 2.2 AA | 3 | Cumplimiento de contrastes de color (relación mínima 4.5:1 en texto normal y 3:1 en gráficos), navegación completa por teclado en web, etiquetas accesibles en controles interactivos (`Semantics` en Flutter) y ausencia de trampas de foco. | [PR #12](https://github.com/UmbraFlare-code/PathSeek/pull/12) · [Commit a1e6ca7](https://github.com/UmbraFlare-code/PathSeek/commit/a1e6ca7) |
-| **EN-007** | Usabilidad del Modo Conductor y Evaluación en Campo | 3 | Interfaz adaptada con botones de toque ampliado (área táctil ≥ 48x48 dp), visualización simplificada de hoja de ruta, sincronización de estado de entrega con un solo toque y evaluación empírica SUS con puntaje sobresaliente (82.08/100). | [PR #13](https://github.com/UmbraFlare-code/PathSeek/pull/13) · [Commit fc74b61](https://github.com/UmbraFlare-code/PathSeek/commit/fc74b61) |
-| **EN-009** | Documentación Técnica, Contratos OpenAPI y Cierre | 2 | Especificación OpenAPI 3.0 sincronizada con backend Spring Boot; actualización de manuales de usuario y administración; catálogos de endpoints validados y trazabilidad bidireccional en el repositorio. | [PR #13](https://github.com/UmbraFlare-code/PathSeek/pull/13) · [Commit fc74b61](https://github.com/UmbraFlare-code/PathSeek/commit/fc74b61) |
-| **QA-E2E** | Suite Automatizada E2E con Playwright | 1 | Cobertura automatizada multi-navegador (Chromium, Firefox, WebKit) de flujos críticos: login/RBAC, gestión de pedidos, cálculo y visualización de rutas geográficas, validación de formularios y medición de Web Vitals. | [Commit b67f4b2](https://github.com/UmbraFlare-code/PathSeek/commit/b67f4b2) |
+La ejecución local de regresión aprobó 292 casos de Flutter y 118 de Maven. Maven omitió cuatro casos condicionales en la configuración por defecto. Los tres casos del perfil de carga con PostGIS pasaron en su ejecución específica. El cálculo de cobertura por cambio cubrió las cuatro líneas de Flutter reportadas por LCOV. La inicialización de semántica web se verificó mediante Playwright.
 
-### Verificación del Definition of Done (DoD)
+El despliegue exige una ejecución exitosa de CI en `main`, el webhook de Dokploy y respuestas HTTPS del frontend compilado y la API. La corrida histórica quedó marcada como exitosa con un webhook simulado y código HTTP `000`. [Log de GitHub Actions](https://github.com/UmbraFlare-code/PathSeek/actions/runs/44010264499/job/133795319138)
 
-1. **Pruebas Automatizadas:** 121 pruebas en backend (Spring Boot / H2 / PostGIS) aprobadas; 292 pruebas en frontend (Flutter) aprobadas; suite E2E de Playwright ejecutada con 100 % de éxito en Chromium, Firefox y WebKit.
-2. **Análisis Estático y Calidad:** Cero errores en `flutter analyze`; análisis estático Maven sin violaciones críticas; configuración de `.gitignore` libre de temporales y residuos.
-3. **CI/CD Automatizado:** Flujos `ci.yml`, `tests.yml` y `deploy-production.yml` operativos en GitHub Actions con almacenamiento de artefactos de prueba.
-4. **Despliegue Operativo:** Plataforma desplegada en producción mediante contenedores Docker orquestados por Dokploy con endpoints y certificados SSL activos.
-
----
+La configuración de GitHub requiere el secreto `DOKPLOY_WEBHOOK_URL` y la variable `PRODUCTION_BASE_URL` con el origen HTTPS de la instancia. El workflow verifica la disponibilidad de la web y de la API. El registro de Dokploy debe vincular la revisión de Git con el despliegue efectivo. [Workflow](../../../.github/workflows/deploy-production.yml)
 
 ## Demostración del trabajo completado
 
-La sesión de demostración final (*Sprint Review & Final Acceptance Demo*) se llevó a cabo el día **14 de noviembre de 2026** ante los *stakeholders* y el comité evaluador de la UGEL Huancayo, encabezado por el supervisor académico Ing. Daniel Gamarra y el equipo de logística institucional.
+El [informe de Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) documenta cómo reproducir login por teclado, permisos del backend, pedidos, rutas, mapa, compensación, descarga PDF y consulta de una ruta almacenada durante una interrupción de red. Se usa una base aislada con datos de demostración.
 
-### 1. Funcionalidades Exhibidas
-- **Autenticación y RBAC Multinivel:** Inicio de sesión y segregación de vistas según perfiles Administrador, Operador Logístico y Conductor.
-- **Motor de Optimización Heurística (VRPTW + Green VRP):** Generación en vivo de rutas para un lote de pedidos de distribución educativa en Huancayo en menos de 28 segundos, logrando una reducción estimada del 16.4 % en distancia y 11.2 % en emisiones de CO₂.
-- **Visualización Georreferenciada OSRM:** Despliegue de trazados viales punto a punto sobre mapas de OpenStreetMap con marcadores interactivos de instituciones educativas.
-- **Modo Conductor y Sincronización Offline:** Demostración de desconexión de red en dispositivo móvil, registro local de entregas con firma digital/conformidad y sincronización automática idempotente al recuperar enlace.
-- **Módulo de Compensación de Carbono y Reportes:** Emisión de reportes de sostenibilidad en PDF con cálculo de ahorro de combustible y plan de compensación.
-- **Suite Automatizada Playwright y Workflows:** Demostración de ejecución headless en GitHub Actions con reportes HTML de pruebas y métricas Web Vitals.
-
-### 2. Entorno Utilizado
-- **Producción:** Despliegue en VPS Dokploy en la dirección `https://169.58.74.99` bajo contenedor Nginx (Frontend Flutter Web) y Spring Boot 3 con base de datos PostgreSQL 16 y extensión PostGIS.
-- **Staging / Local:** Demostración de cliente Android APK conectado a la API de producción.
-
-### 3. Retroalimentación Recibida y Conformidad
-- **Aceptación de la Solución:** Los representantes de UGEL Huancayo expresaron alta satisfacción con la fluidez del mapa interactivo y la claridad de la hoja de ruta para los conductores.
-- **Acta de Conformidad:** Se suscribió el acta de conformidad del Sprint 4 con dictamen **APROBADO SIN RESERVAS CRÍTICAS**, validando que el sistema satisface plenamente los requisitos funcionales RF-001 al RF-010 y los objetivos del proyecto.
-
----
+La revisión anterior registró una demostración ante UGEL Huancayo el 14 de noviembre. Está pendiente adjuntar el acta firmada o un registro de conformidad que permita verificar fecha, asistentes, versión presentada y alcance aceptado.
 
 ## Pendientes
 
-Al ser el Sprint de cierre del ciclo de desarrollo de la plataforma, el backlog se encuentra cubierto al **100 % (89/89 SP)**. Se registraron los siguientes puntos de mantenimiento y evolución tecnológica para la fase post-MVP:
-
-| Ítem | Clasificación | Justificación y Tratamiento Posterior |
-| :--- | :--- | :--- |
-| **Integración con sensores de tráfico municipal en tiempo real** | Deuda técnica evolutiva | Actualmente OSRM utiliza perfiles de velocidad estáticos basados en jerarquía vial de Huancayo. Para la versión 2.0 se planifica integrar feeds GTFS/tráfico en vivo de la Municipalidad Provincial de Huancayo. |
-| **Compilación nativa para plataforma iOS** | Extensión de plataforma | La versión actual del cliente móvil se compiló y distribuyó en APK para Android (dispositivos institucionales de UGEL). La compilación para iOS quedó programada para la etapa de soporte anual tras la adquisición de certificados Apple Developer por la institución. |
-| **Ampliación de capas satelitales offline de alta resolución** | Optimización de recursos | Se cuenta con caché vectorial y teselas estándar; para zonas rurales de difícil acceso se prevé incorporar almacenamiento precargado de ortofotos satelitales en la tarjeta de memoria del dispositivo. |
-
----
+- Ejecutar en staging las mediciones p95 con datos independientes. Usar `backend/tools/benchmark_generation.py` y `backend/tools/benchmark_reoptimization.py` con la URL del entorno, un JWT temporal de pruebas en `PATHSEEK_BENCH_TOKEN` y eventos preparados para reoptimización. Guardar los JSON junto con el SHA y la configuración de staging.
+- Adjuntar la evidencia WCAG de los flujos no auditados, la prueba de campo del APK y la encuesta de conductores.
+- Conciliar las estimaciones y los estados en Jira, adjuntar el acta y enlazar las ejecuciones de CI y Dokploy de la versión entregada.
+- Mantener en el backlog de evolución la evaluación de tráfico en tiempo real, iOS y caché de teselas de mayor resolución. [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
 
 [← Volver al README principal](../../../README.md)

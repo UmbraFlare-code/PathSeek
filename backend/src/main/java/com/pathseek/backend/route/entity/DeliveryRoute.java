@@ -60,6 +60,9 @@ public class DeliveryRoute {
     @Column(nullable = false, length = 20)
     private RouteStatus estado = RouteStatus.PLANIFICADA;
 
+    @Column(name = "completada_en")
+    private OffsetDateTime completadaEn;
+
     @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("orden ASC")
     private List<RouteOrder> pedidos = new ArrayList<>();
@@ -147,6 +150,11 @@ public class DeliveryRoute {
 
     public void setEstado(RouteStatus estado) {
         this.estado = estado;
+    }
+
+    public void complete(OffsetDateTime completedAt) {
+        estado = RouteStatus.COMPLETADA;
+        completadaEn = completedAt;
     }
 
     public List<RouteOrder> getPedidos() {

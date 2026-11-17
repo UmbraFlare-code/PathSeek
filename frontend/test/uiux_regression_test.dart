@@ -6,11 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pathseek/core/di/injection.dart';
 import 'package:pathseek/core/theme/app_theme.dart';
 import 'package:pathseek/core/widgets/search_sort_controls.dart';
 import 'package:pathseek/features/auth/domain/entities/app_user.dart';
 import 'package:pathseek/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pathseek/features/dashboard/domain/entities/dashboard_summary.dart';
+import 'package:pathseek/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:pathseek/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:pathseek/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:pathseek/features/routes/domain/entities/delivery_route.dart';
@@ -24,6 +26,8 @@ class AuthMock extends Mock implements AuthBloc {}
 class RoutesMock extends Mock implements RouteBloc {}
 
 class DashboardMock extends Mock implements DashboardBloc {}
+
+class DashboardRepositoryMock extends Mock implements DashboardRepository {}
 
 const planned = DeliveryRoute(
   id: 'r1',
@@ -284,12 +288,16 @@ void main() {
         when(() => dashboard.stream).thenAnswer((_) => const Stream.empty());
         when(() => dashboard.state).thenReturn(
           DashboardState(
-            summary: empty
-                ? null
-                : const DashboardSummary(
-                    totalVehiculos: 12,
-                    rutasPlanificadas: 8,
-                  ),
+            summary: DashboardSummary(
+              totalVehiculos: 12,
+              rutasPlanificadas: 8,
+              executedRoutes: ExecutedRoutesMetrics(
+                completedRoutes: empty ? 0 : 1,
+                distanceKm: 4,
+                co2Kg: 2,
+                fuelLiters: 1,
+              ),
+            ),
           ),
         );
         await render(
@@ -303,6 +311,10 @@ void main() {
           ),
         );
         expect(find.textContaining('Genera rutas'), findsNothing);
+        expect(
+          find.textContaining('Aún no hay rutas completadas.'),
+          empty ? findsOneWidget : findsNothing,
+        );
         if (!empty) {
           await tester.ensureVisible(find.text('Rutas de distribución'));
           await tester.pumpAndSettle();
@@ -311,4 +323,41 @@ void main() {
       },
     );
   }
+
+  testWidgets('updates completed route metrics in place after ten seconds', (
+    tester,
+  ) async {
+    final repository = DashboardRepositoryMock();
+    when(
+      () => repository.getSummary(),
+    ).thenAnswer((_) async => const DashboardSummary(rutasPlanificadas: 1));
+    locator.registerFactory<DashboardBloc>(
+      () => DashboardBloc(repository: repository),
+    );
+    addTearDown(() => locator.unregister<DashboardBloc>());
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await render(tester, child: const DashboardPage());
+    expect(
+      find.textContaining('Aún no hay rutas completadas.'),
+      findsOneWidget,
+    );
+
+    when(() => repository.getSummary()).thenAnswer(
+      (_) async => const DashboardSummary(
+        executedRoutes: ExecutedRoutesMetrics(
+          completedRoutes: 1,
+          distanceKm: 8,
+          co2Kg: 2,
+          fuelLiters: 1,
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 10));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Aún no hay rutas completadas.'), findsNothing);
+    expect(find.text('Distancia recorrida estimada'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 20));
+    verify(() => repository.getSummary()).called(2);
+  });
 }

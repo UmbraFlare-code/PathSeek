@@ -1,13 +1,7 @@
 name: Tests Suite
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  workflow_run:
-    workflows: ["CI Pipeline"]
-    types: [completed]
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -17,6 +11,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -32,14 +28,45 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: '3.41.6'
           cache: true
 
       - name: Run Frontend Tests
         working-directory: frontend
         run: |
           flutter pub get
-          flutter test
+          flutter test --coverage
+
+      - name: Check coverage of changed executable lines
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/diff-cover"
+          "$RUNNER_TEMP/diff-cover/bin/pip" install diff-cover==9.7.1
+          sed -i 's|^SF:lib/|SF:frontend/lib/|' frontend/coverage/lcov.info
+          diff_cover="$RUNNER_TEMP/diff-cover/bin/diff-cover"
+          backend_status=0
+          frontend_status=0
+          "$diff_cover" backend/target/site/jacoco/jacoco.xml \
+            --src-roots backend/src/main/java --compare-branch "$BASE_SHA" --fail-under 80 \
+            --format markdown:backend-diff-coverage.md || backend_status=$?
+          "$diff_cover" frontend/coverage/lcov.info \
+            --compare-branch "$BASE_SHA" --fail-under 80 \
+            --format markdown:frontend-diff-coverage.md || frontend_status=$?
+          test "$backend_status" -eq 0 && test "$frontend_status" -eq 0
+
+      - name: Upload regression and coverage results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-and-coverage-results
+          path: |
+            backend/target/surefire-reports/
+            backend/target/site/jacoco/
+            frontend/coverage/lcov.info
+            backend-diff-coverage.md
+            frontend-diff-coverage.md
 
   e2e-playwright:
     name: E2E & Performance Tests (Playwright Multi-Browser)
@@ -51,21 +78,34 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
-          cache-dependency-path: 'frontend/package.json'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install Playwright dependencies
         working-directory: frontend
         run: |
-          npm install
+          npm ci
           npx playwright install --with-deps
+
+      - name: Start isolated PostgreSQL, backend and compiled Flutter Web
+        env:
+          ROUTING_ENABLED: 'false'
+        run: docker compose up --build --wait --wait-timeout 180
+
+      - name: Verify the generated OpenAPI contract
+        run: |
+          curl --fail --silent --show-error --max-time 20 http://localhost:8080/v3/api-docs -o openapi.json
+          jq -e '.openapi and .paths["/api/v1/health"].get and .paths["/api/v1/rutas/reoptimizar"].post and .paths["/api/v1/reportes/sostenibilidad"].get' openapi.json
 
       - name: Run Playwright E2E Tests
         working-directory: frontend
         env:
-          PLAYWRIGHT_BASE_URL: https://169.58.74.99
-          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost
+          PLAYWRIGHT_ADMIN_EMAIL: admin@pathseek.pe
+          PLAYWRIGHT_OPERATOR_EMAIL: operador@pathseek.pe
+          PLAYWRIGHT_TEST_PASSWORD: 'Admin123!'
+          PLAYWRIGHT_SEED_ROUTES: '1'
         run: npm run test:e2e
 
       - name: Upload Playwright HTML Report
@@ -81,5 +121,20 @@ jobs:
         if: always()
         with:
           name: playwright-test-results
-          path: frontend/test-results/
+          path: |
+            frontend/test-results/
+            openapi.json
           retention-days: 14
+
+      - name: Collect service logs and stop the test stack
+        if: always()
+        run: |
+          docker compose logs --no-color > e2e-services.log
+          docker compose down -v
+
+      - name: Upload service logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-service-logs
+          path: e2e-services.log

@@ -505,6 +505,19 @@ void main() {
           rutasPlanificadas: 5,
           co2TotalKg: 18.6,
           combustibleTotalL: 8.2,
+          executedRoutes: ExecutedRoutesMetrics(
+            completedRoutes: 3,
+            distanceKm: 24.0,
+            co2Kg: 4.2,
+            fuelLiters: 1.2,
+            onTimePercent: 50,
+            dailyComparison: DailyFuelComparison(
+              sequentialLiters: 2,
+              savedLiters: 0.8,
+              savedPercent: 40,
+              savedSoles: 5.2,
+            ),
+          ),
         ),
       ),
     );
@@ -517,6 +530,9 @@ void main() {
     );
     addTearDown(router.dispose);
     await render(tester, router: router);
+    expect(find.text('Distancia recorrida estimada'), findsOneWidget);
+    expect(find.text('Cumplimiento de ventanas'), findsOneWidget);
+    expect(find.textContaining('Has ahorrado S/'), findsOneWidget);
     await snapshot(tester, 'dashboard-desktop');
     expect(tester.takeException(), isNull);
   });

@@ -1,5 +1,6 @@
 package com.pathseek.backend.route.controller;
 
+import com.pathseek.backend.route.dto.CompleteDeliveryRequest;
 import com.pathseek.backend.route.dto.DeliveryUpdateResponse;
 import com.pathseek.backend.route.dto.PositionUpdateRequest;
 import com.pathseek.backend.route.service.RouteExecutionService;
@@ -40,7 +41,8 @@ public class RouteExecutionController {
             description = "Valida el prefijo de entregas; repetir la misma entrega no la duplica")
     public ResponseEntity<DeliveryUpdateResponse> completeDelivery(
             @PathVariable UUID id,
-            @PathVariable UUID pedidoId) {
-        return ResponseEntity.ok(service.completeDelivery(id, pedidoId));
+            @PathVariable UUID pedidoId,
+            @RequestBody(required = false) CompleteDeliveryRequest request) {
+        return ResponseEntity.ok(service.completeDelivery(id, pedidoId, request == null ? null : request.entregadoEn()));
     }
 }

@@ -22,6 +22,8 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  dashboard:
+    fuel-price-pen-per-liter: ${DASHBOARD_FUEL_PRICE_PEN_PER_LITER:0}
   routing:
     enabled: ${ROUTING_ENABLED:false}
     base-url: ${ROUTING_BASE_URL:https://router.project-osrm.org}

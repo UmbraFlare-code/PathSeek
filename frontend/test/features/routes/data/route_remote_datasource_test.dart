@@ -12,6 +12,7 @@ class Adapter implements HttpClientAdapter {
   Adapter({this.failures = 0});
   int failures;
   final paths = <String>[];
+  Object? lastBody;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -19,6 +20,7 @@ class Adapter implements HttpClientAdapter {
     Future<void>? cancel,
   ) async {
     paths.add(options.path);
+    lastBody = options.data;
     expect(options.headers['Authorization'], 'Bearer validated-token');
     if (options.path.endsWith('/geometria') && failures > 0) {
       failures--;
@@ -46,6 +48,16 @@ class Adapter implements HttpClientAdapter {
 }
 
 void main() {
+  test('sends the original delivery time as UTC when available', () async {
+    final storage = Storage();
+    when(() => storage.readAccessToken()).thenAnswer((_) async => 'validated-token');
+    final adapter = Adapter();
+    final source = RouteRemoteDataSourceImpl(ApiClient(tokenStorage: storage, dio: Dio()..httpClientAdapter = adapter));
+    await source.completeDelivery('r1', 'o1', deliveredAt: DateTime.parse('2026-11-17T08:05:00-05:00'));
+    expect(adapter.paths.single, '/api/v1/rutas/r1/entregas/o1/completar');
+    expect(adapter.lastBody, {'entregado_en': '2026-11-17T13:05:00.000Z'});
+  });
+
   for (final failures in [1, 2]) {
     test(
       'transient geometry failure is retried once, failures=$failures',

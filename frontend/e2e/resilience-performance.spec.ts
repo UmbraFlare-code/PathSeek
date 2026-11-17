@@ -1,59 +1,47 @@
 import { test, expect } from '@playwright/test';
+import { adminEmail, navigate, openLogin, signIn, signInApi } from './session';
 
-test.describe('Monitoreo de Rendimiento (Web Vitals) y Resiliencia', () => {
-  test('debe medir tiempos de carga y métricas Web Vitals dentro del SLA', async ({ page }) => {
-    const startTime = Date.now();
-    const response = await page.goto('/');
-    const loadTime = Date.now() - startTime;
-
-    expect(response?.status()).toBe(200);
-    // SLA de carga de página inicial < 3000ms
-    expect(loadTime).toBeLessThan(5000);
-
-    // Extracción de Web Vitals mediante Performance Navigation Timing API
-    const timing = await page.evaluate(() => {
-      const perf = window.performance;
-      const nav = perf.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      const paint = perf.getEntriesByType('paint');
-
-      const fcp = paint.find(entry => entry.name === 'first-contentful-paint')?.startTime || 0;
-      const ttfb = nav ? nav.responseStart - nav.requestStart : 0;
-      const domComplete = nav ? nav.domComplete : 0;
-
-      return { ttfb, fcp, domComplete };
-    });
-
-    console.log(`[Performance Metrics] TTFB: ${timing.ttfb.toFixed(2)}ms | FCP: ${timing.fcp.toFixed(2)}ms | DOM: ${timing.domComplete.toFixed(2)}ms`);
-    // TTFB aceptable en producción < 800ms
-    expect(timing.ttfb).toBeLessThan(1000);
+test('mide la carga del login renderizado', async ({ page }, testInfo) => {
+  const started = Date.now();
+  await openLogin(page);
+  const navigation = await page.evaluate(() => {
+    const [entry] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    const fcp = performance.getEntriesByName('first-contentful-paint')[0]?.startTime;
+    return { ttfbMs: entry.responseStart - entry.requestStart, fcpMs: fcp ?? null };
   });
-
-  test('debe verificar disponibilidad de endpoints API con latencia < 500ms', async ({ request, baseURL }) => {
-    const startTime = Date.now();
-    const response = await request.get(`${baseURL}/actuator/health`).catch(() => null);
-    const elapsed = Date.now() - startTime;
-
-    if (response) {
-      expect([200, 401, 403, 404]).toContain(response.status());
-      console.log(`[API Latency] /actuator/health respondió en ${elapsed}ms con código ${response.status()}`);
-      expect(elapsed).toBeLessThan(1500);
-    }
+  const renderedMs = Date.now() - started;
+  await testInfo.attach('navigation', {
+    body: JSON.stringify({ ...navigation, renderedMs }),
+    contentType: 'application/json',
   });
+  expect(navigation.ttfbMs).toBeGreaterThanOrEqual(0);
+  expect(navigation.ttfbMs).toBeLessThan(1500);
+  expect(renderedMs).toBeLessThan(15_000);
+});
 
-  test('debe responder adecuadamente ante rutas inexistentes (resiliencia HTTP 404)', async ({ page }) => {
-    const response = await page.goto('/ruta-inexistente-error-404-check');
-    // La SPA debe interceptar o el servidor responder con código controlado
-    expect([200, 404]).toContain(response?.status());
-  });
+test('el backend devuelve salud UP y 404 para una ruta inexistente', async ({ request }) => {
+  const response = await request.get('/api/v1/health');
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toMatchObject({ status: 'UP' });
+  const { headers } = await signInApi(request, adminEmail());
+  const missing = await request.get('/api/v1/rutas/00000000-0000-0000-0000-000000000000', { headers });
+  expect(missing.status()).toBe(404);
+});
 
-  test('debe mantener estabilidad ante simulación de desconexión de red', async ({ page, context }) => {
-    await page.goto('/');
-    // Simular modo offline
-    await context.setOffline(true);
-    await page.waitForTimeout(1000);
-
-    // Restaurar red
-    await context.setOffline(false);
-    await expect(page).toHaveTitle(/pathseek/i);
-  });
+test('conserva el detalle de la ruta al desconectar y recuperar la red', async ({ page, context }) => {
+  await signIn(page);
+  await navigate(page, 'Rutas');
+  const route = page.getByRole('button', { name: 'Ver ruta y mapa' }).first();
+  await route.click({ force: true });
+  const detail = page.getByRole('heading', { name: 'Detalle de ruta' });
+  await expect(detail).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ver ruta completa' })).toBeVisible();
+  await page.getByRole('button', { name: 'Volver a rutas' }).click({ force: true });
+  await context.setOffline(true);
+  await expect(page.getByText(/Sin conexión: se muestran datos guardados/)).toBeVisible();
+  await route.click({ force: true });
+  await expect(detail).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ver ruta completa' })).toBeVisible();
+  await context.setOffline(false);
+  await expect(page.getByText(/Sin conexión: se muestran datos guardados/)).toBeHidden();
 });

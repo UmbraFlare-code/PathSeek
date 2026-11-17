@@ -162,6 +162,7 @@ class RouteRepositoryImpl implements RouteRepository {
             await _remoteDataSource.completeDelivery(
               action.rutaId,
               action.pedidoId ?? '',
+              deliveredAt: action.createdAt,
             );
           default:
             return synced;

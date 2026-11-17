@@ -65,3 +65,50 @@ jobs:
           path: |
             backend/target/surefire-reports/
             backend/target/reoptimization-benchmark-*.json
+
+  scalability:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.7-alpine
+        env:
+          POSTGRES_USER: pathseek_test
+          POSTGRES_PASSWORD: isolated_ci_only
+          POSTGRES_DB: pathseek_load
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pathseek_test -d pathseek_load"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Create the schema and PostGIS index in the isolated database
+        env:
+          CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          for file in database/01_schema_tablas.sql database/10_postgis_proximity_index.sql; do
+            docker exec -i "$CONTAINER" psql -U pathseek_test -d pathseek_load -v ON_ERROR_STOP=1 < "$file"
+          done
+      - name: Verify route generation at projected load and the proximity plan
+        working-directory: backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/pathseek_load
+          SPRING_DATASOURCE_USERNAME: pathseek_test
+          SPRING_DATASOURCE_PASSWORD: isolated_ci_only
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+          SPRING_FLYWAY_ENABLED: 'true'
+          PATHSEEK_LOAD_TEST: 'true'
+          PATHSEEK_POSTGIS_TEST: 'true'
+        run: ./mvnw -B -Dtest=GenerationPerformanceTests test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generation-benchmarks-postgis
+          path: |
+            backend/target/generation-benchmark-*.json
+            backend/target/surefire-reports/

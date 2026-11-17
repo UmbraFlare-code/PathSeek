@@ -4,8 +4,8 @@
 
 Proyecto: PathSeek
 Código del documento: DOC-015
-Versión: V_1_5_0
-Fecha: 2026-09-07 (actualizado 2026-10-27)
+Versión: V_1_7_0
+Fecha: 2026-09-07 (actualizado 2026-11-16)
 
 > **Aclaración QA V_1_5_0 (2026-10-27):** no se consultó Jira en esta auditoría. Los cierres y
 > SP siguientes son antecedentes, pendientes de conciliar EN-007/008 ya contabilizados y
@@ -187,13 +187,11 @@ El detalle del cierre consta en `docs/03 Implementación/Sprint 3/` (Informe de 
 | Resultado | Valor |
 | --- | --- |
 | **Sprint** | Sprint 4 (2026-10-26 a 2026-11-16) |
-| **Story Points comprometidos** | 14 |
-| **Story Points completados** | 14 (100 %) |
-| **Ítems completados en Sprint 4** | EN-005 (Escalabilidad de arquitectura), EN-006 (Accesibilidad WCAG 2.2 AA), EN-007 (Validación SUS en campo), EN-009 (Cierre de documentación/OpenAPI), suite E2E Playwright y flujos CI/CD |
-| **Story Points acumulados totales** | **89 / 89 SP (100.0 % del backlog general)** |
-| **Validaciones cerradas** | Evaluación SUS en campo con puntaje 81.67 ("Excelente", Grado A), auditoría WCAG 2.2 AA sin violaciones críticas, suite Playwright E2E multi-browser (Chromium/Firefox/WebKit) con 100 % de éxito |
-| **CI/CD** | Flujos completos `ci.yml`, `tests.yml` y `deploy-production.yml` operativos en GitHub Actions con reportes HTML como artefactos |
-| **Rama de integración** | `main` (despliegue continuo en VPS Dokploy) |
+| **Alcance documentado** | 12 SP con las estimaciones del backlog, incluidos 11 SP de enablers y 1 SP de QA-E2E. El registro anterior de 14 SP usó 5 SP para EN-005. |
+| **Ítems tratados** | EN-005 escalabilidad, EN-006 accesibilidad, EN-007 usabilidad, EN-009 documentación y API, QA-E2E y CI/CD. |
+| **Story Points del backlog general** | 89 SP estimados. La aceptación acumulada requiere conciliar Jira, incluidos los ítems registrados en más de un sprint. |
+| **Validación documentada** | SUS global de 81,67 con seis respuestas. El cierre técnico registra pruebas y evidencias pendientes. |
+| **Rama de integración** | `main`. Dokploy requiere webhook y un origen HTTPS configurados en GitHub. |
 
 El detalle del cierre consta en `docs/03 Implementación/Sprint 4/` (Revisión del Sprint, Retrospectiva, Análisis Playwright y Evaluación Cuantitativa de Usabilidad SUS).
 
@@ -265,6 +263,7 @@ El detalle del cierre consta en `docs/03 Implementación/Sprint 4/` (Revisión d
 | V_1_4_0 | 2026-10-25 | Corrección aritmética del cierre del Sprint 3: 31/31 SP (EN-002 incluido, EN-007/EN-008 contados por separado), acumulado 75/89 SP (84.3 %) y 124 pruebas backend. | Equipo PIPRE |
 | V_1_5_0 | 2026-10-27 | Rectifica conteo de pruebas y documenta estimaciones/aceptación sin ratificación ni nueva consulta Jira. | Auditoría documental QA |
 | V_1_6_0 | 2026-11-16 | Sincronización con el cierre del Sprint 4 e Inspección 5: se registra el estado Done del 100 % del backlog (89/89 SP), suite Playwright y CI/CD. | Equipo PIPRE |
+| V_1_7_0 | 2026-11-16 | Ajusta los SP documentados del Sprint 4 y registra la conciliación Jira pendiente. | Equipo PIPRE |
 
 ---
 
