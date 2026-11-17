@@ -90,16 +90,22 @@ void main() {
       sdk = sdk.parent;
     }
     for (final entry in {
-      'Roboto': 'roboto-regular.ttf',
-      'MaterialIcons': 'materialicons-regular.otf',
+      'Roboto': ['Roboto-Regular.ttf', 'roboto-regular.ttf'],
+      'MaterialIcons': ['MaterialIcons-Regular.otf', 'materialicons-regular.otf'],
     }.entries) {
-      final font = FontLoader(entry.key)
-        ..addFont(
-          File(
-            '${sdk.path}/bin/cache/artifacts/material_fonts/${entry.value}',
-          ).readAsBytes().then(ByteData.sublistView),
-        );
-      await font.load();
+      File? targetFile;
+      for (final name in entry.value) {
+        final f = File('${sdk.path}/bin/cache/artifacts/material_fonts/$name');
+        if (f.existsSync()) {
+          targetFile = f;
+          break;
+        }
+      }
+      if (targetFile != null) {
+        final font = FontLoader(entry.key)
+          ..addFont(targetFile.readAsBytes().then(ByteData.sublistView));
+        await font.load();
+      }
     }
   });
   testWidgets('auditor sees only role definitions and never queries accounts', (

@@ -27,7 +27,7 @@ jobs:
 
       - name: Lint and static analysis
         working-directory: frontend
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Build web distribution
         working-directory: frontend

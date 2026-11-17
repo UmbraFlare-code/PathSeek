@@ -16,11 +16,17 @@ export default defineConfig({
     ['json', { outputFile: 'test-results/test-results.json' }]
   ],
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://169.58.74.99',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     ignoreHTTPSErrors: true,
+  },
+  webServer: {
+    command: 'python3 -m http.server 8080 --directory web',
+    url: 'http://localhost:8080',
+    reuseExistingServer: !process.env.CI,
+    timeout: 15000,
   },
   projects: [
     {

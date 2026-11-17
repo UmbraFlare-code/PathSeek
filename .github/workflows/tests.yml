@@ -64,7 +64,6 @@ jobs:
       - name: Run Playwright E2E Tests
         working-directory: frontend
         env:
-          PLAYWRIGHT_BASE_URL: https://169.58.74.99
           CI: true
         run: npm run test:e2e
 
