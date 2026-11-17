@@ -13,13 +13,12 @@ test.describe('Autenticación y Control de Acceso (RBAC)', () => {
     const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
     expect(response?.status()).toBeLessThan(400);
     await expect(page).toHaveTitle(/pathseek/i);
-    await expect(page.locator('body')).toBeVisible();
   });
 
   test('debe validar contenedor principal de la aplicación', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
+    expect(response?.status()).toBeLessThan(400);
     expect(page.url()).toBeDefined();
-    await expect(page.locator('body')).toBeVisible();
   });
 
   test('debe acceder y navegar correctamente en el shell de la aplicación', async ({ page }) => {

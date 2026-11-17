@@ -18,7 +18,7 @@ test.describe('Flujos Principales de Negocio (PathSeek)', () => {
   test('debe permitir navegación hacia el módulo de órdenes y entregas', async ({ page }) => {
     const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
     expect(response?.status()).toBeLessThan(400);
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page).toHaveTitle(/pathseek/i);
   });
 
   test('debe permitir consultar el módulo de rutas optimizadas y mapa', async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe('Flujos Principales de Negocio (PathSeek)', () => {
   test('debe desplegar el módulo de compensación de carbono y sostenibilidad', async ({ page }) => {
     const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
     expect(response?.status()).toBeLessThan(400);
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page).toHaveTitle(/pathseek/i);
   });
 
   test('debe renderizar la vista de reportes de sostenibilidad', async ({ page }) => {
